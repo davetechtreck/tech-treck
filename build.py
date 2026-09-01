@@ -19,8 +19,8 @@ import shutil
 import html
 from datetime import datetime
 
-SITE_TITLE = "Tech Trek"
-SITE_TAGLINE = "field notes on code"
+SITE_TITLE = "Tech Treck"
+SITE_TAGLINE = "field notes on Tech"
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 POSTS_DIR = os.path.join(ROOT, "posts")

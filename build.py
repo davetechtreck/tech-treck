@@ -321,7 +321,7 @@ FOOT = """
   </main>
   <footer class="site-foot">
     <span>&#169; {site_title}</span>
-    <span>built with markdown</span>
+    <span>built with Dave From Tech Treck</span>
   </footer>
 </div>
 <script>{script}</script>

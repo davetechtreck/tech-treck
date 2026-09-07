@@ -27,7 +27,7 @@ SITE_TAGLINE = "field notes on Tech"
 SOCIAL_LINKS = [
     ("Instagram", "https://www.instagram.com/techtrec3k?stkn=dnh6djY3eHQ5a3dq&utm_source=qr"),
     ("x", "https://x.com/techtre3k"),
-    ("Youtube", "https://youtube.com/@techtre3k?si=ThSHJnEJt84T2OnY"),
+    ("Youtube", " https://www.youtube.com/@TechTrecck"),
     ("tiktok" , "https://www.tiktok.com/@techtrecck?_r=1&_t=ZS-99WPcgdQ2Zm"),
 ]
 

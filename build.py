@@ -19,8 +19,16 @@ import shutil
 import html
 from datetime import datetime
 
-SITE_TITLE = "Tech Treck"
-SITE_TAGLINE = "field notes on Tech"
+SITE_TITLE = "Tech Trek"
+SITE_TAGLINE = "field notes on code"
+
+# Add or remove entries here — each is (label, url). Shows up in the footer
+# on every page. Leave the list empty ( [] ) to show no social links at all.
+SOCIAL_LINKS = [
+    ("github", "https://github.com/yourhandle"),
+    ("x", "https://x.com/yourhandle"),
+    ("linkedin", "https://linkedin.com/in/yourhandle"),
+]
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 POSTS_DIR = os.path.join(ROOT, "posts")
@@ -248,6 +256,9 @@ main{padding:40px 0 90px;}
   display:inline-block;margin-bottom:24px;}
 footer.site-foot{border-top:2px solid var(--ink);padding:20px 0 44px;font-family:var(--font-mono);font-size:11.5px;
   color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;text-transform:uppercase;letter-spacing:.03em;}
+.social-links{display:flex;gap:14px;}
+.social-links a{color:var(--muted);}
+.social-links a:hover{color:var(--accent);}
 @media (max-width:800px){.featured{grid-template-columns:1fr;}
   .featured-side{border-left:none;padding-left:0;border-top:1px solid var(--rule);padding-top:24px;}}
 @media (max-width:640px){.post-card{border-right:none;}}
@@ -321,13 +332,22 @@ FOOT = """
   </main>
   <footer class="site-foot">
     <span>&#169; {site_title}</span>
-    <span>built with Dave From Tech Treck</span>
+    <span class="social-links">{social_links}</span>
   </footer>
 </div>
 <script>{script}</script>
 </body>
 </html>
 """
+
+
+def render_social_links():
+    if not SOCIAL_LINKS:
+        return ""
+    return "".join(
+        f'<a class="u-link" href="{html.escape(url)}">{html.escape(label)}</a>'
+        for label, url in SOCIAL_LINKS
+    )
 
 
 def render_post_card(meta, href, featured=False):
@@ -405,7 +425,7 @@ def build():
       {tags_html}
     </article>
         """
-        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT)
+        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links())
 
         out_path = os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html")
         with open(out_path, "w", encoding="utf-8") as f:
@@ -450,7 +470,7 @@ def build():
                 index += render_post_card(m, f"posts/{m['slug']}.html")
             index += '</div>'
 
-    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT)
+    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links())
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index)
 

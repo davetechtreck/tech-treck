@@ -298,7 +298,7 @@ if('IntersectionObserver' in window){
 } else { items.forEach(function(el){ el.classList.add('in-view'); }); }
 """
 
- HEAD = """<!DOCTYPE html>
+HEAD = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>

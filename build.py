@@ -19,15 +19,16 @@ import shutil
 import html
 from datetime import datetime
 
-SITE_TITLE = "Tech Trek"
-SITE_TAGLINE = "field notes on code"
+SITE_TITLE = "Tech Treck"
+SITE_TAGLINE = "field notes on Tech"
 
 # Add or remove entries here — each is (label, url). Shows up in the footer
 # on every page. Leave the list empty ( [] ) to show no social links at all.
 SOCIAL_LINKS = [
-    ("github", "https://github.com/yourhandle"),
-    ("x", "https://x.com/yourhandle"),
-    ("linkedin", "https://linkedin.com/in/yourhandle"),
+    ("Instagram", "https://www.instagram.com/techtrec3k?stkn=dnh6djY3eHQ5a3dq&utm_source=qr"),
+    ("x", "https://x.com/techtre3k"),
+    ("Youtube", "https://linkedin.com/in/yourhandle"),
+    ("tiktok" , "https://youtube.com/@techtre3k?si=ThSHJnEJt84T2OnY"),
 ]
 
 ROOT = os.path.dirname(os.path.abspath(__file__))

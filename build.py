@@ -298,16 +298,17 @@ if('IntersectionObserver' in window){
 } else { items.forEach(function(el){ el.classList.add('in-view'); }); }
 """
 
-HEAD = """<!DOCTYPE html>
+ HEAD = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>{title}</title>
-<meta name="google-site-verification" content="rqQ61LFUiuVpSxe5tE5XCKxoUCfLE-sS56rFkxEk-Ks" />
+<meta name="description" content="{description}"/>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500" rel="stylesheet"/>
+<meta name="google-site-verification" content="rqQ61LFUiuVpSxe5tE5XCKxoUCfLE-sS56rFkxEk-Ks" />
 <style>{css}</style>
 </head>
 <body>

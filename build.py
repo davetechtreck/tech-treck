@@ -36,6 +36,8 @@ POSTS_DIR = os.path.join(ROOT, "posts")
 DIST_DIR = os.path.join(ROOT, "dist")
 
 
+
+<meta name="google-site-verification" content="rqQ61LFUiuVpSxe5tE5XCKxoUCfLE-sS56rFkxEk-Ks" />
 # ---------------------------------------------------------------------------
 # Frontmatter parsing
 # ---------------------------------------------------------------------------

@@ -308,7 +308,6 @@ HEAD = """<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500" rel="stylesheet"/>
-<meta name="google-site-verification" content="rqQ61LFUiuVpSxe5tE5XCKxoUCfLE-sS56rFkxEk-Ks" />
 <style>{css}</style>
 </head>
 <body>

@@ -302,7 +302,7 @@ HEAD = """<!DOCTYPE html>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>{title}</title>
-<meta name="description" content="{description}"/>
+<meta name="google-site-verification" content="vZj4IgFR4L_UhYjSKmvy-X9F4aYli3GnTH8WuZ-FZoE" />
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500" rel="stylesheet"/>

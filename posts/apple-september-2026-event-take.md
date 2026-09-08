@@ -2,9 +2,6 @@
 
 Apple holds its iPhone event tomorrow, September 9, and for once the leaks haven't just hinted at "faster chip, better camera." This year Apple is reportedly skipping the standard iPhone 18 entirely and going all-in on three premium devices: the iPhone 18 Pro, the iPhone 18 Pro Max, and a foldable that could be called the iPhone Ultra. Having sat with the rumor mill for a few weeks now, I've got some opinions — and not all of them are charitable.
 
-![iPhone Fold concept](./images/iphone-fold.jpg)
-*A rendered mockup of the rumored iPhone Fold based on leaked schematics — swap for Apple's official image after the keynote.*
-
 ## The foldable is the real headline, and it's overdue
 
 Let's start with the obvious: Apple is finally making a foldable phone. Every other major manufacturer has spent the better part of five years iterating on fold mechanisms, hinge durability, and crease-reduction, and Apple has just... watched. The rumored design — a book-style fold with a roughly 5.5-inch outer display opening into a ~7.8-inch inner OLED — sounds like Apple did its homework rather than rushing a first-gen product out the door.

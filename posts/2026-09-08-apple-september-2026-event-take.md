@@ -12,7 +12,7 @@ Apple holds its iPhone event tomorrow, September 9, and for once the leaks haven
 
 ## The foldable is the real headline, and it's overdue
 
-Let's start with the obvious: Apple is finally making a foldable phone. Every other major manufacturer has spent the better part of five years iterating on fold mechanisms, hinge durability, and crease-reduction, and Apple has just... watched. The rumored design — a book-style fold with a roughly 5.5-inch outer display opening into a ~7.8-inch inner OLED — sounds like Apple did its homework rather than rushing a first-gen product out the door.
+Let's start with the obvious: Apple is finally making a foldable phone. Every other major manufacturer has spent the better part of five years iterating on fold mechanisms, hinge durability, and crease-reduction, and Apple has just... watched. The rumored design — a book-style fold with a roughly 5.5-inch outer display opening into a ~7.8-inch inner OLED — sounds like Apple did its homework rather than rushing a first-gen product out the door. 
 
 That's the optimistic read. The skeptical read is that Apple traditionally doesn't ship a category until it's confident it can define it, and "confident" for Apple has historically meant "expensive." Reports point to a starting price in the $2,000–$2,300 range for the base model. If that holds, this isn't a phone for early adopters who want to try folding screens — it's a phone for people who've already decided price is irrelevant. I don't think that's a knock on Apple so much as an acknowledgment of what "Apple does foldables" was always going to mean.
 

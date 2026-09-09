@@ -22,7 +22,7 @@ from datetime import datetime
 
 SITE_TITLE = "Tech Treck"
 SITE_TAGLINE = "field notes on Tech"
-SITE_URL = "https://your-netlify-domain.com"  # NEW: replace with your real domain, no trailing slash
+SITE_URL = "https://techtreck.tech/"  # NEW: replace with your real domain, no trailing slash
 
 # Add or remove entries here — each is (label, url). Shows up in the footer
 # on every page. Leave the list empty ( [] ) to show no social links at all.

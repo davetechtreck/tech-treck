@@ -17,11 +17,12 @@ import re
 import os
 import shutil
 import html
+import json
 from datetime import datetime
 
 SITE_TITLE = "Tech Treck"
 SITE_TAGLINE = "field notes on Tech"
-SITE_URL = "https://techtreck.tech/"  # NEW: replace with your real domain, no trailing slash
+SITE_URL = "https://your-netlify-domain.com"  # NEW: replace with your real domain, no trailing slash
 
 # Add or remove entries here — each is (label, url). Shows up in the footer
 # on every page. Leave the list empty ( [] ) to show no social links at all.
@@ -34,6 +35,7 @@ SOCIAL_LINKS = [
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 POSTS_DIR = os.path.join(ROOT, "posts")
+IMAGES_DIR = os.path.join(ROOT, "images")  # NEW: put post images here, referenced by filename
 DIST_DIR = os.path.join(ROOT, "dist")
 
 
@@ -75,11 +77,26 @@ def parse_frontmatter(text, filename):
 # Minimal Markdown -> HTML (headers, bold, italic, code, links, lists, quotes)
 # ---------------------------------------------------------------------------
 
+def resolve_image_src(path):
+    # NEW: bare filenames resolve to /images/<filename> (copied from the
+    # images/ folder at build time); full URLs pass through untouched.
+    if path.startswith("http://") or path.startswith("https://"):
+        return path
+    return "/images/" + path.lstrip("/")
+
+
 def inline_md(text):
     text = html.escape(text, quote=False)
     text = re.sub(r'`([^`]+)`', r'<code>\1</code>', text)
     text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
     text = re.sub(r'(?<!\*)\*([^*\n]+)\*(?!\*)', r'<em>\1</em>', text)
+    # NEW: images — must run BEFORE the link regex, since ![alt](url) would
+    # otherwise be misread as a link with a stray "!" in front of it.
+    text = re.sub(
+        r'!\[([^\]]*)\]\(([^)]+)\)',
+        lambda m: f'<img src="{resolve_image_src(m.group(2))}" alt="{m.group(1)}">',
+        text,
+    )
     text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2">\1</a>', text)
     return text
 
@@ -188,6 +205,68 @@ def generate_rss(posts):
 
 
 # ---------------------------------------------------------------------------
+# NEW: Apple News Format (ANF) article generation
+# ---------------------------------------------------------------------------
+
+def _strip_tags(s):
+    return re.sub(r'<[^>]+>', '', s).strip()
+
+
+_IMG_ONLY_RE = re.compile(r'^<p>\s*<img src="([^"]+)" alt="[^"]*">\s*</p>$')
+
+
+def _html_block_to_component(block):
+    block = block.strip()
+    if block.startswith('<h2>'):
+        return {"role": "heading2", "text": _strip_tags(block)}
+    if block.startswith('<h3>'):
+        return {"role": "heading3", "text": _strip_tags(block)}
+    if block.startswith('<blockquote>'):
+        return {"role": "quote", "text": _strip_tags(block)}
+    # NEW: a paragraph that's ONLY an image becomes a dedicated ANF image
+    # component (Apple's HTML-format body component can't render <img> tags,
+    # so this only works when the image is on its own line in the Markdown).
+    m = _IMG_ONLY_RE.match(block)
+    if m:
+        src = m.group(1)
+        url = src if src.startswith("http") else f"{SITE_URL}{src}"
+        return {"role": "image", "URL": url}
+    # <p>, <ul>, <pre> and anything else -> body component, raw HTML preserved
+    return {"role": "body", "text": block, "format": "html"}
+
+
+def generate_anf(meta):
+    components = [{"role": "title", "text": meta["title"]}]
+    if meta.get("snippet"):
+        components.append({"role": "intro", "text": meta["snippet"]})
+
+    for block in meta["body_html"].split("\n"):
+        if block.strip():
+            components.append(_html_block_to_component(block))
+
+    return {
+        "version": "1.7",
+        "identifier": meta["slug"],
+        "language": "en",
+        "title": meta["title"],
+        "layout": {
+            "columns": 12,
+            "width": 1024,
+            "margin": 60,
+            "gutter": 20,
+        },
+        "components": components,
+        "metadata": {
+            "canonicalURL": f"{SITE_URL}/posts/{meta['slug']}.html",
+            "datePublished": meta["_date_obj"].strftime("%Y-%m-%dT00:00:00Z"),
+            "generatorIdentifier": "TechTreckBuildPy",
+            "generatorName": "Tech Treck build.py",
+            "generatorVersion": "1.0",
+        },
+    }
+
+
+# ---------------------------------------------------------------------------
 # HTML templates
 # ---------------------------------------------------------------------------
 
@@ -285,6 +364,7 @@ main{padding:40px 0 90px;}
 .post-body code{font-family:var(--font-mono);font-size:.82em;background:var(--mono-bg);padding:2px 5px;border-radius:3px;}
 .post-body pre code{background:none;padding:0;}
 .post-body ul{padding-left:1.3em;margin:0 0 1.3em;}
+.post-body img{margin:1.6em 0;border-radius:6px;}
 .back-link{font-family:var(--font-sans);font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.03em;
   display:inline-block;margin-bottom:24px;}
 footer.site-foot{border-top:2px solid var(--ink);padding:20px 0 44px;font-family:var(--font-mono);font-size:11.5px;
@@ -417,6 +497,10 @@ def build():
         shutil.rmtree(DIST_DIR)
     os.makedirs(os.path.join(DIST_DIR, "posts"), exist_ok=True)
 
+    # NEW: copy images/ into dist/images/ so they're served alongside the site
+    if os.path.isdir(IMAGES_DIR):
+        shutil.copytree(IMAGES_DIR, os.path.join(DIST_DIR, "images"))
+
     md_files = sorted(f for f in os.listdir(POSTS_DIR) if f.endswith(".md"))
     if not md_files:
         raise SystemExit("No .md files found in posts/ — nothing to build.")
@@ -436,6 +520,15 @@ def build():
     # NEW: write the RSS feed straight into dist/
     with open(os.path.join(DIST_DIR, "feed.xml"), "w", encoding="utf-8") as f:
         f.write(generate_rss(posts))
+
+    # NEW: write one Apple News Format article.json per post, each in its
+    # own folder (dist/anf/<slug>/article.json) — this matches the folder
+    # structure News Publisher expects when you use Upload Article.
+    for meta in posts:
+        anf_dir = os.path.join(DIST_DIR, "anf", meta["slug"])
+        os.makedirs(anf_dir, exist_ok=True)
+        with open(os.path.join(anf_dir, "article.json"), "w", encoding="utf-8") as f:
+            json.dump(generate_anf(meta), f, indent=2, ensure_ascii=False)
 
     # ---- individual post pages ----
     for meta in posts:
@@ -518,4 +611,3 @@ def build():
 
 if __name__ == "__main__":
     build()
-    

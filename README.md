@@ -1,72 +1,66 @@
-# Tech Trek — static site
+# Tech Trek daily auto-poster
 
-A tiny, dependency-free static blog. No CMS, no dashboard, no black box —
-just Markdown files and one Python script that turns them into your site.
+Runs every day on GitHub's own servers (not your machine), writes 3 AI-researched
+tech news posts into `posts/`, rebuilds the site with your existing `build.py`,
+and pushes. Netlify (already connected to your GitHub repo) picks up the push
+and redeploys automatically. You don't touch anything after setup.
 
-## Writing a new post
+## Setup (one-time, ~5 minutes)
 
-1. Create a new file in `posts/`, named like `YYYY-MM-DD-a-short-slug.md`
-2. Copy this format:
+1. **Copy these files into your Tech Trek repo**, keeping the same paths:
+   - `.github/workflows/daily-blog-post.yml`
+   - `scripts/generate_posts.py`
 
-   ```
-   ---
-   title: Your Post Title
-   date: 2026-09-01
-   tags: tooling, systems
-   snippet: One sentence that shows up on the homepage preview.
-   ---
+2. **Get an Anthropic API key**: console.anthropic.com → API Keys → Create Key.
+   (This uses the paid API, billed per token — 3 posts/day is roughly a few
+   cents to ~$0.10/day depending on length and how much search it does.
+   Check current pricing at anthropic.com/pricing.)
 
-   Your post content goes here, in Markdown.
+3. **Add it as a GitHub secret**: in your repo, go to
+   Settings → Secrets and variables → Actions → New repository secret.
+   - Name: `ANTHROPIC_API_KEY`
+   - Value: the key from step 2
 
-   ## A subheading
+4. **Push the two files to `main`** (or your default branch). That's it — the
+   workflow will run automatically on the schedule in the `.yml` file, and you
+   can also trigger it manually anytime from the repo's **Actions** tab →
+   "Daily Tech Trek posts" → "Run workflow" (good for testing before you wait
+   for the schedule).
 
-   **Bold**, *italic*, `inline code`, [links](https://example.com),
-   bullet lists, and code blocks (```) all work.
-   ```
+## Before you rely on it: fix the frontmatter format
 
-3. Run the build:
-
-   ```
-   python3 build.py
-   ```
-
-4. Check `dist/` — that's your entire site, ready to deploy.
-
-The date must be `YYYY-MM-DD`. `tags` and `snippet` are optional but
-recommended (snippet shows on the homepage).
-
-## Deploying to Netlify
-
-**Easiest way (no GitHub needed):**
-
-1. Run `python3 build.py`
-2. Go to **https://app.netlify.com/drop**
-3. Drag the `dist` folder onto the page
-4. Done — you get a live URL immediately
-
-Every time you add a post, repeat: run the build, drag `dist` again.
-
-**Automated way (recommended once you're comfortable with Git):**
-
-1. Push this whole folder (including `posts/`, excluding `dist/`) to a GitHub repo
-2. In Netlify: **Add new site → Import an existing project → connect the repo**
-3. Set:
-   - Build command: `python3 build.py`
-   - Publish directory: `dist`
-4. Now every `git push` automatically rebuilds and redeploys the site —
-   just write a new `.md` file, commit, and push.
-
-## Why this instead of Blogger
-
-Every post here is a plain text file you control. If a post doesn't show
-up, it's because the file isn't there or the build script errored (and it
-will tell you exactly why, with the filename) — never a silent "the
-platform decided not to show it" mystery.
-
-## Files
+I don't have your `build.py`, so `generate_posts.py` currently writes
+frontmatter as:
 
 ```
-build.py           the entire site generator (no dependencies)
-posts/*.md         your posts — this is the only folder you'll touch day-to-day
-dist/               generated output — don't edit by hand, it gets wiped on every build
+---
+title: "..."
+date: 2026-09-09
+tags: ["ai", "hardware"]
+summary: "..."
+---
 ```
+
+Open `build.py`, find where it parses each post file, and check the field
+names it actually looks for. If they don't match, edit the
+`FRONTMATTER_TEMPLATE` variable and the JSON keys requested in the prompt
+inside `generate_posts.py` to match exactly — otherwise the files will land
+in `posts/` but won't render on the live site. Paste me `build.py` and I can
+fix this exactly instead of guessing.
+
+## Notes / things worth knowing
+
+- **Topic dedup**: the script reads your last ~40 post titles and tells
+  Claude not to repeat them, so it won't write the same story twice.
+- **Web search**: research happens via Claude's built-in web search tool —
+  no separate news API needed.
+- **Schedule**: GitHub Actions cron times aren't perfectly precise (can run a
+  few minutes late) and use UTC — the workflow file has a comment showing the
+  Toronto-local equivalent.
+- **Cost control**: if you want a ceiling, you can add a monthly spend limit
+  in the Anthropic console.
+- **Silent failures**: if something breaks (bad API key, JSON parsing
+  failure, etc.), the Action run will show as failed in the Actions tab —
+  worth glancing at occasionally, or add a "GitHub Actions failure" email/
+  Slack notification in your GitHub notification settings so you find out
+  without checking manually.

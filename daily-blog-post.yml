@@ -1,0 +1,43 @@
+name: Daily Tech Trek posts
+
+on:
+  schedule:
+    # Runs at 12:00 UTC every day (~8am Toronto). Edit the cron to taste:
+    # https://crontab.guru
+    - cron: "0 12 * * *"
+  workflow_dispatch: {}   # lets you trigger it manually from the Actions tab
+
+permissions:
+  contents: write
+
+jobs:
+  generate-posts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install anthropic
+
+      - name: Generate posts
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/generate_posts.py
+
+      - name: Build site
+        run: python build.py
+
+      - name: Commit and push new posts
+        run: |
+          git config user.name "tech-trek-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add posts/ dist/
+          git diff --staged --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Auto: daily tech news posts $(date -u +'%Y-%m-%d')"
+          git push

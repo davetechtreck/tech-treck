@@ -21,6 +21,7 @@ from datetime import datetime
 
 SITE_TITLE = "Tech Treck"
 SITE_TAGLINE = "field notes on Tech"
+SITE_URL = "https://techtreck.tech/"  # NEW: replace with your real domain, no trailing slash
 
 # Add or remove entries here — each is (label, url). Shows up in the footer
 # on every page. Leave the list empty ( [] ) to show no social links at all.
@@ -153,6 +154,37 @@ def slugify(s):
 
 def fmt_date_human(d):
     return f"{d.strftime('%b')} {d.day}, {d.year}"
+
+
+# ---------------------------------------------------------------------------
+# NEW: RSS feed generation
+# ---------------------------------------------------------------------------
+
+def generate_rss(posts):
+    items = []
+    for meta in posts[:20]:  # most recent 20 items
+        link = f"{SITE_URL}/posts/{meta['slug']}.html"
+        pub_date = meta["_date_obj"].strftime("%a, %d %b %Y 00:00:00 +0000")
+        items.append(f"""
+    <item>
+      <title>{html.escape(meta['title'])}</title>
+      <link>{link}</link>
+      <guid>{link}</guid>
+      <pubDate>{pub_date}</pubDate>
+      <description><![CDATA[{meta['body_html']}]]></description>
+    </item>""")
+
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>{html.escape(SITE_TITLE)}</title>
+    <link>{SITE_URL}</link>
+    <atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
+    <description>{html.escape(SITE_TAGLINE)}</description>
+    <language>en-us</language>
+{''.join(items)}
+  </channel>
+</rss>"""
 
 
 # ---------------------------------------------------------------------------
@@ -304,6 +336,7 @@ HEAD = """<!DOCTYPE html>
 <title>{title}</title>
 <meta name="google-site-verification" content="g5gG3v7FtM3b4ZUF9BsgGvIpjq6fgF2NK20e-5bTyDk" />
 <meta name="google-adsense-account" content="ca-pub-4303818032223917">
+<link rel="alternate" type="application/rss+xml" title="{site_title}" href="/feed.xml"/>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500" rel="stylesheet"/>
@@ -400,6 +433,10 @@ def build():
 
     posts.sort(key=lambda m: m["_date_obj"], reverse=True)
 
+    # NEW: write the RSS feed straight into dist/
+    with open(os.path.join(DIST_DIR, "feed.xml"), "w", encoding="utf-8") as f:
+        f.write(generate_rss(posts))
+
     # ---- individual post pages ----
     for meta in posts:
         tag_list = [t.strip() for t in meta["tags"].split(",") if t.strip()]
@@ -481,3 +518,4 @@ def build():
 
 if __name__ == "__main__":
     build()
+    

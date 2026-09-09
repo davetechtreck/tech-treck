@@ -28,18 +28,21 @@ MODEL = "claude-sonnet-4-5"  # update if you want a different model
 TAGLINE = "field notes on Tech"
 
 # ---- Frontmatter format ------------------------------------------------
-# NOTE: I don't have your build.py, so this guesses a common frontmatter
-# shape (title / date / tags / summary). Open build.py, find where it
-# parses each post's frontmatter, and adjust FRONTMATTER_TEMPLATE below
-# (and the fields requested in PROMPT) to match exactly. If field names
-# don't match what build.py expects, posts will exist on disk but won't
-# render correctly on the site.
+# Matched to the real build.py parser:
+#   - parse_frontmatter() does NOT strip quotes from values, so fields must
+#     be written WITHOUT surrounding quotes (a quoted title would render
+#     with literal quote marks on the live page).
+#   - the preview-text field is called "snippet", not "summary".
+#   - tags are parsed as a plain comma-separated string
+#     (meta["tags"].split(",")), not a bracketed/quoted list.
+#   - "slug" is optional; build.py derives it from the title if omitted,
+#     so we don't need to set it ourselves.
 
 FRONTMATTER_TEMPLATE = """---
-title: "{title}"
+title: {title}
 date: {date}
-tags: [{tags}]
-summary: "{summary}"
+tags: {tags}
+snippet: {snippet}
 ---
 
 {body}
@@ -90,10 +93,16 @@ a broader industry or policy story.
   product, numbers, dates)
 - Written as an actual opinionated blog post, not a press-release summary
 
+Do not use "---" on its own line anywhere in the body (no Markdown
+horizontal rules) — the site's frontmatter parser treats a lone "---" line
+as end-of-metadata, so one inside a post body would corrupt the page.
+
 Return ONLY valid JSON (no markdown fences, no commentary) as a list of
 exactly {NUM_POSTS} objects, each with keys:
-  "title": string (punchy, specific, under 70 chars)
-  "summary": string (one sentence, under 160 chars, for meta/preview use)
+  "title": string (punchy, specific, under 70 chars, single line, no
+     line breaks)
+  "snippet": string (one sentence, under 160 chars, single line, for
+     meta/preview use)
   "tags": list of 2-4 short lowercase tag strings
   "body": string (the full Markdown body, using \\n for newlines)
 """
@@ -130,17 +139,28 @@ def call_claude(prompt: str) -> list[dict]:
     return posts
 
 
+def _single_line(text: str) -> str:
+    """Frontmatter fields must be one line — build.py's parser reads
+    metadata with splitlines(), so a literal newline would truncate or
+    corrupt the field."""
+    return " ".join(text.split())
+
+
 def write_post(post: dict, today: date, index: int) -> Path:
     slug = slugify(post["title"])
     filename = f"{today.isoformat()}-{slug}.md"
     path = POSTS_DIR / filename
 
-    tags = ", ".join(f'"{t}"' for t in post.get("tags", []))
+    # Plain comma-separated tags, no brackets/quotes: build.py reads this
+    # field with meta["tags"].split(","), so anything fancier here would
+    # leave stray punctuation baked into each tag.
+    tags = ", ".join(t.strip() for t in post.get("tags", []) if t.strip())
+
     content = FRONTMATTER_TEMPLATE.format(
-        title=post["title"].replace('"', "'"),
+        title=_single_line(post["title"]),
         date=today.isoformat(),
         tags=tags,
-        summary=post.get("summary", "").replace('"', "'"),
+        snippet=_single_line(post.get("snippet", "")),
         body=post["body"],
     )
     path.write_text(content, encoding="utf-8")

@@ -416,6 +416,8 @@ HEAD = """<!DOCTYPE html>
 <title>{title}</title>
 <meta name="google-site-verification" content="g5gG3v7FtM3b4ZUF9BsgGvIpjq6fgF2NK20e-5bTyDk" />
 <meta name="google-adsense-account" content="ca-pub-4303818032223917">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4303818032223917"
+     crossorigin="anonymous"></script>
 <link rel="alternate" type="application/rss+xml" title="{site_title}" href="/feed.xml"/>
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600" rel="stylesheet"/>
@@ -442,7 +444,7 @@ HEAD = """<!DOCTYPE html>
   </header>
   <main>
 """
-
+ 
 FOOT = """
   </main>
   <footer class="site-foot">

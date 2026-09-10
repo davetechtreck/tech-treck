@@ -3,10 +3,10 @@
 Daily auto-poster for Tech Trek.
 
 Uses the Anthropic API (with the built-in web_search tool) to research
-today's tech news and write blog post(s), then writes them as Markdown
-files into posts/ in the format your build.py expects.
+today's tech news and write 3 original blog posts, then writes them as
+Markdown files into posts/ in the format your build.py expects.
 
-Run by .github/workflows/daily-blog-post.yml on a schedule.
+Run by .github/workflows/daily-blog-post.yml on a daily schedule.
 Requires the ANTHROPIC_API_KEY environment variable (set as a GitHub secret).
 """
 
@@ -26,6 +26,10 @@ POSTS_DIR = Path("posts")
 NUM_POSTS = 1
 MODEL = "claude-sonnet-4-5"  # update if you want a different model
 TAGLINE = "field notes on Tech"
+MAX_SEARCHES = 3  # hard cap on web searches per run — search itself costs
+                   # $0.01/search, and each result adds input tokens on top,
+                   # so this is the main cost lever. Raise it if posts feel
+                   # thin on facts; lower it to cut cost further.
 
 # ---- Frontmatter format ------------------------------------------------
 # Matched to the real build.py parser:
@@ -59,8 +63,8 @@ def existing_titles() -> list[str]:
     """Pull titles of existing posts so we don't repeat a topic."""
     titles = []
     if POSTS_DIR.exists():
-        # At 5 runs/day, 40 posts is only ~8 days of history — widen it a
-        # bit so same-week repeats still get caught.
+        # At 3 runs/day, 75 posts is ~25 days of history — enough to
+        # catch same-week and recent repeats without the prompt growing huge.
         for f in sorted(POSTS_DIR.glob("*.md"))[-75:]:
             text = f.read_text(encoding="utf-8", errors="ignore")
             m = re.search(r'^title:\s*"?(.+?)"?\s*$', text, re.MULTILINE)
@@ -90,8 +94,10 @@ sharp, NYT-meets-tech voice: confident, clear, a little opinionated, no fluff,
 no "in today's fast-paced digital world" filler.
 
 Use web search to find real, current tech news from the last few hours.
-Then {count_instruction}. Prefer stories that feel fresh rather than
-something every other outlet already covered hours ago.
+You have a budget of at most {MAX_SEARCHES} searches, so make each one count —
+pick a specific, well-targeted query rather than searching broadly and
+refining repeatedly. Then {count_instruction}. Prefer stories that feel
+fresh rather than something every other outlet already covered hours ago.
 
 {avoid_block}Each post should be:
 - 400-700 words, written in Markdown (no title heading inside body, the
@@ -121,7 +127,7 @@ def call_claude(prompt: str) -> list[dict]:
     response = client.messages.create(
         model=MODEL,
         max_tokens=8000,
-        tools=[{"type": "web_search_20250305", "name": "web_search"}],
+        tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": MAX_SEARCHES}],
         messages=[{"role": "user", "content": prompt}],
     )
 

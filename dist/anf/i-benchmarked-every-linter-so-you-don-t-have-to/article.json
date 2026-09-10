@@ -1,0 +1,57 @@
+{
+  "version": "1.7",
+  "identifier": "i-benchmarked-every-linter-so-you-don-t-have-to",
+  "language": "en",
+  "title": "I benchmarked every linter so you don't have to",
+  "layout": {
+    "columns": 12,
+    "width": 1024,
+    "margin": 60,
+    "gutter": 20
+  },
+  "components": [
+    {
+      "role": "title",
+      "text": "I benchmarked every linter so you don't have to"
+    },
+    {
+      "role": "intro",
+      "text": "Turns out the fastest one isn't the one everyone's using."
+    },
+    {
+      "role": "body",
+      "text": "<p>Every few months someone claims their linter is \"blazing fast.\" So I actually timed six of them against the same 40,000-file codebase.</p>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "The results"
+    },
+    {
+      "role": "body",
+      "text": "<p>The tool most teams reach for by default landed in the middle of the pack. The fastest option was a newer, less popular linter written in a compiled language rather than running on a VM — no surprise there, but the gap was bigger than expected: <strong>roughly 9x</strong> on a cold run.</p>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "The catch"
+    },
+    {
+      "role": "body",
+      "text": "<p>Speed isn't the only variable. Plugin ecosystem, editor integration, and how many of your existing rules are already ported over all matter more than raw benchmark numbers for most day-to-day use.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>If your lint step is currently the bottleneck in CI, though, it's worth the migration. If it's not, this is a classic case of optimizing something that was never actually slow enough to matter.</p>",
+      "format": "html"
+    }
+  ],
+  "metadata": {
+    "canonicalURL": "https://techtreck.tech//posts/i-benchmarked-every-linter-so-you-don-t-have-to.html",
+    "datePublished": "2026-08-12T00:00:00Z",
+    "generatorIdentifier": "TechTreckBuildPy",
+    "generatorName": "Tech Treck build.py",
+    "generatorVersion": "1.0"
+  }
+}

@@ -1,0 +1,110 @@
+{
+  "version": "1.7",
+  "identifier": "what-apple-reportedly-unveiled-today-iphone-duo-iphone-18-pro-and-a-new-era-under-ternus",
+  "language": "en",
+  "title": "\"What Apple Reportedly Unveiled Today: iPhone Duo, iPhone 18 Pro, and a New Era Under Ternus\"",
+  "layout": {
+    "columns": 12,
+    "width": 1024,
+    "margin": 60,
+    "gutter": 20
+  },
+  "components": [
+    {
+      "role": "title",
+      "text": "\"What Apple Reportedly Unveiled Today: iPhone Duo, iPhone 18 Pro, and a New Era Under Ternus\""
+    },
+    {
+      "role": "body",
+      "text": "<p>A quick note before diving in: as of writing, Apple hasn't officially confirmed all of these details from the stage — what follows is built on Bloomberg's Mark Gurman, whose pre-event reporting on Apple has an excellent track record. I'll update this post once the keynote itself is fully confirmed, but here's the full picture of what's reportedly landing today.</p>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "A new era, literally"
+    },
+    {
+      "role": "body",
+      "text": "<p>Today marks John Ternus's first keynote as Apple's CEO, having officially taken over from Tim Cook on September 1. Cook is expected to be in the room in his new role as executive chairman, watching someone else lead the show he ran for 15 years. That alone makes \"Surprise and Shine\" one of the more symbolically loaded Apple events in recent memory, foldable phone or not.</p>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "iPhone Duo: not Ultra, and not what most of us guessed"
+    },
+    {
+      "role": "body",
+      "text": "<p>After months of near-universal agreement that Apple's first foldable would be called the iPhone Ultra, last-minute reporting flipped the script entirely: it's reportedly the <strong>iPhone Duo</strong>. The name leans into the device's actual defining feature — two displays, two modes — rather than implying a halo tier above the Pro Max.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>Here's what's reportedly on the spec sheet:</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<ul><li><strong>Displays:</strong> a 5.5-inch cover screen and a roughly 7.8-inch inner display, folding book-style into something close to an iPad mini in shape</li><li><strong>Chip:</strong> Apple's new A20 Pro, paired with the C2 modem</li><li><strong>Cameras:</strong> dual 48-megapixel rear cameras, 12-megapixel front camera</li><li><strong>Hinge:</strong> a magnetic hinge system, reportedly built for durability without adding bulk</li><li><strong>Stylus support:</strong> Apple Pencil compatibility — a first for any iPhone</li><li><strong>Colors:</strong> white and dark blue</li><li><strong>Price:</strong> starting around $1,999 for 256GB, climbing to roughly $3,000 for a 2TB configuration</li><li><strong>Availability:</strong> shipping \"as early as October,\" trailing the rest of the lineup by several weeks</li></ul>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>The pricing is the most interesting data point here. Analysts had widely expected something closer to $2,400–$2,500. Landing at $1,999 instead suggests Apple is absorbing part of the recent memory-cost spike to keep the entry price psychologically under the $2,000 line — a deliberate move to make the Duo look competitive against Samsung's Galaxy Z Fold rather than positioned as a pure luxury curiosity.</p>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "iPhone 18 Pro and Pro Max: smaller changes, bigger price tags"
+    },
+    {
+      "role": "body",
+      "text": "<p>The non-folding flagships are reportedly getting the expected iterative bump:</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<ul><li><strong>Chip:</strong> A20 Pro across the board</li><li><strong>Camera:</strong> a variable-aperture system and a smaller Dynamic Island</li><li><strong>Pro Max:</strong> a larger battery, pitched as Apple's best battery life yet on an iPhone</li><li><strong>Pricing:</strong> both models reportedly go up about $100 over their iPhone 17 Pro equivalents</li></ul>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>Notably absent from today's lineup: a standard iPhone 18. Apple has reportedly pushed the more affordable iPhone 18 and 18e to spring 2027, meaning this September's entire iPhone lineup sits at the premium end — Pro, Pro Max, and Duo, no entry point in between.</p>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "Watch, AirPods, and everything else"
+    },
+    {
+      "role": "body",
+      "text": "<p>Rounding out the event, Apple is reportedly introducing:</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<ul><li><strong>Apple Watch Series 12 and Apple Watch Ultra 4</strong> — no major redesign expected, but reported software and sensor upgrades, including an AI feature that listens throughout the day and recaps it back to you</li><li><strong>AirPods 5</strong> — an incremental update; the camera-equipped AirPods some had expected have reportedly been pushed to 2027</li></ul>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "The bigger picture"
+    },
+    {
+      "role": "body",
+      "text": "<p>Whatever the exact keynote wording turns out to be, the strategic story is already visible from the leaks alone: Apple is using its first true foldable to reintroduce itself as a hardware innovator under new leadership, while quietly raising prices across the rest of the lineup to offset rising component costs. The Duo doesn't need to sell in Galaxy Fold-rivaling volumes on day one — it needs to exist, work well, and give Ternus a \"we did this\" moment to open his tenure with.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p><em>I'll follow up once Apple's official press materials and keynote recording confirm these details — check back for an update, or a full correction if the stage presentation tells a different story than the leaks did.</em></p>",
+      "format": "html"
+    }
+  ],
+  "metadata": {
+    "canonicalURL": "https://techtreck.tech//posts/what-apple-reportedly-unveiled-today-iphone-duo-iphone-18-pro-and-a-new-era-under-ternus.html",
+    "datePublished": "2026-09-09T00:00:00Z",
+    "generatorIdentifier": "TechTreckBuildPy",
+    "generatorName": "Tech Treck build.py",
+    "generatorVersion": "1.0"
+  }
+}

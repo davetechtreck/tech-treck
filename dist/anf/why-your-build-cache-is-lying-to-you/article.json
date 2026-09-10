@@ -1,0 +1,81 @@
+{
+  "version": "1.7",
+  "identifier": "why-your-build-cache-is-lying-to-you",
+  "language": "en",
+  "title": "Why your build cache is lying to you",
+  "layout": {
+    "columns": 12,
+    "width": 1024,
+    "margin": 60,
+    "gutter": 20
+  },
+  "components": [
+    {
+      "role": "title",
+      "text": "Why your build cache is lying to you"
+    },
+    {
+      "role": "intro",
+      "text": "A deep dive into cache invalidation edge cases that took down three separate CI pipelines last month, and the one-line fix that would have prevented all of it."
+    },
+    {
+      "role": "body",
+      "text": "<p>Caching is supposed to make builds faster, not lie to you about what's actually in your artifacts. But that's exactly what happened when a stale hash comparison let three separate CI pipelines ship outdated bundles for almost a week.</p>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "The setup"
+    },
+    {
+      "role": "body",
+      "text": "<p>Most build caches key off file contents, not file paths. That's usually the right call — it means renaming a file without changing its contents doesn't trigger an unnecessary rebuild. But it has a sharp edge.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>If two files in different directories happen to produce the same hash of <em>their inputs</em> (not their outputs), a naive cache can serve the wrong artifact entirely.</p>",
+      "format": "html"
+    },
+    {
+      "role": "heading2",
+      "text": "What actually broke"
+    },
+    {
+      "role": "body",
+      "text": "<pre><code>$ diff cached-output.js fresh-output.js",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "diff: files differ (but hashes matched)</code></pre>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>The cache key didn't include the build <strong>target</strong>, only the source contents. Two configs pointing at the same source file, but compiling for different environments, collided on the same cache entry.</p>",
+      "format": "html"
+    },
+    {
+      "role": "quote",
+      "text": "Lesson: a cache key is a promise about equivalence. Make sure it actually captures everything that affects the output."
+    },
+    {
+      "role": "body",
+      "text": "<p>The fix was one line: include the target environment in the cache key. Three days of debugging, one line of code.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<ul><li>Always hash your <em>effective</em> inputs, not just the files on disk</li><li>Include environment/target flags in any cache key</li><li>When in doubt, add a manual \"bust cache\" escape hatch</li></ul>",
+      "format": "html"
+    }
+  ],
+  "metadata": {
+    "canonicalURL": "https://techtreck.tech//posts/why-your-build-cache-is-lying-to-you.html",
+    "datePublished": "2026-08-27T00:00:00Z",
+    "generatorIdentifier": "TechTreckBuildPy",
+    "generatorName": "Tech Treck build.py",
+    "generatorVersion": "1.0"
+  }
+}

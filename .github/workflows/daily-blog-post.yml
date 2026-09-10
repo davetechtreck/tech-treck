@@ -10,7 +10,7 @@ on:
     - cron: "0 12 * * *"   # ~8:00 AM Toronto (EDT)
     - cron: "0 15 * * *"   # ~11:00 AM Toronto (EDT)
     - cron: "0 18 * * *"   # ~2:00 PM Toronto (EDT)
-    - cron: "0 21 * * *"   # ~5:00 PM Toronto (EDT)
+    - cron: "0 20 * * *"   # ~4:00 PM Toronto (EDT)
     - cron: "0 0 * * *"    # ~8:00 PM Toronto (EDT) — this is 00:00 UTC, i.e. just after midnight UTC
   workflow_dispatch: {}   # lets you trigger it manually from the Actions tab
 

@@ -26,7 +26,7 @@ POSTS_DIR = Path("posts")
 NUM_POSTS = 1
 MODEL = "claude-sonnet-4-5"  # update if you want a different model
 TAGLINE = "field notes on Tech"
-MAX_SEARCHES = 3  # hard cap on web searches per run — search itself costs
+MAX_SEARCHES = 1  # hard cap on web searches per run — search itself costs
                    # $0.01/search, and each result adds input tokens on top,
                    # so this is the main cost lever. Raise it if posts feel
                    # thin on facts; lower it to cut cost further.
@@ -89,18 +89,20 @@ def build_prompt(avoid_titles: list[str]) -> str:
             f"write exactly {NUM_POSTS} blog posts, each about a different "
             f"story (never cover the same story twice)"
         )
+    search_plural = "" if MAX_SEARCHES == 1 else "es"
     return f"""You write for "Tech Trek" (tagline: "{TAGLINE}"), a tech blog with a
 sharp, NYT-meets-tech voice: confident, clear, a little opinionated, no fluff,
 no "in today's fast-paced digital world" filler.
 
 Use web search to find real, current tech news from the last few hours.
-You have a budget of at most {MAX_SEARCHES} searches, so make each one count —
-pick a specific, well-targeted query rather than searching broadly and
-refining repeatedly. Then {count_instruction}. Prefer stories that feel
-fresh rather than something every other outlet already covered hours ago.
+You have a strict budget of {MAX_SEARCHES} search{search_plural} total, so
+pick one specific, well-targeted query rather than searching broadly —
+don't search again "just to double check." Then {count_instruction}.
+Prefer stories that feel fresh rather than something every other outlet
+already covered hours ago.
 
 {avoid_block}Each post should be:
-- 400-700 words, written in Markdown (no title heading inside body, the
+- 350-500 words, written in Markdown (no title heading inside body, the
   title lives in frontmatter)
 - Grounded in the specific facts you found via search (name the company,
   product, numbers, dates)
@@ -119,7 +121,7 @@ You will do your research and reasoning first, then give your final answer.
 Put ONLY the JSON in your very last message content — no narration, notes,
 or commentary before or after it, and no markdown code fences around it.
 
-Return a list of exactly {NUM_POSTS} objects, each with keys:
+Return a list of exactly {NUM_POSTS} object{'' if NUM_POSTS == 1 else 's'}, each with keys:
   "title": string (punchy, specific, under 70 chars, single line, no
      line breaks)
   "snippet": string (one sentence, under 160 chars, single line, for
@@ -168,7 +170,8 @@ def call_claude(prompt: str) -> list[dict]:
 
     response = client.messages.create(
         model=MODEL,
-        max_tokens=8000,
+        max_tokens=3000,  # ceiling for a ~350-500 word post + minimal
+                           # reasoning; keeps a worst-case run bounded
         tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": MAX_SEARCHES}],
         messages=[{"role": "user", "content": prompt}],
     )

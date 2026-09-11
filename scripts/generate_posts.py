@@ -110,8 +110,16 @@ Do not use "---" on its own line anywhere in the body (no Markdown
 horizontal rules) — the site's frontmatter parser treats a lone "---" line
 as end-of-metadata, so one inside a post body would corrupt the page.
 
-Return ONLY valid JSON (no markdown fences, no commentary) as a list of
-exactly {NUM_POSTS} objects, each with keys:
+Write the body as plain Markdown prose only. Do NOT include citation
+markup, footnote markers, <cite> tags, source-index brackets like [1], or
+any inline attribution syntax — state facts directly in your own words with
+no annotation, the way a published blog post reads.
+
+You will do your research and reasoning first, then give your final answer.
+Put ONLY the JSON in your very last message content — no narration, notes,
+or commentary before or after it, and no markdown code fences around it.
+
+Return a list of exactly {NUM_POSTS} objects, each with keys:
   "title": string (punchy, specific, under 70 chars, single line, no
      line breaks)
   "snippet": string (one sentence, under 160 chars, single line, for
@@ -119,6 +127,40 @@ exactly {NUM_POSTS} objects, each with keys:
   "tags": list of 2-4 short lowercase tag strings
   "body": string (the full Markdown body, using \\n for newlines)
 """
+
+
+def _extract_json(text: str) -> str:
+    """Pull the JSON payload out of Claude's raw text output. With
+    web_search enabled, Claude often narrates its research process before
+    (and sometimes after) the actual answer, so a simple strip of leading/
+    trailing fences isn't enough — this searches for the JSON wherever it
+    lands."""
+    # Prefer a fenced code block, wherever it appears in the text.
+    m = re.search(r"```(?:json)?\s*\n?(.*?)```", text, re.DOTALL)
+    if m:
+        return m.group(1).strip()
+    # No fence found — fall back to the outermost [...] or {...}, trimming
+    # any narration before/after it.
+    start_candidates = [i for i in (text.find("["), text.find("{")) if i != -1]
+    if not start_candidates:
+        return text.strip()
+    start = min(start_candidates)
+    end_char = "]" if text[start] == "[" else "}"
+    end = text.rfind(end_char)
+    if end == -1 or end < start:
+        return text.strip()
+    return text[start : end + 1].strip()
+
+
+def _strip_citation_tags(text: str) -> str:
+    """Claude's web-search-enabled responses sometimes embed inline
+    <cite index="...">...</cite> markup around sourced claims. build.py's
+    Markdown converter has no idea what to do with that and would render
+    the raw tags as visible text on the live page, so strip the tags and
+    keep the text they wrap."""
+    text = re.sub(r"<cite[^>]*>", "", text)
+    text = re.sub(r"</cite>", "", text)
+    return text
 
 
 def call_claude(prompt: str) -> list[dict]:
@@ -135,13 +177,10 @@ def call_claude(prompt: str) -> list[dict]:
     # tool-result blocks when web_search is used. Concatenate all text blocks.
     text = "".join(block.text for block in response.content if block.type == "text")
 
-    # Strip stray code fences if the model added them despite instructions.
-    text = text.strip()
-    text = re.sub(r"^```(?:json)?\s*", "", text)
-    text = re.sub(r"\s*```$", "", text)
+    json_text = _extract_json(text)
 
     try:
-        posts = json.loads(text)
+        posts = json.loads(json_text)
     except json.JSONDecodeError as e:
         print("Failed to parse model output as JSON. Raw output was:\n", text, file=sys.stderr)
         raise e
@@ -170,11 +209,11 @@ def write_post(post: dict, today: date, index: int) -> Path:
     tags = ", ".join(t.strip() for t in post.get("tags", []) if t.strip())
 
     content = FRONTMATTER_TEMPLATE.format(
-        title=_single_line(post["title"]),
+        title=_single_line(_strip_citation_tags(post["title"])),
         date=today.isoformat(),
         tags=tags,
-        snippet=_single_line(post.get("snippet", "")),
-        body=post["body"],
+        snippet=_single_line(_strip_citation_tags(post.get("snippet", ""))),
+        body=_strip_citation_tags(post["body"]),
     )
     path.write_text(content, encoding="utf-8")
     return path

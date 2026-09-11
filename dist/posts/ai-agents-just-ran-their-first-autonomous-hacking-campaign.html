@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Tech Treck &middot; field notes on Tech</title>
+<title>AI Agents Just Ran Their First Autonomous Hacking Campaign &middot; Tech Treck</title>
 <meta name="google-site-verification" content="g5gG3v7FtM3b4ZUF9BsgGvIpjq6fgF2NK20e-5bTyDk" />
 <meta name="google-adsense-account" content="ca-pub-4303818032223917">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4303818032223917"
@@ -127,10 +127,10 @@ footer.site-foot{border-top:2px solid var(--ink);padding:20px 0 44px;font-family
       <span><span class="accent-dot"></span>Tech Treck &#8212; field notes on Tech</span>
     </div>
     <div class="masthead-row">
-      <a class="brand" href="index.html">Tech Treck</a>
+      <a class="brand" href="../index.html">Tech Treck</a>
       <div class="head-right">
         <nav class="site-nav">
-          <a class="u-link" href="index.html">index</a>
+          <a class="u-link" href="../index.html">index</a>
         </nav>
         <button id="theme-toggle" aria-label="Toggle dark mode">dark</button>
       </div>
@@ -138,85 +138,25 @@ footer.site-foot{border-top:2px solid var(--ink);padding:20px 0 44px;font-family
     <div class="signal-bar"></div>
   </header>
   <main>
-<p class="section-label">Latest</p><div class="featured-wrap" style="display:grid;">
-        <div class="featured reveal" style="display:grid;grid-template-columns:1.3fr 1fr;gap:36px;padding:32px 0;border-bottom:1px solid var(--rule);align-items:start;">
-          <div>
-            <p class="post-meta"><time>Sep 11, 2026</time></p>
-            <h2 class="post-title">
-              <a href="posts/ai-agents-just-ran-their-first-autonomous-hacking-campaign.html">AI Agents Just Ran Their First Autonomous Hacking Campaign</a>
-            </h2>
-            <p class="post-snippet">A Russian operator used AI to build exploits and breach 395 organizations in 48 countries in under six hours.</p>
-            <a class="read-more" href="posts/ai-agents-just-ran-their-first-autonomous-hacking-campaign.html">read <span class="arrow">&#8594;</span></a>
-          </div>
-          <div class="featured-side">
-            
-    <div class="side-item">
+
+    <article class="post-full">
+      <a class="back-link u-link" href="../index.html">&#8592; back to index</a>
       <p class="post-meta"><time>Sep 11, 2026</time></p>
-      <h3 class="post-title"><a href="posts/europe-s-450m-space-bet-still-looks-like-rounding-error-money.html">Europe&#x27;s $450M Space Bet Still Looks Like Rounding Error Money</a></h3>
-    </div>
-    
-    <div class="side-item">
-      <p class="post-meta"><time>Sep 11, 2026</time></p>
-      <h3 class="post-title"><a href="posts/harvey-just-bought-the-answer-to-law-s-biggest-ai-question.html">Harvey Just Bought the Answer to Law&#x27;s Biggest AI Question</a></h3>
-    </div>
-    
-    <div class="side-item">
-      <p class="post-meta"><time>Sep 11, 2026</time></p>
-      <h3 class="post-title"><a href="posts/openai-says-it-solved-a-million-dollar-math-problem-mathematicians-disagree.html">OpenAI Says It Solved a Million-Dollar Math Problem. Mathematicians Disagree.</a></h3>
-    </div>
-    
-          </div>
-        </div>
-        </div><div class="blog-posts">
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 10, 2026</time><span class="dot">&#183;</span><a href="#">ai safety</a></p>
-      <h2 class="post-title"><a href="posts/when-your-own-researchers-tell-you-to-stop.html">When Your Own Researchers Tell You to Stop</a></h2>
-      <p class="post-snippet">OpenAI and Anthropic employees are publicly begging their employers to slow down AI development as extinction warnings intensify.</p>
-      <a class="read-more" href="posts/when-your-own-researchers-tell-you-to-stop.html">read <span class="arrow">&#8594;</span></a>
+      <h1 class="post-title">AI Agents Just Ran Their First Autonomous Hacking Campaign</h1>
+      <div class="post-body">
+        <p>We've spent months debating whether AI will replace programmers. Turns out we should have been asking whether it would replace hackers.</p>
+<p>GreyNoise reported today that a likely Russian-speaking operator used hundreds of AI agents to autonomously develop, test, and deploy exploits against PaperCut print servers, compromising 440 instances across 395 organizations in 48 countries. The campaign started August 31 and combined OpenAI's Codex harness with a DeepSeek model, commodity offensive tools, and target lists scraped from Netlas.</p>
+<p>Here's what should terrify you: The attacker built a private lab with a vulnerable PaperCut installation and an Active Directory server, then let the AI agents loose to develop exploits for CVE-2026-81578 and CVE-2026-82078. They went from an empty workspace to remote code execution on a real victim in under four hours. Two hours after that, they had domain admin.</p>
+<p>Once the system was tuned, the operator scaled it. When the full wave launched, it hit 11 organizations in 26 seconds.</p>
+<p>This isn't some theoretical red-team exercise or a cute proof-of-concept where researchers politely notify vendors. This is a working offensive pipeline that collapsed the timeline from reconnaissance to compromise by an order of magnitude. The human operator didn't write exploits. They pointed the agents at a target class and let the models figure out the rest.</p>
+<p>What makes this different from automated scanning tools we've seen for years is the adaptability. Traditional exploit frameworks run known attacks against known vulnerabilities. These agents built custom exploits in a sandboxed environment, tested them, and deployed only what worked. That's not scripting. That's reasoning.</p>
+<p>The industry has spent 2026 arguing about whether AI poses catastrophic risk through bioweapons or misinformation. Meanwhile, someone just proved you can use it to break into nearly 400 organizations before anyone notices the pattern.</p>
+<p>We're not ready for this. Detection systems are built to spot human behavior: the recon, the lateral movement, the dwell time. When the dwell time is two hours and the recon is parallelized across hundreds of agents, those assumptions break.</p>
+<p>The AI safety conversation has focused on preventing models from answering dangerous questions. Turns out the bigger problem is when they start asking their own.</p>
+      </div>
+      <div class="tags-row"><a href="../index.html">#security</a><a href="../index.html">#ai</a><a href="../index.html">#cybercrime</a></div>
     </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 9, 2026</time><span class="dot">&#183;</span><a href="#">[iPhone Duo</a></p>
-      <h2 class="post-title"><a href="posts/what-apple-reportedly-unveiled-today-iphone-duo-iphone-18-pro-and-a-new-era-under-ternus.html">&quot;What Apple Reportedly Unveiled Today: iPhone Duo, iPhone 18 Pro, and a New Era Under Ternus&quot;</a></h2>
-      <p class="post-snippet"></p>
-      <a class="read-more" href="posts/what-apple-reportedly-unveiled-today-iphone-duo-iphone-18-pro-and-a-new-era-under-ternus.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 9, 2026</time><span class="dot">&#183;</span><a href="#">[Samsung Galaxy Z Fold 8</a></p>
-      <h2 class="post-title"><a href="posts/how-the-rest-of-the-industry-is-reacting-to-apple-s-foldable-moment.html">&quot;How the Rest of the Industry Is Reacting to Apple&#x27;s Foldable Moment&quot;</a></h2>
-      <p class="post-snippet"></p>
-      <a class="read-more" href="posts/how-the-rest-of-the-industry-is-reacting-to-apple-s-foldable-moment.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 8, 2026</time></p>
-      <h2 class="post-title"><a href="posts/apple-s-september-event-is-betting-big-and-i-m-not-sure-the-bet-pays-off.html">&quot;Apple&#x27;s September Event Is Betting Big — And I&#x27;m Not Sure the Bet Pays Off&quot;</a></h2>
-      <p class="post-snippet"></p>
-      <a class="read-more" href="posts/apple-s-september-event-is-betting-big-and-i-m-not-sure-the-bet-pays-off.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Aug 27, 2026</time><span class="dot">&#183;</span><a href="#">systems</a></p>
-      <h2 class="post-title"><a href="posts/why-your-build-cache-is-lying-to-you.html">Why your build cache is lying to you</a></h2>
-      <p class="post-snippet">A deep dive into cache invalidation edge cases that took down three separate CI pipelines last month, and the one-line fix that would have prevented all of it.</p>
-      <a class="read-more" href="posts/why-your-build-cache-is-lying-to-you.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Aug 20, 2026</time><span class="dot">&#183;</span><a href="#">apis</a></p>
-      <h2 class="post-title"><a href="posts/the-quiet-death-of-the-rest-vs-graphql-debate.html">The quiet death of the REST vs GraphQL debate</a></h2>
-      <p class="post-snippet">Nobody announced a winner. The industry just moved on to a different question entirely.</p>
-      <a class="read-more" href="posts/the-quiet-death-of-the-rest-vs-graphql-debate.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Aug 12, 2026</time><span class="dot">&#183;</span><a href="#">tooling</a></p>
-      <h2 class="post-title"><a href="posts/i-benchmarked-every-linter-so-you-don-t-have-to.html">I benchmarked every linter so you don&#x27;t have to</a></h2>
-      <p class="post-snippet">Turns out the fastest one isn&#x27;t the one everyone&#x27;s using.</p>
-      <a class="read-more" href="posts/i-benchmarked-every-linter-so-you-don-t-have-to.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    </div>
+        
   </main>
   <footer class="site-foot">
     <span>&#169; Tech Treck</span>

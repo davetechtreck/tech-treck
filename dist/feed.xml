@@ -24,6 +24,18 @@
 <p>For now, the immediate takeaway is simpler: the legal AI company that just raised half a billion dollars spent part of that announcement explaining how it plans to let AI work unsupervised. The chatbot era in professional services is over. The agent era is here, and it comes with a compliance layer built in.</p>]]></description>
     </item>
     <item>
+      <title>OpenAI Says It Solved a Million-Dollar Math Problem. Mathematicians Disagree.</title>
+      <link>https://techtreck.tech//posts/openai-says-it-solved-a-million-dollar-math-problem-mathematicians-disagree.html</link>
+      <guid>https://techtreck.tech//posts/openai-says-it-solved-a-million-dollar-math-problem-mathematicians-disagree.html</guid>
+      <pubDate>Fri, 11 Sep 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[<p>OpenAI announced this week that one of its AI models cracked a Millennium Prize problem in 88 hours. If you're keeping score at home, that's one of seven math problems carrying a million-dollar bounty, the kind of challenges that have stumped the world's best mathematicians for decades. The Clay Mathematics Institute set them up in 2000 as modern successors to Hilbert's problems. Only one has been solved so far, and that took Grigori Perelman seven years and a withdrawal from public life.</p>
+<p>So when OpenAI says its model did it in under four days, you'd expect fanfare. Instead, it walked straight into a fight.</p>
+<p>The problem isn't whether the AI produced <em>something</em>. It did. The question is whether what it produced counts as a solution in the way mathematicians actually use that word. OpenAI's release was light on proof structure and heavy on runtime metrics. Meanwhile, mathematicians on social media and in academic circles have been less than impressed, pointing out that claims of solving Millennium problems require peer review, formal verification, and a level of rigor that a statistical model grinding through token predictions doesn't automatically provide.</p>
+<p>This isn't just about ego or gatekeeping. It's about what we're willing to call "solved." Mathematics has spent centuries building a system where a proof isn't valid until it's been checked, reproduced, and survives scrutiny from people who spend their lives in that problem space. You don't get to skip that process just because your model has a lot of parameters.</p>
+<p>The timing is also telling. OpenAI has been pushing hard on the idea that AI can do real science, not just autocomplete or summarization. That's a useful narrative when you're raising billions and asking for regulatory patience. But science has referees. Math has standards. And if your big breakthrough can't survive contact with the people who actually work in the field, you didn't solve the problem—you generated something that looked like a solution to your eval harness.</p>
+<p>There's a version of this story where AI becomes a genuine tool for mathematical discovery. But it starts with submitting to the process, not skipping it. Until OpenAI publishes the proof, submits it for review, and lets the mathematical community do what it does, this is a press release, not a milestone. And mathematicians, apparently, are not impressed by press releases.</p>]]></description>
+    </item>
+    <item>
       <title>When Your Own Researchers Tell You to Stop</title>
       <link>https://techtreck.tech//posts/when-your-own-researchers-tell-you-to-stop.html</link>
       <guid>https://techtreck.tech//posts/when-your-own-researchers-tell-you-to-stop.html</guid>

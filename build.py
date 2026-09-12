@@ -408,6 +408,82 @@ if('IntersectionObserver' in window){
 } else { items.forEach(function(el){ el.classList.add('in-view'); }); }
 """
 
+# ---------------------------------------------------------------------------
+# NEW: newsletter signup popup — real static HTML so Netlify detects the
+# form at deploy time (not injected by JS, which Netlify can't scan).
+# ---------------------------------------------------------------------------
+
+POPUP_HTML = """
+<div id="newsletter-popup" class="nl-popup" aria-hidden="true">
+  <div class="nl-popup__backdrop" data-nl-close></div>
+  <div class="nl-popup__card" role="dialog" aria-labelledby="nl-popup-title">
+    <button type="button" class="nl-popup__close" data-nl-close aria-label="Close">&times;</button>
+    <h3 id="nl-popup-title">Get Tech Treck in your inbox</h3>
+    <p>One short daily digest of what got published. No spam, unsubscribe anytime.</p>
+    <form id="nl-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field">
+      <input type="hidden" name="form-name" value="newsletter" />
+      <p style="display:none">
+        <label>Don't fill this out: <input name="nl-bot-field" /></label>
+      </p>
+      <label for="nl-email" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Email address</label>
+      <input id="nl-email" type="email" name="email" placeholder="you@example.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p id="nl-form-status" style="margin:10px 0 0;font-size:.85rem"></p>
+  </div>
+</div>
+<style>
+.nl-popup{position:fixed;inset:0;z-index:9999;display:none;}
+.nl-popup.is-visible{display:block;}
+.nl-popup__backdrop{position:absolute;inset:0;background:rgba(10,10,10,.55);}
+.nl-popup__card{position:relative;max-width:420px;margin:12vh auto 0;background:var(--panel);color:var(--ink);
+  border-radius:10px;padding:28px 28px 22px;font-family:var(--font-serif);box-shadow:0 20px 60px rgba(0,0,0,.25);
+  border:1px solid var(--rule);}
+.nl-popup__card h3{font-family:var(--font-serif);margin:0 0 8px;font-size:1.4rem;}
+.nl-popup__card p{margin:0 0 16px;font-size:.95rem;color:var(--ink-soft);}
+.nl-popup__close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.4rem;
+  line-height:1;cursor:pointer;color:var(--muted);}
+.nl-popup__close:hover{color:var(--accent);}
+#nl-form{display:flex;gap:8px;}
+#nl-email{flex:1;padding:10px 12px;border:1px solid var(--rule-strong);border-radius:6px;font-size:.95rem;
+  font-family:var(--font-mono);background:var(--paper);color:var(--ink);}
+#nl-form button[type="submit"]{padding:10px 16px;border:none;border-radius:6px;background:var(--accent);
+  color:var(--accent-ink);font-size:.9rem;cursor:pointer;font-family:var(--font-sans);}
+</style>
+<script>
+(function(){
+  var DISMISS_KEY='techtreck_nl_dismissed_at', SUBSCRIBED_KEY='techtreck_nl_subscribed';
+  var SHOW_AFTER_MS=8000, RESHOW_AFTER_DAYS=14;
+  function daysSince(ts){return (Date.now()-Number(ts))/(1000*60*60*24);}
+  function shouldShow(){
+    if(localStorage.getItem(SUBSCRIBED_KEY)==='true') return false;
+    var d=localStorage.getItem(DISMISS_KEY);
+    if(d && daysSince(d)<RESHOW_AFTER_DAYS) return false;
+    return true;
+  }
+  function openPopup(){var el=document.getElementById('newsletter-popup'); if(el){el.classList.add('is-visible'); el.setAttribute('aria-hidden','false');}}
+  function closePopup(){var el=document.getElementById('newsletter-popup'); if(el){el.classList.remove('is-visible'); el.setAttribute('aria-hidden','true'); localStorage.setItem(DISMISS_KEY,String(Date.now()));}}
+  document.addEventListener('DOMContentLoaded', function(){
+    if(shouldShow()) setTimeout(openPopup, SHOW_AFTER_MS);
+    document.querySelectorAll('[data-nl-close]').forEach(function(btn){btn.addEventListener('click', closePopup);});
+    var form=document.getElementById('nl-form'), status=document.getElementById('nl-form-status');
+    if(!form) return;
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var data=new URLSearchParams(new FormData(form)).toString();
+      fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:data})
+        .then(function(){
+          status.textContent="You're in — check your inbox tomorrow.";
+          localStorage.setItem(SUBSCRIBED_KEY,'true');
+          setTimeout(closePopup, 1800);
+        })
+        .catch(function(){ status.textContent='Something went wrong — please try again.'; });
+    });
+  });
+})();
+</script>
+"""
+
 HEAD = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -453,6 +529,7 @@ FOOT = """
   </footer>
 </div>
 <script>{script}</script>
+{popup}
 </body>
 </html>
 """
@@ -559,7 +636,7 @@ def build():
       {tags_html}
     </article>
         """
-        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links())
+        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML)
 
         out_path = os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html")
         with open(out_path, "w", encoding="utf-8") as f:
@@ -604,7 +681,7 @@ def build():
                 index += render_post_card(m, f"posts/{m['slug']}.html")
             index += '</div>'
 
-    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links())
+    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML)
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index)
 

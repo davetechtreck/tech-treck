@@ -159,6 +159,22 @@ footer.site-foot{border-top:2px solid var(--ink);padding:20px 0 44px;font-family
     </article>
         
   </main>
+  
+<section class="nl-inline">
+  <div class="newsletter-card">
+    <h3 class="newsletter-card__title">Get Tech Treck in your inbox</h3>
+    <p class="newsletter-card__body">One short daily digest of what got published. No spam, unsubscribe anytime.</p>
+    <form class="newsletter-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field-inline">
+      <input type="hidden" name="form-name" value="newsletter" />
+      <p style="display:none"><label>Don't fill this out: <input name="nl-bot-field-inline" /></label></p>
+      <label for="nl-email-inline" class="sr-only">Email address</label>
+      <input id="nl-email-inline" type="email" name="email" placeholder="you@example.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="nl-status"></p>
+  </div>
+</section>
+
   <footer class="site-foot">
     <span>&#169; Tech Treck</span>
     <span class="social-links"><a class="u-link" href="https://www.instagram.com/techtrec3k?stkn=dnh6djY3eHQ5a3dq&amp;utm_source=qr">Instagram</a><a class="u-link" href="https://x.com/techtre3k">x</a><a class="u-link" href=" https://www.youtube.com/@TechTrecck">Youtube</a><a class="u-link" href="https://www.tiktok.com/@tech.tre3k?is_from_webapp=1&amp;sender_device=pc ">tiktok</a></span>
@@ -194,5 +210,96 @@ if('IntersectionObserver' in window){
   items.forEach(function(el){ io.observe(el); });
 } else { items.forEach(function(el){ el.classList.add('in-view'); }); }
 </script>
+
+<style>
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+.newsletter-card{position:relative;background:var(--panel);color:var(--ink);border:1px solid var(--rule);
+  border-radius:14px;padding:40px 36px;font-family:var(--font-serif);}
+.newsletter-card__title{font-family:var(--font-serif);font-weight:700;margin:0 0 10px;
+  font-size:1.9rem;letter-spacing:-0.01em;line-height:1.15;}
+.newsletter-card__body{margin:0 0 22px;font-size:1.05rem;color:var(--ink-soft);}
+.newsletter-form{display:flex;gap:10px;flex-wrap:wrap;}
+.newsletter-form input[type="email"]{flex:1;min-width:200px;padding:14px 16px;border:1px solid var(--rule-strong);
+  border-radius:8px;font-size:1rem;font-family:var(--font-mono);background:var(--paper);color:var(--ink);}
+.newsletter-form button[type="submit"]{padding:14px 24px;border:none;border-radius:8px;background:var(--accent);
+  color:var(--accent-ink);font-size:1rem;font-weight:600;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;}
+.nl-status{margin:12px 0 0;font-size:.9rem;color:var(--ink-soft);min-height:1.2em;}
+
+/* Popup (centered overlay) */
+.nl-popup{position:fixed;inset:0;z-index:9999;display:none;}
+.nl-popup.is-visible{display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.nl-popup__backdrop{position:absolute;inset:0;background:rgba(10,10,10,.6);}
+.nl-popup__card{width:100%;max-width:560px;box-shadow:0 25px 70px rgba(0,0,0,.35);z-index:1;}
+.nl-popup__close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:1.8rem;
+  line-height:1;cursor:pointer;color:var(--muted);}
+.nl-popup__close:hover{color:var(--accent);}
+
+/* Bottom-of-page inline band */
+.nl-inline{border-top:2px solid var(--ink);padding:56px 0;margin-top:20px;}
+.nl-inline .newsletter-card{border:none;padding:0;max-width:640px;margin:0 auto;text-align:center;}
+.nl-inline .newsletter-form{justify-content:center;}
+
+@media (max-width:600px){
+  .newsletter-card{padding:26px 20px;border-radius:10px;}
+  .newsletter-card__title{font-size:1.5rem;}
+  .newsletter-card__body{font-size:.95rem;}
+  .newsletter-form{flex-direction:column;}
+  .newsletter-form input[type="email"],.newsletter-form button[type="submit"]{width:100%;min-width:0;}
+  .nl-popup__card{max-width:100%;}
+  .nl-inline{padding:36px 0;}
+}
+</style>
+
+<div id="newsletter-popup" class="nl-popup" aria-hidden="true">
+  <div class="nl-popup__backdrop" data-nl-close></div>
+  <div class="newsletter-card nl-popup__card" role="dialog" aria-labelledby="nl-popup-title">
+    <button type="button" class="nl-popup__close" data-nl-close aria-label="Close">&times;</button>
+    <h3 id="nl-popup-title" class="newsletter-card__title">Get Tech Treck in your inbox</h3>
+    <p class="newsletter-card__body">One short daily digest of what got published. No spam, unsubscribe anytime.</p>
+    <form class="newsletter-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field-popup">
+      <input type="hidden" name="form-name" value="newsletter" />
+      <p style="display:none"><label>Don't fill this out: <input name="nl-bot-field-popup" /></label></p>
+      <label for="nl-email-popup" class="sr-only">Email address</label>
+      <input id="nl-email-popup" type="email" name="email" placeholder="you@example.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="nl-status"></p>
+  </div>
+</div>
+
+<script>
+(function(){
+  var DISMISS_KEY='techtreck_nl_dismissed_at', SUBSCRIBED_KEY='techtreck_nl_subscribed';
+  var SHOW_AFTER_MS=8000, RESHOW_AFTER_DAYS=14;
+  function daysSince(ts){return (Date.now()-Number(ts))/(1000*60*60*24);}
+  function shouldShow(){
+    if(localStorage.getItem(SUBSCRIBED_KEY)==='true') return false;
+    var d=localStorage.getItem(DISMISS_KEY);
+    if(d && daysSince(d)<RESHOW_AFTER_DAYS) return false;
+    return true;
+  }
+  function openPopup(){var el=document.getElementById('newsletter-popup'); if(el){el.classList.add('is-visible'); el.setAttribute('aria-hidden','false');}}
+  function closePopup(){var el=document.getElementById('newsletter-popup'); if(el){el.classList.remove('is-visible'); el.setAttribute('aria-hidden','true'); localStorage.setItem(DISMISS_KEY,String(Date.now()));}}
+  document.addEventListener('DOMContentLoaded', function(){
+    if(shouldShow()) setTimeout(openPopup, SHOW_AFTER_MS);
+    document.querySelectorAll('[data-nl-close]').forEach(function(btn){btn.addEventListener('click', closePopup);});
+    document.querySelectorAll('.newsletter-form').forEach(function(form){
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        var status = form.parentElement.querySelector('.nl-status');
+        var data = new URLSearchParams(new FormData(form)).toString();
+        fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:data})
+          .then(function(){
+            if(status) status.textContent = "You're in — check your inbox tomorrow.";
+            localStorage.setItem(SUBSCRIBED_KEY,'true');
+            setTimeout(closePopup, 1800);
+          })
+          .catch(function(){ if(status) status.textContent = 'Something went wrong — please try again.'; });
+      });
+    });
+  });
+})();
+</script>
+
 </body>
 </html>

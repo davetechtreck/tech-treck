@@ -409,47 +409,54 @@ if('IntersectionObserver' in window){
 """
 
 # ---------------------------------------------------------------------------
-# NEW: newsletter signup popup — real static HTML so Netlify detects the
-# form at deploy time (not injected by JS, which Netlify can't scan).
+# NEW: newsletter signup — a centered popup PLUS a second signup band at the
+# bottom of every page. Both are real static HTML (not JS-injected) so
+# Netlify detects the form at deploy time. Both forms share name="newsletter"
+# so submissions from either one land in the same place in Netlify Forms.
 # ---------------------------------------------------------------------------
 
-POPUP_HTML = """
-<div id="newsletter-popup" class="nl-popup" aria-hidden="true">
-  <div class="nl-popup__backdrop" data-nl-close></div>
-  <div class="nl-popup__card" role="dialog" aria-labelledby="nl-popup-title">
-    <button type="button" class="nl-popup__close" data-nl-close aria-label="Close">&times;</button>
-    <h3 id="nl-popup-title">Get Tech Treck in your inbox</h3>
-    <p>One short daily digest of what got published. No spam, unsubscribe anytime.</p>
-    <form id="nl-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field">
-      <input type="hidden" name="form-name" value="newsletter" />
-      <p style="display:none">
-        <label>Don't fill this out: <input name="nl-bot-field" /></label>
-      </p>
-      <label for="nl-email" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Email address</label>
-      <input id="nl-email" type="email" name="email" placeholder="you@example.com" required />
-      <button type="submit">Subscribe</button>
-    </form>
-    <p id="nl-form-status" style="margin:10px 0 0;font-size:.85rem"></p>
-  </div>
-</div>
+NEWSLETTER_STYLE = """
 <style>
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
+.newsletter-card{position:relative;background:var(--panel);color:var(--ink);border:1px solid var(--rule);
+  border-radius:14px;padding:40px 36px;font-family:var(--font-serif);}
+.newsletter-card__title{font-family:var(--font-serif);font-weight:700;margin:0 0 10px;
+  font-size:1.9rem;letter-spacing:-0.01em;line-height:1.15;}
+.newsletter-card__body{margin:0 0 22px;font-size:1.05rem;color:var(--ink-soft);}
+.newsletter-form{display:flex;gap:10px;flex-wrap:wrap;}
+.newsletter-form input[type="email"]{flex:1;min-width:200px;padding:14px 16px;border:1px solid var(--rule-strong);
+  border-radius:8px;font-size:1rem;font-family:var(--font-mono);background:var(--paper);color:var(--ink);}
+.newsletter-form button[type="submit"]{padding:14px 24px;border:none;border-radius:8px;background:var(--accent);
+  color:var(--accent-ink);font-size:1rem;font-weight:600;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;}
+.nl-status{margin:12px 0 0;font-size:.9rem;color:var(--ink-soft);min-height:1.2em;}
+
+/* Popup (centered overlay) */
 .nl-popup{position:fixed;inset:0;z-index:9999;display:none;}
-.nl-popup.is-visible{display:block;}
-.nl-popup__backdrop{position:absolute;inset:0;background:rgba(10,10,10,.55);}
-.nl-popup__card{position:relative;max-width:420px;margin:12vh auto 0;background:var(--panel);color:var(--ink);
-  border-radius:10px;padding:28px 28px 22px;font-family:var(--font-serif);box-shadow:0 20px 60px rgba(0,0,0,.25);
-  border:1px solid var(--rule);}
-.nl-popup__card h3{font-family:var(--font-serif);margin:0 0 8px;font-size:1.4rem;}
-.nl-popup__card p{margin:0 0 16px;font-size:.95rem;color:var(--ink-soft);}
-.nl-popup__close{position:absolute;top:10px;right:14px;background:none;border:none;font-size:1.4rem;
+.nl-popup.is-visible{display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
+.nl-popup__backdrop{position:absolute;inset:0;background:rgba(10,10,10,.6);}
+.nl-popup__card{width:100%;max-width:560px;box-shadow:0 25px 70px rgba(0,0,0,.35);z-index:1;}
+.nl-popup__close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:1.8rem;
   line-height:1;cursor:pointer;color:var(--muted);}
 .nl-popup__close:hover{color:var(--accent);}
-#nl-form{display:flex;gap:8px;}
-#nl-email{flex:1;padding:10px 12px;border:1px solid var(--rule-strong);border-radius:6px;font-size:.95rem;
-  font-family:var(--font-mono);background:var(--paper);color:var(--ink);}
-#nl-form button[type="submit"]{padding:10px 16px;border:none;border-radius:6px;background:var(--accent);
-  color:var(--accent-ink);font-size:.9rem;cursor:pointer;font-family:var(--font-sans);}
+
+/* Bottom-of-page inline band */
+.nl-inline{border-top:2px solid var(--ink);padding:56px 0;margin-top:20px;}
+.nl-inline .newsletter-card{border:none;padding:0;max-width:640px;margin:0 auto;text-align:center;}
+.nl-inline .newsletter-form{justify-content:center;}
+
+@media (max-width:600px){
+  .newsletter-card{padding:26px 20px;border-radius:10px;}
+  .newsletter-card__title{font-size:1.5rem;}
+  .newsletter-card__body{font-size:.95rem;}
+  .newsletter-form{flex-direction:column;}
+  .newsletter-form input[type="email"],.newsletter-form button[type="submit"]{width:100%;min-width:0;}
+  .nl-popup__card{max-width:100%;}
+  .nl-inline{padding:36px 0;}
+}
 </style>
+"""
+
+NEWSLETTER_SCRIPT = """
 <script>
 (function(){
   var DISMISS_KEY='techtreck_nl_dismissed_at', SUBSCRIBED_KEY='techtreck_nl_subscribed';
@@ -466,22 +473,59 @@ POPUP_HTML = """
   document.addEventListener('DOMContentLoaded', function(){
     if(shouldShow()) setTimeout(openPopup, SHOW_AFTER_MS);
     document.querySelectorAll('[data-nl-close]').forEach(function(btn){btn.addEventListener('click', closePopup);});
-    var form=document.getElementById('nl-form'), status=document.getElementById('nl-form-status');
-    if(!form) return;
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      var data=new URLSearchParams(new FormData(form)).toString();
-      fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:data})
-        .then(function(){
-          status.textContent="You're in — check your inbox tomorrow.";
-          localStorage.setItem(SUBSCRIBED_KEY,'true');
-          setTimeout(closePopup, 1800);
-        })
-        .catch(function(){ status.textContent='Something went wrong — please try again.'; });
+    document.querySelectorAll('.newsletter-form').forEach(function(form){
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        var status = form.parentElement.querySelector('.nl-status');
+        var data = new URLSearchParams(new FormData(form)).toString();
+        fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:data})
+          .then(function(){
+            if(status) status.textContent = "You're in — check your inbox tomorrow.";
+            localStorage.setItem(SUBSCRIBED_KEY,'true');
+            setTimeout(closePopup, 1800);
+          })
+          .catch(function(){ if(status) status.textContent = 'Something went wrong — please try again.'; });
+      });
     });
   });
 })();
 </script>
+"""
+
+POPUP_HTML = NEWSLETTER_STYLE + """
+<div id="newsletter-popup" class="nl-popup" aria-hidden="true">
+  <div class="nl-popup__backdrop" data-nl-close></div>
+  <div class="newsletter-card nl-popup__card" role="dialog" aria-labelledby="nl-popup-title">
+    <button type="button" class="nl-popup__close" data-nl-close aria-label="Close">&times;</button>
+    <h3 id="nl-popup-title" class="newsletter-card__title">Get Tech Treck in your inbox</h3>
+    <p class="newsletter-card__body">One short daily digest of what got published. No spam, unsubscribe anytime.</p>
+    <form class="newsletter-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field-popup">
+      <input type="hidden" name="form-name" value="newsletter" />
+      <p style="display:none"><label>Don't fill this out: <input name="nl-bot-field-popup" /></label></p>
+      <label for="nl-email-popup" class="sr-only">Email address</label>
+      <input id="nl-email-popup" type="email" name="email" placeholder="you@example.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="nl-status"></p>
+  </div>
+</div>
+""" + NEWSLETTER_SCRIPT
+
+INLINE_SIGNUP_HTML = """
+<section class="nl-inline">
+  <div class="newsletter-card">
+    <h3 class="newsletter-card__title">Get Tech Treck in your inbox</h3>
+    <p class="newsletter-card__body">One short daily digest of what got published. No spam, unsubscribe anytime.</p>
+    <form class="newsletter-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field-inline">
+      <input type="hidden" name="form-name" value="newsletter" />
+      <p style="display:none"><label>Don't fill this out: <input name="nl-bot-field-inline" /></label></p>
+      <label for="nl-email-inline" class="sr-only">Email address</label>
+      <input id="nl-email-inline" type="email" name="email" placeholder="you@example.com" required />
+      <button type="submit">Subscribe</button>
+    </form>
+    <p class="nl-status"></p>
+  </div>
+</section>
 """
 
 HEAD = """<!DOCTYPE html>
@@ -523,6 +567,7 @@ HEAD = """<!DOCTYPE html>
  
 FOOT = """
   </main>
+  {inline_signup}
   <footer class="site-foot">
     <span>&#169; {site_title}</span>
     <span class="social-links">{social_links}</span>
@@ -636,7 +681,7 @@ def build():
       {tags_html}
     </article>
         """
-        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML)
+        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML)
 
         out_path = os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html")
         with open(out_path, "w", encoding="utf-8") as f:
@@ -681,7 +726,7 @@ def build():
                 index += render_post_card(m, f"posts/{m['slug']}.html")
             index += '</div>'
 
-    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML)
+    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML)
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index)
 

@@ -1,0 +1,28 @@
+name: Daily newsletter digest
+
+on:
+  schedule:
+    # 13:00 UTC = 9am ET / 6am PT — adjust to when your posts are usually done publishing
+    - cron: "0 13 * * *"
+  workflow_dispatch: {} # lets you trigger it manually from the Actions tab to test
+
+jobs:
+  send-digest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Send digest
+        env:
+          NETLIFY_ACCESS_TOKEN: ${{ secrets.NETLIFY_ACCESS_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          SITE_URL: ${{ secrets.SITE_URL }}
+        run: python scripts/send_daily_digest.py

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Tech Treck &middot; field notes on Tech</title>
+<title>Stealth Startup Just Exposed Holes in Every Major AI Code Sandbox &middot; Tech Treck</title>
 <meta name="google-site-verification" content="g5gG3v7FtM3b4ZUF9BsgGvIpjq6fgF2NK20e-5bTyDk" />
 <meta name="google-adsense-account" content="ca-pub-4303818032223917">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4303818032223917"
@@ -127,10 +127,10 @@ footer.site-foot{border-top:2px solid var(--ink);padding:20px 0 44px;font-family
       <span><span class="accent-dot"></span>Tech Treck &#8212; field notes on Tech</span>
     </div>
     <div class="masthead-row">
-      <a class="brand" href="index.html">Tech Treck</a>
+      <a class="brand" href="../index.html">Tech Treck</a>
       <div class="head-right">
         <nav class="site-nav">
-          <a class="u-link" href="index.html">index</a>
+          <a class="u-link" href="../index.html">index</a>
         </nav>
         <button id="theme-toggle" aria-label="Toggle dark mode">dark</button>
       </div>
@@ -138,106 +138,23 @@ footer.site-foot{border-top:2px solid var(--ink);padding:20px 0 44px;font-family
     <div class="signal-bar"></div>
   </header>
   <main>
-<p class="section-label">Latest</p><div class="featured-wrap" style="display:grid;">
-        <div class="featured reveal" style="display:grid;grid-template-columns:1.3fr 1fr;gap:36px;padding:32px 0;border-bottom:1px solid var(--rule);align-items:start;">
-          <div>
-            <p class="post-meta"><time>Sep 12, 2026</time></p>
-            <h2 class="post-title">
-              <a href="posts/microsoft-just-mapped-out-38-gigawatts-of-ai-data-centers.html">Microsoft Just Mapped Out 38 Gigawatts of AI Data Centers</a>
-            </h2>
-            <p class="post-snippet">The company&#x27;s expansion plan is less about cloud computing and more about building the electric grid that runs it.</p>
-            <a class="read-more" href="posts/microsoft-just-mapped-out-38-gigawatts-of-ai-data-centers.html">read <span class="arrow">&#8594;</span></a>
-          </div>
-          <div class="featured-side">
-            
-    <div class="side-item">
+
+    <article class="post-full">
+      <a class="back-link u-link" href="../index.html">&#8592; back to index</a>
       <p class="post-meta"><time>Sep 12, 2026</time></p>
-      <h3 class="post-title"><a href="posts/stealth-startup-just-exposed-holes-in-every-major-ai-code-sandbox.html">Stealth Startup Just Exposed Holes in Every Major AI Code Sandbox</a></h3>
-    </div>
-    
-    <div class="side-item">
-      <p class="post-meta"><time>Sep 12, 2026</time></p>
-      <h3 class="post-title"><a href="posts/the-pentagon-is-about-to-become-a-vc-for-ai-data-centers.html">The Pentagon Is About to Become a VC for AI Data Centers</a></h3>
-    </div>
-    
-    <div class="side-item">
-      <p class="post-meta"><time>Sep 11, 2026</time></p>
-      <h3 class="post-title"><a href="posts/ai-agents-just-ran-their-first-autonomous-hacking-campaign.html">AI Agents Just Ran Their First Autonomous Hacking Campaign</a></h3>
-    </div>
-    
-          </div>
-        </div>
-        </div><div class="blog-posts">
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 11, 2026</time><span class="dot">&#183;</span><a href="#">space</a></p>
-      <h2 class="post-title"><a href="posts/europe-s-450m-space-bet-still-looks-like-rounding-error-money.html">Europe&#x27;s $450M Space Bet Still Looks Like Rounding Error Money</a></h2>
-      <p class="post-snippet">The Exploration Company raised a record European space round, but the math reveals how far behind Europe really is.</p>
-      <a class="read-more" href="posts/europe-s-450m-space-bet-still-looks-like-rounding-error-money.html">read <span class="arrow">&#8594;</span></a>
+      <h1 class="post-title">Stealth Startup Just Exposed Holes in Every Major AI Code Sandbox</h1>
+      <div class="post-body">
+        <p>A stealth startup called Accomplish just reminded us that when AI writes code, the sandbox is the last line of defense. And right now, that line is leaking.</p>
+<p>The company, founded by Or Hiltch, Amit Avner, and Guy Zipori, disclosed vulnerabilities across Claude Code, OpenAI Codex, and Cursor after quietly reporting them to vendors this summer. The bugs let AI-generated code escape the sandboxes meant to contain it, a problem that becomes exponentially worse as developers hand more autonomy to AI agents.</p>
+<p>The timing matters. OpenAI just opened public beta for its Agents API two days ago, built on a managed Codex harness designed to handle sessions, orchestration, and recovery while developers focus on tools and execution environments. Built-in sandbox execution is supposed to be one of the safety rails. If those sandboxes are porous, the entire trust model breaks.</p>
+<p>Accomplish's disclosure is unusually specific: it names the platforms, credits the researchers, and confirms the vendors were notified before going public. That's the responsible path, but it also means these issues were live in production while the industry raced to ship agent-powered coding tools.</p>
+<p>What makes this scarier is the trend line. A Russian-speaking threat actor recently used hundreds of AI agents built on OpenAI's Codex and a DeepSeek model to exploit unrelated vulnerabilities, compromising 440 PaperCut instances across 395 organizations in 48 countries. That campaign started in August. The fact that someone can already weaponize AI agents at scale means sandbox escapes aren't theoretical edge cases anymore.</p>
+<p>The broader issue is that AI coding tools are being deployed faster than the security assumptions underneath them can be validated. Sandboxes work when the code inside is dumb and predictable. AI-generated code is neither. It's creative, context-aware, and increasingly capable of doing exactly what you didn't anticipate.</p>
+<p>Accomplish is still in stealth, so we don't know what they're building or whether they plan to sell a fix. But they've made their point: if you're betting your infrastructure on AI agents that write and run code, you'd better hope the vendors patched fast.</p>
+      </div>
+      <div class="tags-row"><a href="../index.html">#security</a><a href="../index.html">#ai</a><a href="../index.html">#developer tools</a></div>
     </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 11, 2026</time><span class="dot">&#183;</span><a href="#">ai</a></p>
-      <h2 class="post-title"><a href="posts/harvey-just-bought-the-answer-to-law-s-biggest-ai-question.html">Harvey Just Bought the Answer to Law&#x27;s Biggest AI Question</a></h2>
-      <p class="post-snippet">The legal AI company&#x27;s acquisition of Guardrails reveals the industry&#x27;s shift from chatbots to autonomous agents.</p>
-      <a class="read-more" href="posts/harvey-just-bought-the-answer-to-law-s-biggest-ai-question.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 11, 2026</time><span class="dot">&#183;</span><a href="#">ai</a></p>
-      <h2 class="post-title"><a href="posts/openai-says-it-solved-a-million-dollar-math-problem-mathematicians-disagree.html">OpenAI Says It Solved a Million-Dollar Math Problem. Mathematicians Disagree.</a></h2>
-      <p class="post-snippet">An 88-hour AI sprint into millennium-level mathematics has turned into a very human argument about credit and what counts as discovery.</p>
-      <a class="read-more" href="posts/openai-says-it-solved-a-million-dollar-math-problem-mathematicians-disagree.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 10, 2026</time><span class="dot">&#183;</span><a href="#">ai safety</a></p>
-      <h2 class="post-title"><a href="posts/when-your-own-researchers-tell-you-to-stop.html">When Your Own Researchers Tell You to Stop</a></h2>
-      <p class="post-snippet">OpenAI and Anthropic employees are publicly begging their employers to slow down AI development as extinction warnings intensify.</p>
-      <a class="read-more" href="posts/when-your-own-researchers-tell-you-to-stop.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 9, 2026</time><span class="dot">&#183;</span><a href="#">[iPhone Duo</a></p>
-      <h2 class="post-title"><a href="posts/what-apple-reportedly-unveiled-today-iphone-duo-iphone-18-pro-and-a-new-era-under-ternus.html">&quot;What Apple Reportedly Unveiled Today: iPhone Duo, iPhone 18 Pro, and a New Era Under Ternus&quot;</a></h2>
-      <p class="post-snippet"></p>
-      <a class="read-more" href="posts/what-apple-reportedly-unveiled-today-iphone-duo-iphone-18-pro-and-a-new-era-under-ternus.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 9, 2026</time><span class="dot">&#183;</span><a href="#">[Samsung Galaxy Z Fold 8</a></p>
-      <h2 class="post-title"><a href="posts/how-the-rest-of-the-industry-is-reacting-to-apple-s-foldable-moment.html">&quot;How the Rest of the Industry Is Reacting to Apple&#x27;s Foldable Moment&quot;</a></h2>
-      <p class="post-snippet"></p>
-      <a class="read-more" href="posts/how-the-rest-of-the-industry-is-reacting-to-apple-s-foldable-moment.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Sep 8, 2026</time></p>
-      <h2 class="post-title"><a href="posts/apple-s-september-event-is-betting-big-and-i-m-not-sure-the-bet-pays-off.html">&quot;Apple&#x27;s September Event Is Betting Big — And I&#x27;m Not Sure the Bet Pays Off&quot;</a></h2>
-      <p class="post-snippet"></p>
-      <a class="read-more" href="posts/apple-s-september-event-is-betting-big-and-i-m-not-sure-the-bet-pays-off.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Aug 27, 2026</time><span class="dot">&#183;</span><a href="#">systems</a></p>
-      <h2 class="post-title"><a href="posts/why-your-build-cache-is-lying-to-you.html">Why your build cache is lying to you</a></h2>
-      <p class="post-snippet">A deep dive into cache invalidation edge cases that took down three separate CI pipelines last month, and the one-line fix that would have prevented all of it.</p>
-      <a class="read-more" href="posts/why-your-build-cache-is-lying-to-you.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Aug 20, 2026</time><span class="dot">&#183;</span><a href="#">apis</a></p>
-      <h2 class="post-title"><a href="posts/the-quiet-death-of-the-rest-vs-graphql-debate.html">The quiet death of the REST vs GraphQL debate</a></h2>
-      <p class="post-snippet">Nobody announced a winner. The industry just moved on to a different question entirely.</p>
-      <a class="read-more" href="posts/the-quiet-death-of-the-rest-vs-graphql-debate.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    
-    <article class="post-card reveal">
-      <p class="post-meta"><time>Aug 12, 2026</time><span class="dot">&#183;</span><a href="#">tooling</a></p>
-      <h2 class="post-title"><a href="posts/i-benchmarked-every-linter-so-you-don-t-have-to.html">I benchmarked every linter so you don&#x27;t have to</a></h2>
-      <p class="post-snippet">Turns out the fastest one isn&#x27;t the one everyone&#x27;s using.</p>
-      <a class="read-more" href="posts/i-benchmarked-every-linter-so-you-don-t-have-to.html">read <span class="arrow">&#8594;</span></a>
-    </article>
-    </div>
+        
   </main>
   
 <section class="nl-inline">

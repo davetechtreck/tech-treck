@@ -44,7 +44,7 @@ MAX_SEARCHES = 1  # hard cap on web searches per run — search itself costs
 # Your Amazon Associates tracking ID (e.g. "techtreck-20"). Get one free at
 # affiliate-program.amazon.com. Leave blank to skip affiliate linking
 # entirely — posts will just publish without shopping links.
-AMAZON_AFFILIATE_TAG = os.environ.get("AMAZON_AFFILIATE_TAG", "")
+AMAZON_AFFILIATE_TAG = " techtreck02-20"
 
 AFFILIATE_DISCLOSURE = (
     "\n\n*Tech Trek is a participant in the Amazon Services LLC Associates "

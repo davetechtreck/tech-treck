@@ -41,6 +41,18 @@ MAX_SEARCHES = 1  # hard cap on web searches per run — search itself costs
                    # so this is the main cost lever. Raise it if posts feel
                    # thin on facts; lower it to cut cost further.
 
+# Your Amazon Associates tracking ID (e.g. "techtreck-20"). Get one free at
+# affiliate-program.amazon.com. Leave blank to skip affiliate linking
+# entirely — posts will just publish without shopping links.
+AMAZON_AFFILIATE_TAG = os.environ.get("AMAZON_AFFILIATE_TAG", "")
+
+AFFILIATE_DISCLOSURE = (
+    "\n\n*Tech Trek is a participant in the Amazon Services LLC Associates "
+    "Program. Some links in this post may be affiliate links — if you buy "
+    "something through them, we may earn a small commission at no extra "
+    "cost to you.*"
+)
+
 # ---- Frontmatter format ------------------------------------------------
 # Matched to the real build.py parser:
 #   - parse_frontmatter() does NOT strip quotes from values, so fields must
@@ -97,6 +109,15 @@ SUBMIT_POSTS_TOOL = {
                             "type": "string",
                             "description": "The full Markdown body of the post.",
                         },
+                        "product_mentions": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": (
+                                "Exact names of real, currently-purchasable products named in "
+                                "the body (e.g. 'Sony WH-1000XM6'), used to add shopping links. "
+                                "Leave empty if no specific purchasable product was named."
+                            ),
+                        },
                     },
                     "required": ["title", "snippet", "tags", "body"],
                 },
@@ -144,22 +165,30 @@ def build_prompt(avoid_titles: list[str]) -> str:
             f"story (never cover the same story twice)"
         )
     search_plural = "" if MAX_SEARCHES == 1 else "es"
-    return f"""You write for "Tech Trek" (tagline: "{TAGLINE}"), a tech blog with a
-sharp, NYT-meets-tech voice: confident, clear, a little opinionated, no fluff,
-no "in today's fast-paced digital world" filler.
+    return f"""You write for "Tech Trek" (tagline: "{TAGLINE}"), a consumer tech and
+gadgets blog with a sharp, NYT-meets-tech voice: confident, clear, a little
+opinionated, no fluff, no "in today's fast-paced digital world" filler.
 
-Use web search to find real, current tech news from the last few hours.
-You have a strict budget of {MAX_SEARCHES} search{search_plural} total, so
-pick one specific, well-targeted query rather than searching broadly —
-don't search again "just to double check." Then {count_instruction}.
+Your beat is CONSUMER TECH AND GADGETS specifically — phones, laptops,
+wearables, headphones, smart home devices, gaming hardware, cameras, and
+similar products people actually buy. Cover things like: new product
+launches, hands-on impressions, notable price drops or deals, spec
+comparisons, and buying advice. Avoid enterprise/B2B software, pure
+corporate-finance stories, and AI-research-paper stories unless they tie
+directly to a consumer product people can buy or use.
+
+Use web search to find real, current stories from the last few hours in
+this beat. You have a strict budget of {MAX_SEARCHES} search{search_plural}
+total, so pick one specific, well-targeted query rather than searching
+broadly — don't search again "just to double check." Then {count_instruction}.
 Prefer stories that feel fresh rather than something every other outlet
 already covered hours ago.
 
 {avoid_block}Each post should be:
 - 350-500 words, written in Markdown (no title heading inside body, the
   title lives in frontmatter)
-- Grounded in the specific facts you found via search (name the company,
-  product, numbers, dates)
+- Grounded in the specific facts you found via search (name the product,
+  brand, price, specs, dates)
 - Written as an actual opinionated blog post, not a press-release summary
 - Free to use normal punctuation, including quotation marks, within the
   text — you don't need to avoid them or write around them
@@ -172,6 +201,12 @@ Write the body as plain Markdown prose only. Do NOT include citation
 markup, footnote markers, <cite> tags, source-index brackets like [1], or
 any inline attribution syntax — state facts directly in your own words with
 no annotation, the way a published blog post reads.
+
+Also list every specific, currently-purchasable product you named in the
+post (exact model name, e.g. "Sony WH-1000XM6" not just "Sony headphones")
+in the product_mentions field — this is used to add shopping links, so
+only include real products a reader could actually go buy, not companies
+or general categories.
 
 Do your research first. Once you're done writing, call the submit_posts
 tool exactly once with your finished post(s) as its arguments — that's how
@@ -228,6 +263,42 @@ def call_claude(prompt: str) -> list[dict]:
     return posts
 
 
+def _amazon_search_url(product_name: str) -> str:
+    from urllib.parse import quote_plus
+    url = f"https://www.amazon.com/s?k={quote_plus(product_name)}"
+    if AMAZON_AFFILIATE_TAG:
+        url += f"&tag={AMAZON_AFFILIATE_TAG}"
+    return url
+
+
+def _add_affiliate_links(body: str, product_mentions: list[str]) -> str:
+    """Turn the first mention of each named product into a linked Amazon
+    search (not a specific ASIN — searches don't go stale like a hardcoded
+    product link would when a listing changes or gets delisted). Appends
+    the required FTC/Amazon disclosure only if at least one link was added."""
+    if not AMAZON_AFFILIATE_TAG or not product_mentions:
+        return body
+
+    linked_any = False
+    for product in product_mentions:
+        product = product.strip()
+        if not product or f"]({_amazon_search_url(product)})" in body:
+            continue  # already linked (e.g. duplicate entry in the list)
+        pattern = re.compile(re.escape(product))
+        if pattern.search(body):
+            body = pattern.sub(
+                lambda m: f"[{m.group(0)}]({_amazon_search_url(product)})",
+                body,
+                count=1,
+            )
+            linked_any = True
+
+    if linked_any:
+        body += AFFILIATE_DISCLOSURE
+    return body
+
+
+
 def _single_line(text: str) -> str:
     """Frontmatter fields must be one line — build.py's parser reads
     metadata with splitlines(), so a literal newline would truncate or
@@ -245,12 +316,15 @@ def write_post(post: dict, today: date, index: int) -> Path:
     # leave stray punctuation baked into each tag.
     tags = ", ".join(t.strip() for t in post.get("tags", []) if t.strip())
 
+    body = _strip_citation_tags(post["body"])
+    body = _add_affiliate_links(body, post.get("product_mentions", []))
+
     content = FRONTMATTER_TEMPLATE.format(
         title=_single_line(_strip_citation_tags(post["title"])),
         date=today.isoformat(),
         tags=tags,
         snippet=_single_line(_strip_citation_tags(post.get("snippet", ""))),
-        body=_strip_citation_tags(post["body"]),
+        body=body,
     )
     path.write_text(content, encoding="utf-8")
     return path

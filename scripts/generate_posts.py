@@ -3,11 +3,21 @@
 Daily auto-poster for Tech Trek.
 
 Uses the Anthropic API (with the built-in web_search tool) to research
-today's tech news and write 3 original blog posts, then writes them as
-Markdown files into posts/ in the format your build.py expects.
+today's tech news and write blog posts, then writes them as Markdown
+files into posts/ in the format your build.py expects.
 
 Run by .github/workflows/daily-blog-post.yml on a daily schedule.
 Requires the ANTHROPIC_API_KEY environment variable (set as a GitHub secret).
+
+NOTE ON THE JSON FIX (2026-09-13):
+Earlier versions asked Claude to type out a JSON blob as plain text and
+then ran json.loads() on it. That's fragile — if the post body happens to
+contain a quotation mark, Claude sometimes forgets to escape it and the
+whole parse breaks (this happened in production on 2026-09-13).
+This version instead defines a `submit_posts` TOOL and lets Claude call it
+with structured arguments. The Anthropic API itself guarantees that a tool
+call's arguments are valid, correctly-escaped JSON — there is no longer any
+free-text JSON for us to parse or for a stray quote to corrupt.
 """
 
 import json
@@ -51,6 +61,50 @@ snippet: {snippet}
 
 {body}
 """
+
+# ---- The structured tool Claude must call to hand back its work ------------
+# Defining this as a tool (rather than asking for JSON as plain text) means
+# the Anthropic API parses and validates the arguments for us — a quotation
+# mark or newline inside "body" can never again produce a JSONDecodeError.
+SUBMIT_POSTS_TOOL = {
+    "name": "submit_posts",
+    "description": (
+        "Submit the finished blog post(s) once research and writing are complete. "
+        "Call this exactly once, as your final action."
+    ),
+    "input_schema": {
+        "type": "object",
+        "properties": {
+            "posts": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "description": "Punchy, specific, under 70 chars, single line, no line breaks.",
+                        },
+                        "snippet": {
+                            "type": "string",
+                            "description": "One sentence, under 160 chars, single line, for meta/preview use.",
+                        },
+                        "tags": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                            "description": "2-4 short lowercase tag strings.",
+                        },
+                        "body": {
+                            "type": "string",
+                            "description": "The full Markdown body of the post.",
+                        },
+                    },
+                    "required": ["title", "snippet", "tags", "body"],
+                },
+            }
+        },
+        "required": ["posts"],
+    },
+}
 
 
 def slugify(text: str) -> str:
@@ -107,6 +161,8 @@ already covered hours ago.
 - Grounded in the specific facts you found via search (name the company,
   product, numbers, dates)
 - Written as an actual opinionated blog post, not a press-release summary
+- Free to use normal punctuation, including quotation marks, within the
+  text — you don't need to avoid them or write around them
 
 Do not use "---" on its own line anywhere in the body (no Markdown
 horizontal rules) — the site's frontmatter parser treats a lone "---" line
@@ -117,41 +173,10 @@ markup, footnote markers, <cite> tags, source-index brackets like [1], or
 any inline attribution syntax — state facts directly in your own words with
 no annotation, the way a published blog post reads.
 
-You will do your research and reasoning first, then give your final answer.
-Put ONLY the JSON in your very last message content — no narration, notes,
-or commentary before or after it, and no markdown code fences around it.
-
-Return a list of exactly {NUM_POSTS} object{'' if NUM_POSTS == 1 else 's'}, each with keys:
-  "title": string (punchy, specific, under 70 chars, single line, no
-     line breaks)
-  "snippet": string (one sentence, under 160 chars, single line, for
-     meta/preview use)
-  "tags": list of 2-4 short lowercase tag strings
-  "body": string (the full Markdown body, using \\n for newlines)
+Do your research first. Once you're done writing, call the submit_posts
+tool exactly once with your finished post(s) as its arguments — that's how
+you deliver your final answer, not as a message to me.
 """
-
-
-def _extract_json(text: str) -> str:
-    """Pull the JSON payload out of Claude's raw text output. With
-    web_search enabled, Claude often narrates its research process before
-    (and sometimes after) the actual answer, so a simple strip of leading/
-    trailing fences isn't enough — this searches for the JSON wherever it
-    lands."""
-    # Prefer a fenced code block, wherever it appears in the text.
-    m = re.search(r"```(?:json)?\s*\n?(.*?)```", text, re.DOTALL)
-    if m:
-        return m.group(1).strip()
-    # No fence found — fall back to the outermost [...] or {...}, trimming
-    # any narration before/after it.
-    start_candidates = [i for i in (text.find("["), text.find("{")) if i != -1]
-    if not start_candidates:
-        return text.strip()
-    start = min(start_candidates)
-    end_char = "]" if text[start] == "[" else "}"
-    end = text.rfind(end_char)
-    if end == -1 or end < start:
-        return text.strip()
-    return text[start : end + 1].strip()
 
 
 def _strip_citation_tags(text: str) -> str:
@@ -170,26 +195,35 @@ def call_claude(prompt: str) -> list[dict]:
 
     response = client.messages.create(
         model=MODEL,
-        max_tokens=3000,  # ceiling for a ~350-500 word post + minimal
-                           # reasoning; keeps a worst-case run bounded
-        tools=[{"type": "web_search_20250305", "name": "web_search", "max_uses": MAX_SEARCHES}],
+        max_tokens=4000,  # a bit of headroom over the old 3000: tool-call
+                           # arguments carry a small amount of schema
+                           # overhead on top of the post content itself
+        tools=[
+            {"type": "web_search_20250305", "name": "web_search", "max_uses": MAX_SEARCHES},
+            SUBMIT_POSTS_TOOL,
+        ],
         messages=[{"role": "user", "content": prompt}],
     )
 
-    # Anthropic may return multiple text blocks interleaved with tool-use/
-    # tool-result blocks when web_search is used. Concatenate all text blocks.
-    text = "".join(block.text for block in response.content if block.type == "text")
+    # Find the submit_posts tool call. The SDK has already parsed its
+    # arguments into a Python dict — there is no text-JSON step left to fail.
+    tool_call = next(
+        (block for block in response.content if block.type == "tool_use" and block.name == "submit_posts"),
+        None,
+    )
 
-    json_text = _extract_json(text)
+    if tool_call is None:
+        # Claude didn't call the tool — surface whatever it said instead,
+        # so a failure here is easy to diagnose from the Action logs.
+        text = "".join(block.text for block in response.content if block.type == "text")
+        raise RuntimeError(
+            "Claude finished without calling submit_posts. "
+            f"stop_reason={response.stop_reason!r}. Text output was:\n{text}"
+        )
 
-    try:
-        posts = json.loads(json_text)
-    except json.JSONDecodeError as e:
-        print("Failed to parse model output as JSON. Raw output was:\n", text, file=sys.stderr)
-        raise e
-
+    posts = tool_call.input.get("posts")
     if not isinstance(posts, list) or len(posts) == 0:
-        raise ValueError(f"Expected a non-empty list of posts, got: {posts!r}")
+        raise ValueError(f"submit_posts was called with no usable 'posts' list: {tool_call.input!r}")
 
     return posts
 

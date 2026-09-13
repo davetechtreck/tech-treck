@@ -42,7 +42,7 @@ MAX_SEARCHES = 1  # hard cap on web searches per run — search itself costs
                    # thin on facts; lower it to cut cost further.
 
 # Your Amazon Associates tracking ID (e.g. "techtreck-20"). Get one free at
-# affiliate-program.amazon.com. Leave blank to skip affiliate linking
+# affiliate-program.amazon.com. Leave blank ("") to skip affiliate linking
 # entirely — posts will just publish without shopping links.
 AMAZON_AFFILIATE_TAG = "techtreck02-20"
 
@@ -348,6 +348,8 @@ def main():
         path = write_post(post, today, i)
         written.append(path)
         print(f"  wrote {path}")
+        mentions = post.get("product_mentions", [])
+        print(f"    product_mentions from model: {mentions!r}")
 
     if len(written) < NUM_POSTS:
         print(f"WARNING: only {len(written)}/{NUM_POSTS} posts were written.", file=sys.stderr)

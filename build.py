@@ -24,6 +24,20 @@ SITE_TITLE = "Tech Treck"
 SITE_TAGLINE = "field notes on Tech"
 SITE_URL = "https://techtreck.tech/"  # NEW: replace with your real domain, no trailing slash
 
+# NEW: Cloudflare Web Analytics — free, no cookie banner needed, one script
+# tag. Sign up free at dash.cloudflare.com > Analytics > Web Analytics, add
+# your site, and paste the "token" it gives you here. Leave blank to skip
+# analytics entirely.
+CLOUDFLARE_ANALYTICS_TOKEN = os.environ.get("CLOUDFLARE_ANALYTICS_TOKEN", "")
+
+def _analytics_snippet():
+    if not CLOUDFLARE_ANALYTICS_TOKEN:
+        return ""
+    return (
+        '<script defer src="https://static.cloudflareinsights.com/beacon.min.js" '
+        f'data-cf-beacon=\'{{"token": "{CLOUDFLARE_ANALYTICS_TOKEN}"}}\'></script>'
+    )
+
 # Add or remove entries here — each is (label, url). Shows up in the footer
 # on every page. Leave the list empty ( [] ) to show no social links at all.
 SOCIAL_LINKS = [
@@ -543,6 +557,7 @@ HEAD = """<!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600" rel="stylesheet"/>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500" rel="stylesheet"/>
 <style>{css}</style>
+{analytics}
 </head>
 <body>
 <div id="scroll-progress"></div>
@@ -669,6 +684,7 @@ def build():
             site_title=SITE_TITLE,
             site_tagline=SITE_TAGLINE,
             home_href="../index.html",
+            analytics=_analytics_snippet(),
         )
         page += f"""
     <article class="post-full">
@@ -695,6 +711,7 @@ def build():
         site_title=SITE_TITLE,
         site_tagline=SITE_TAGLINE,
         home_href="index.html",
+        analytics=_analytics_snippet(),
     )
     index += '<p class="section-label">Latest</p>'
 

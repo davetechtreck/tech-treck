@@ -8,6 +8,18 @@
     <language>en-us</language>
 
     <item>
+      <title>TCL&#x27;s New S-Class Soundbars Want to Deliver Atmos on a Budget</title>
+      <link>https://techtreck.tech//posts/tcl-s-new-s-class-soundbars-want-to-deliver-atmos-on-a-budget.html</link>
+      <guid>https://techtreck.tech//posts/tcl-s-new-s-class-soundbars-want-to-deliver-atmos-on-a-budget.html</guid>
+      <pubDate>Mon, 14 Sep 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[<p>TCL just added two new soundbars to its lineup: the S65K and S60K, both promising Dolby Atmos at what the company is billing as accessible price points. It's the latest in a long line of budget-friendly Atmos soundbars flooding the market, and honestly, I'm skeptical.</p>
+<p>The new S-Class lineup joins an increasingly crowded field where every manufacturer seems convinced that slapping Dolby Atmos on a sub-$500 soundbar automatically makes it worth buying. TCL has been aggressive about undercutting competitors on price across its entire product range, from TVs to audio gear, so it's no surprise to see them taking another swing at the soundbar category.</p>
+<p>Here's the thing: Dolby Atmos requires serious hardware to work properly. You need dedicated upfiring drivers, enough power to fill a room, and spatial processing that doesn't sound like a gimmick. Most budget soundbars fake it with virtualization, bouncing audio off your ceiling and hoping for the best. Whether TCL's S65K and S60K can actually deliver convincing overhead sound or just check a spec-sheet box remains to be seen.</p>
+<p>TCL's track record is mixed. Their TVs punch above their weight on picture quality, offering genuine value for anyone who doesn't want to drop two grand on a Sony or LG. But audio is a different beast. A great TV can get by on panel quality alone; a great soundbar needs tuning, driver quality, and room-filling power that's harder to fake with cost-cutting.</p>
+<p>The S65K likely sits at the top of this new lineup, with the S60K positioned as the more affordable option. Without pricing or detailed specs, it's tough to say whether these are genuinely competitive or just another pair of also-rans in a category where Sonos, Samsung, and Bose already have the mid-range locked down.</p>
+<p>If TCL can deliver actual Atmos performance under $400, they'll have my attention. If it's just virtual surround with height channel branding, well, we've seen that playbook before. The soundbar market doesn't need more mediocre options, it needs genuinely good ones that don't require a four-figure budget.</p>]]></description>
+    </item>
+    <item>
       <title>Fiio Is Betting Someone Still Wants a New Cassette Player in 2026</title>
       <link>https://techtreck.tech//posts/fiio-is-betting-someone-still-wants-a-new-cassette-player-in-2026.html</link>
       <guid>https://techtreck.tech//posts/fiio-is-betting-someone-still-wants-a-new-cassette-player-in-2026.html</guid>
@@ -285,18 +297,6 @@ diff: files differ (but hashes matched)</code></pre>
 <p>The real shift is that <strong>schema-first development</strong> won, regardless of transport. Whether the actual bytes on the wire are REST or GraphQL matters less than whether your client and server agree on a shared, generated contract.</p>
 <h2>Where this leaves you</h2>
 <p>If you're starting something new today, the honest answer is: pick whichever your team already knows, generate types from a schema either way, and stop debating the thing that stopped mattering two years ago.</p>]]></description>
-    </item>
-    <item>
-      <title>I benchmarked every linter so you don&#x27;t have to</title>
-      <link>https://techtreck.tech//posts/i-benchmarked-every-linter-so-you-don-t-have-to.html</link>
-      <guid>https://techtreck.tech//posts/i-benchmarked-every-linter-so-you-don-t-have-to.html</guid>
-      <pubDate>Wed, 12 Aug 2026 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p>Every few months someone claims their linter is "blazing fast." So I actually timed six of them against the same 40,000-file codebase.</p>
-<h2>The results</h2>
-<p>The tool most teams reach for by default landed in the middle of the pack. The fastest option was a newer, less popular linter written in a compiled language rather than running on a VM — no surprise there, but the gap was bigger than expected: <strong>roughly 9x</strong> on a cold run.</p>
-<h2>The catch</h2>
-<p>Speed isn't the only variable. Plugin ecosystem, editor integration, and how many of your existing rules are already ported over all matter more than raw benchmark numbers for most day-to-day use.</p>
-<p>If your lint step is currently the bottleneck in CI, though, it's worth the migration. If it's not, this is a classic case of optimizing something that was never actually slow enough to matter.</p>]]></description>
     </item>
   </channel>
 </rss>

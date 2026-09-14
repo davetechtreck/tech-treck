@@ -119,7 +119,7 @@ SUBMIT_POSTS_TOOL = {
                             ),
                         },
                     },
-                    "required": ["title", "snippet", "tags", "body"],
+                    "required": ["title", "snippet", "tags", "body", "product_mentions"],
                 },
             }
         },
@@ -202,11 +202,17 @@ markup, footnote markers, <cite> tags, source-index brackets like [1], or
 any inline attribution syntax — state facts directly in your own words with
 no annotation, the way a published blog post reads.
 
-Also list every specific, currently-purchasable product you named in the
-post (exact model name, e.g. "Sony WH-1000XM6" not just "Sony headphones")
-in the product_mentions field — this is used to add shopping links, so
-only include real products a reader could actually go buy, not companies
-or general categories.
+Also, list every specific, currently-purchasable product you named in the
+post (exact model name, written character-for-character the same way it
+appears in the body — e.g. "Sony WH-1000XM6" not just "Sony headphones" or
+"the new headphones") in the product_mentions field. This field is
+REQUIRED on every post — don't skip it. Before finishing, re-read your own
+body text specifically looking for named products, since it's easy to
+write about a real product without remembering to also list it here. Only
+use an empty list if the body genuinely names no specific purchasable
+product at all (e.g. a post about a company's earnings or a general
+industry trend) — for anything reviewing, comparing, or announcing an
+actual device, there should almost always be at least one entry.
 
 Do your research first. Once you're done writing, call the submit_posts
 tool exactly once with your finished post(s) as its arguments — that's how

@@ -8,6 +8,18 @@
     <language>en-us</language>
 
     <item>
+      <title>GoPro Just Bet Its Future on AI Data Centers. Yes, Really.</title>
+      <link>https://techtreck.tech//posts/gopro-just-bet-its-future-on-ai-data-centers-yes-really.html</link>
+      <guid>https://techtreck.tech//posts/gopro-just-bet-its-future-on-ai-data-centers-yes-really.html</guid>
+      <pubDate>Mon, 14 Sep 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[<p>GoPro, the company that convinced millions of people to strap cameras to their helmets, is now pivoting to AI data center hardware. The company announced a merger with Starman Optical, a privately held optical-photonics company, in a deal that will keep GoPro publicly listed on Nasdaq but fundamentally transform what the business actually does.</p>
+<p>The plan is straightforward, if surprising: GoPro will add Starman's U.S.-based optical transceiver business to its portfolio, positioning itself to sell components for AI data centers, government, defense, and aerospace markets. These are the fiber-optic parts that move data at high speeds inside and between data centers—critical infrastructure for the AI boom, but about as far from action cameras as you can get.</p>
+<p>GoPro says it will continue supporting its existing consumer products and its subscription cloud platform, but the message is clear: the future growth is elsewhere. The company has struggled for years to expand beyond its core camera business, facing intense smartphone competition and a market that's never quite grown as large as investors hoped. This merger is essentially a recapitalization play that gives GoPro a new business line with actual enterprise revenue potential.</p>
+<p>The timing makes sense, even if the pairing feels odd. Optical transceivers are in high demand as hyperscalers build out AI infrastructure, and Starman brings U.S. onshore manufacturing at a moment when supply chain resilience matters. GoPro gets to stay public, maintain its brand, and have a revenue stream that doesn't depend on convincing people to buy a new action camera every few years.</p>
+<p>What's less clear is whether GoPro's existing customers should care. The company promises ongoing support for consumer products, but we've seen this story before—legacy businesses maintained while leadership focuses on the new growth engine. Action camera enthusiasts probably shouldn't expect a flood of innovation in future models.</p>
+<p>This is a survival move dressed up as a growth strategy. GoPro recognized it couldn't scale in consumer electronics alone, so it's buying its way into enterprise infrastructure. The bet is that optical components for AI data centers are a better business than convincing weekend warriors to upgrade their cameras. They're probably right, but it's still a strange turn for a brand that built its identity on adventure and action.</p>]]></description>
+    </item>
+    <item>
       <title>TCL&#x27;s New S-Class Soundbars Want to Deliver Atmos on a Budget</title>
       <link>https://techtreck.tech//posts/tcl-s-new-s-class-soundbars-want-to-deliver-atmos-on-a-budget.html</link>
       <guid>https://techtreck.tech//posts/tcl-s-new-s-class-soundbars-want-to-deliver-atmos-on-a-budget.html</guid>
@@ -285,18 +297,6 @@ diff: files differ (but hashes matched)</code></pre>
 <blockquote>Lesson: a cache key is a promise about equivalence. Make sure it actually captures everything that affects the output.</blockquote>
 <p>The fix was one line: include the target environment in the cache key. Three days of debugging, one line of code.</p>
 <ul><li>Always hash your <em>effective</em> inputs, not just the files on disk</li><li>Include environment/target flags in any cache key</li><li>When in doubt, add a manual "bust cache" escape hatch</li></ul>]]></description>
-    </item>
-    <item>
-      <title>The quiet death of the REST vs GraphQL debate</title>
-      <link>https://techtreck.tech//posts/the-quiet-death-of-the-rest-vs-graphql-debate.html</link>
-      <guid>https://techtreck.tech//posts/the-quiet-death-of-the-rest-vs-graphql-debate.html</guid>
-      <pubDate>Thu, 20 Aug 2026 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p>For years, "REST or GraphQL" was the API architecture debate. It's mostly over now, and not because either side won.</p>
-<h2>What happened instead</h2>
-<p>Most teams settled into a pragmatic middle: REST for simple CRUD, a typed query layer for anything read-heavy, and neither camp cares much about ideological purity anymore.</p>
-<p>The real shift is that <strong>schema-first development</strong> won, regardless of transport. Whether the actual bytes on the wire are REST or GraphQL matters less than whether your client and server agree on a shared, generated contract.</p>
-<h2>Where this leaves you</h2>
-<p>If you're starting something new today, the honest answer is: pick whichever your team already knows, generate types from a schema either way, and stop debating the thing that stopped mattering two years ago.</p>]]></description>
     </item>
   </channel>
 </rss>

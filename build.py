@@ -191,6 +191,25 @@ def fmt_date_human(d):
 # NEW: RSS feed generation
 # ---------------------------------------------------------------------------
 
+def generate_sitemap(posts):
+    base = SITE_URL.rstrip("/")
+    urls = [f"{base}/", f"{base}/about.html"]
+    urls += [f"{base}/posts/{m['slug']}.html" for m in posts]
+    entries = "".join(f"\n  <url><loc>{html.escape(u)}</loc></url>" for u in urls)
+    return f"""<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">{entries}
+</urlset>"""
+
+
+def generate_robots_txt():
+    base = SITE_URL.rstrip("/")
+    return f"""User-agent: *
+Allow: /
+
+Sitemap: {base}/sitemap.xml
+"""
+
+
 def generate_rss(posts):
     items = []
     for meta in posts[:20]:  # most recent 20 items
@@ -542,12 +561,28 @@ INLINE_SIGNUP_HTML = """
 </section>
 """
 
+ABOUT_MARKDOWN = """Tech Trek covers what's actually worth knowing in consumer tech — phones, laptops, wearables, headphones, smart home gear, gaming hardware, cameras. New posts land daily: real launches, real prices, real specs, and an actual point of view, not a repackaged press release.
+
+Want it without checking back constantly? Subscribe below for a once-daily digest — everything published that day, one email, no spam.
+
+Some posts link to products through the Amazon Associates program. When they do, it's always disclosed in the post — never disguised as a regular link."""
+
 HEAD = """<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>{title}</title>
+<meta name="description" content="{description}"/>
+<link rel="canonical" href="{canonical_url}"/>
+<meta property="og:type" content="website"/>
+<meta property="og:site_name" content="{site_title}"/>
+<meta property="og:title" content="{title}"/>
+<meta property="og:description" content="{description}"/>
+<meta property="og:url" content="{canonical_url}"/>
+<meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="{title}"/>
+<meta name="twitter:description" content="{description}"/>
 <meta name="google-site-verification" content="g5gG3v7FtM3b4ZUF9BsgGvIpjq6fgF2NK20e-5bTyDk" />
 <meta name="google-adsense-account" content="ca-pub-4303818032223917">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4303818032223917"
@@ -571,6 +606,7 @@ HEAD = """<!DOCTYPE html>
       <div class="head-right">
         <nav class="site-nav">
           <a class="u-link" href="{home_href}">index</a>
+          <a class="u-link" href="{about_href}">about</a>
         </nav>
         <button id="theme-toggle" aria-label="Toggle dark mode">dark</button>
       </div>
@@ -660,6 +696,13 @@ def build():
     with open(os.path.join(DIST_DIR, "feed.xml"), "w", encoding="utf-8") as f:
         f.write(generate_rss(posts))
 
+    # NEW: sitemap + robots.txt — both help search engines find and
+    # crawl every page; neither existed before.
+    with open(os.path.join(DIST_DIR, "sitemap.xml"), "w", encoding="utf-8") as f:
+        f.write(generate_sitemap(posts))
+    with open(os.path.join(DIST_DIR, "robots.txt"), "w", encoding="utf-8") as f:
+        f.write(generate_robots_txt())
+
     # NEW: write one Apple News Format article.json per post, each in its
     # own folder (dist/anf/<slug>/article.json) — this matches the folder
     # structure News Publisher expects when you use Upload Article.
@@ -678,13 +721,15 @@ def build():
             tags_html = f'<div class="tags-row">{links}</div>'
 
         page = HEAD.format(
-            title=f"{meta['title']} &middot; {SITE_TITLE}",
+            title=f"{html.escape(meta['title'])} &middot; {SITE_TITLE}",
             description=html.escape(meta["snippet"]),
             css=CSS,
             site_title=SITE_TITLE,
             site_tagline=SITE_TAGLINE,
             home_href="../index.html",
+            about_href="../about.html",
             analytics=_analytics_snippet(),
+            canonical_url=f"{SITE_URL.rstrip('/')}/posts/{meta['slug']}.html",
         )
         page += f"""
     <article class="post-full">
@@ -706,12 +751,14 @@ def build():
     # ---- homepage ----
     index = HEAD.format(
         title=f"{SITE_TITLE} &middot; {SITE_TAGLINE}",
-        description=f"{SITE_TITLE} — {SITE_TAGLINE}",
+        description=html.escape(f"{SITE_TITLE} — {SITE_TAGLINE}"),
         css=CSS,
         site_title=SITE_TITLE,
         site_tagline=SITE_TAGLINE,
         home_href="index.html",
+        about_href="about.html",
         analytics=_analytics_snippet(),
+        canonical_url=SITE_URL.rstrip("/") + "/",
     )
     index += '<p class="section-label">Latest</p>'
 
@@ -746,6 +793,30 @@ def build():
     index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML)
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index)
+
+    # ---- about page ----
+    about = HEAD.format(
+        title=f"About &middot; {SITE_TITLE}",
+        description=html.escape(f"About {SITE_TITLE} — {SITE_TAGLINE}"),
+        css=CSS,
+        site_title=SITE_TITLE,
+        site_tagline=SITE_TAGLINE,
+        home_href="index.html",
+        about_href="about.html",
+        analytics=_analytics_snippet(),
+        canonical_url=SITE_URL.rstrip("/") + "/about.html",
+    )
+    about += f"""
+    <article class="post-full">
+      <h1 class="post-title">About {html.escape(SITE_TITLE)}</h1>
+      <div class="post-body">
+        {markdown_to_html(ABOUT_MARKDOWN)}
+      </div>
+    </article>
+    """
+    about += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML)
+    with open(os.path.join(DIST_DIR, "about.html"), "w", encoding="utf-8") as f:
+        f.write(about)
 
     print(f"Built {len(posts)} post(s) into {DIST_DIR}/")
 

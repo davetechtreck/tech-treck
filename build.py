@@ -306,7 +306,7 @@ def generate_anf(meta):
 CSS = """
 :root{
   --paper:#F7F7F5; --panel:#FFFFFF; --ink:#121212; --ink-soft:#3A3A3A;
-  --muted:#767676; --faint:#A2A2A0; --accent:#2F49FF; --accent-ink:#FFFFFF;
+  --muted:#5E5E5E; --faint:#6B6B69; --accent:#2F49FF; --accent-ink:#FFFFFF;
   --rule:#E1E1DE; --rule-strong:#C9C9C6; --mono-bg:#EFEFF3;
   --font-serif:'Source Serif 4', Georgia, serif;
   --font-sans:'Space Grotesk', system-ui, sans-serif;
@@ -314,7 +314,7 @@ CSS = """
 }
 html[data-theme="dark"]{
   --paper:#0E0F12; --panel:#16171B; --ink:#F2F2F0; --ink-soft:#C7C7C4;
-  --muted:#8A8A87; --faint:#55565A; --accent:#6E8CFF; --accent-ink:#0E0F12;
+  --muted:#8A8A87; --faint:#83848A; --accent:#6E8CFF; --accent-ink:#0E0F12;
   --rule:#26272C; --rule-strong:#34353A; --mono-bg:#1B1C21;
 }
 *{box-sizing:border-box;}
@@ -588,9 +588,12 @@ HEAD = """<!DOCTYPE html>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4303818032223917"
      crossorigin="anonymous"></script>
 <link rel="alternate" type="application/rss+xml" title="{site_title}" href="/feed.xml"/>
-<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500" rel="stylesheet"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+      media="print" onload="this.media='all'"/>
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap"/></noscript>
 <style>{css}</style>
 {analytics}
 </head>
@@ -675,6 +678,23 @@ def build():
     # NEW: copy images/ into dist/images/ so they're served alongside the site
     if os.path.isdir(IMAGES_DIR):
         shutil.copytree(IMAGES_DIR, os.path.join(DIST_DIR, "images"))
+
+    # NEW: cache headers — images didn't have any explicit cache lifetime
+    # set, so browsers were re-checking them more often than necessary.
+    # This is a Netlify-specific convention (a plain file named "_headers"
+    # in the published folder); Netlify reads it automatically at deploy
+    # time, no config elsewhere needed.
+    headers_content = """/images/*
+  Cache-Control: public, max-age=2592000
+
+/feed.xml
+  Cache-Control: public, max-age=3600
+
+/sitemap.xml
+  Cache-Control: public, max-age=3600
+"""
+    with open(os.path.join(DIST_DIR, "_headers"), "w", encoding="utf-8") as f:
+        f.write(headers_content)
 
     md_files = sorted(f for f in os.listdir(POSTS_DIR) if f.endswith(".md"))
     if not md_files:

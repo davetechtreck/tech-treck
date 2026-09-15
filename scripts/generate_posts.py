@@ -36,10 +36,14 @@ POSTS_DIR = Path("posts")
 NUM_POSTS = 1
 MODEL = "claude-sonnet-4-5"  # update if you want a different model
 TAGLINE = "field notes on Tech"
-MAX_SEARCHES = 1  # hard cap on web searches per run — search itself costs
+MAX_SEARCHES = 2  # hard cap on web searches per run — search itself costs
                    # $0.01/search, and each result adds input tokens on top,
-                   # so this is the main cost lever. Raise it if posts feel
-                   # thin on facts; lower it to cut cost further.
+                   # so this is the main cost lever. Set to 2 so Claude can
+                   # spend one search checking what's currently trending in
+                   # gadgets before spending the second on the actual story
+                   # (see build_prompt). Raise it further if posts feel thin
+                   # on facts; lower back to 1 to cut cost (loses the trend
+                   # check, falls back to picking any fresh story).
 
 # Your Amazon Associates tracking ID (e.g. "techtreck-20"). Get one free at
 # affiliate-program.amazon.com. Leave blank ("") to skip affiliate linking
@@ -177,12 +181,25 @@ comparisons, and buying advice. Avoid enterprise/B2B software, pure
 corporate-finance stories, and AI-research-paper stories unless they tie
 directly to a consumer product people can buy or use.
 
-Use web search to find real, current stories from the last few hours in
-this beat. You have a strict budget of {MAX_SEARCHES} search{search_plural}
-total, so pick one specific, well-targeted query rather than searching
-broadly — don't search again "just to double check." Then {count_instruction}.
-Prefer stories that feel fresh rather than something every other outlet
-already covered hours ago.
+You have a budget of {MAX_SEARCHES} search{search_plural} total — spend it
+like this:
+
+1. If you have 2 or more searches available, spend your FIRST one checking
+   what's currently getting buzz in consumer tech and gadgets right now —
+   a broad query like "trending gadget tech news today" or "what tech
+   product is everyone talking about right now" works well. Use the
+   results to see what's actually spiking in interest, not just what's
+   merely been announced.
+2. Spend your remaining search(es) digging into the specific facts (price,
+   specs, exact dates, exact model names) for whichever ONE story you've
+   decided is both trending and hasn't been covered yet.
+3. If you only have 1 search total, skip step 1 and go straight for one
+   specific, well-targeted query about a fresh story instead.
+
+Don't search again "just to double check" once you've used your budget.
+Then {count_instruction}. Prefer stories that feel fresh and genuinely
+in-demand right now rather than something every other outlet already
+covered hours ago.
 
 {avoid_block}Each post should be:
 - 350-500 words, written in Markdown (no title heading inside body, the

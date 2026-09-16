@@ -1,0 +1,74 @@
+{
+  "version": "1.7",
+  "identifier": "sony-just-brought-planar-magnetic-audio-to-gaming-headsets-again",
+  "language": "en",
+  "title": "Sony Just Brought Planar Magnetic Audio to Gaming Headsets. Again.",
+  "layout": {
+    "columns": 12,
+    "width": 1024,
+    "margin": 60,
+    "gutter": 20
+  },
+  "components": [
+    {
+      "role": "title",
+      "text": "Sony Just Brought Planar Magnetic Audio to Gaming Headsets. Again."
+    },
+    {
+      "role": "intro",
+      "text": "The PlayStation Pulse and Pulse Edge double down on audiophile tech for PS5 gamers, but pricing is still missing."
+    },
+    {
+      "role": "body",
+      "text": "<p>Sony announced two new PlayStation headsets today, and the company's message is clear: planar magnetic drivers are no longer just for audiophiles who corner you at parties to explain soundstage. The <a href=\"https://www.amazon.com/s?k=PlayStation+Pulse&amp;tag=techtreck02-20\">PlayStation Pulse</a> and <a href=\"https://www.amazon.com/s?k=PlayStation+Pulse+Edge&amp;tag=techtreck02-20\">PlayStation Pulse Edge</a> are both getting the tech, following the <a href=\"https://www.amazon.com/s?k=Pulse+Elite&amp;tag=techtreck02-20\">Pulse Elite</a> that launched in 2024 after Sony acquired premium headphone maker Audeze.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>Planar magnetic drivers use thin, flat diaphragms suspended between magnets instead of the traditional dynamic driver cone. The result is lower distortion, cleaner bass, and better spatial accuracy, which matters when you're trying to figure out if those footsteps are coming from behind the crate or inside the building. The standard Pulse uses four magnets per driver, while the Pulse Edge doubles that to eight for deeper bass response.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>Both headsets support PlayStation Link for lossless, low-latency wireless audio across PS5, PlayStation Portal, and PC. They can also maintain a simultaneous Bluetooth connection, so you can take a call without unplugging from your console. Both feature AI-enhanced noise rejection on the integrated microphones and come in white or midnight black.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>The Pulse Edge is the flagship here. It adds active noise cancellation, a detachable boom mic for voice chat, built-in game and chat balance controls, an audio jack for wired use, and a carrying case. The standard Pulse skips all of that to hit a lower price point, though Sony hasn't actually announced what either headset will cost. The Pulse Elite currently sells for $149, which gives you a rough baseline, but expect the Edge to command a premium, possibly in the $200 to $250 range based on the feature set.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>Timing is staggered. The standard PlayStation Pulse arrives in select markets this holiday season, while the Pulse Edge won't ship until early 2027. No preorder dates yet, and Sony hasn't said which markets count as \"select,\" which is always a gamble when you're trying to plan a purchase.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>The move makes sense strategically. Sony's been pushing spatial audio hard on PS5, and planar magnetic drivers are genuinely better at delivering the kind of precise positional cues that 3D audio promises. The question is whether gamers will pay the premium when plenty of solid gaming headsets exist in the $100 to $150 range. The Pulse Elite found an audience, but it also had the advantage of being Sony's first planar gaming headset. The novelty factor is gone now.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>What's missing from today's announcement is any clarity on battery life, weight, frequency response, or which Bluetooth codecs these support. Those details matter, especially if Sony wants the Pulse Edge to compete with established audiophile gaming headsets like the <a href=\"https://www.amazon.com/s?k=Audeze+Maxwell&amp;tag=techtreck02-20\">Audeze Maxwell</a>, which sells for $329 but delivers specs that justify the price.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>Sony's betting that planar magnetic audio is ready for mainstream gaming. We'll find out this holiday season whether that bet was premature or perfectly timed.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p><em>Tech Trek is a participant in the Amazon Services LLC Associates Program. Some links in this post may be affiliate links — if you buy something through them, we may earn a small commission at no extra cost to you.</em></p>",
+      "format": "html"
+    }
+  ],
+  "metadata": {
+    "canonicalURL": "https://techtreck.tech//posts/sony-just-brought-planar-magnetic-audio-to-gaming-headsets-again.html",
+    "datePublished": "2026-09-16T00:00:00Z",
+    "generatorIdentifier": "TechTreckBuildPy",
+    "generatorName": "Tech Treck build.py",
+    "generatorVersion": "1.0"
+  }
+}

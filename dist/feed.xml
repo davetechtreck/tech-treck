@@ -33,6 +33,20 @@
 <p>For now, the pre-order window opens Monday. If you want in on the first wave, set your alarm for 9 a.m. Eastern on the 21st and hope Google publishes actual model configurations before then.</p>]]></description>
     </item>
     <item>
+      <title>OpenAI Just Spent $300 Million on a Camera Company. What&#x27;s It Building?</title>
+      <link>https://techtreck.tech//posts/openai-just-spent-300-million-on-a-camera-company-what-s-it-building.html</link>
+      <guid>https://techtreck.tech//posts/openai-just-spent-300-million-on-a-camera-company-what-s-it-building.html</guid>
+      <pubDate>Thu, 17 Sep 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[<p>OpenAI doesn't make phones. It doesn't make cameras. But it just spent more than $300 million to acquire Glass Imaging, a Los Altos startup founded by two former Apple engineers who helped create Portrait Mode on the iPhone. The deal, reported by The Wall Street Journal last weekend, tripled Glass Imaging's 2025 valuation and marks the clearest signal yet that OpenAI's hardware ambitions are more than vaporware.</p>
+<p>Glass Imaging builds AI-powered camera software that makes smartphone sensors punch above their weight. The company's GlassAI system uses neural networks trained on specific camera modules to improve image quality at the moment of capture, not as a post-processing trick. Where traditional camera pipelines handle noise reduction, sharpening, and color reconstruction as separate stages, Glass Imaging collapses it all into a single pass. The result, according to the company, is smartphone image quality that approaches what you'd get from a DSLR.</p>
+<p>The founders, Ziv Attar and Tom Bishop, left Apple specifically to rethink smartphone cameras without being constrained by the iPhone's broader design priorities. That kind of clean-sheet thinking is exactly what you'd want if you were building a device from scratch.</p>
+<p>And OpenAI is building a device from scratch. In 2025, the company paid $6.5 billion for io, the startup co-founded by CEO Sam Altman and Jony Ive, Apple's former design chief. Ive now oversees consumer devices at OpenAI, and reports suggest the first product could be a screenless speaker priced around $300. But internal comments from Altman paint a far bigger picture: he's reportedly said the device could add $1 trillion to OpenAI's valuation.</p>
+<p>That's not speaker money. That's something that fundamentally changes how people interact with AI in the physical world.</p>
+<p>The Glass Imaging acquisition fills the most obvious gap. A device designed to act on what it sees needs exceptional computer vision. It needs cameras that work well in bad lighting, with small sensors, under power constraints. It needs capture tech optimized for AI inference, not Instagram filters. Glass Imaging has spent years solving exactly that problem.</p>
+<p>What's still unclear is what form the device will take. Jony Ive described it in a 2025 video as a counterweight to the harmful effects of smartphones, which suggests something fundamentally different from just another phone. A wearable camera? An ambient assistant? Some kind of spatial computing play?</p>
+<p>OpenAI hasn't confirmed the acquisition publicly, and Glass Imaging declined to comment. But at $300 million, this isn't a talent grab. It's a piece of critical infrastructure. The kind you buy when you're ready to ship.</p>]]></description>
+    </item>
+    <item>
       <title>AirPods 5 Already Getting Discounts Before They Even Ship</title>
       <link>https://techtreck.tech//posts/airpods-5-already-getting-discounts-before-they-even-ship.html</link>
       <guid>https://techtreck.tech//posts/airpods-5-already-getting-discounts-before-they-even-ship.html</guid>
@@ -244,19 +258,6 @@
 <p>What makes this particularly pointed is what Microsoft is already turning away. The company is declining work at 12 gigawatts today, which means the next six years of capacity will effectively decide which AI vendors get reliable training clusters and which get pushed to smaller regional clouds or face delayed product launches. If you're a startup counting on Azure for compute, this is both a demand signal and a warning.</p>
 <p>The subtext here is harder to miss than the headline number: AI is no longer a software problem. It's an energy problem, a real estate problem, a supply chain problem. The bottleneck isn't model architecture anymore. It's how fast you can wire up substations and negotiate with utilities.</p>
 <p>Microsoft's 38-gigawatt plan is the clearest statement yet that the AI boom is moving from research labs into physical infrastructure. The question isn't whether the models will get better. It's whether the grid can keep up, and whether the companies building it can move faster than demand. Right now, Microsoft is betting it can't afford to wait.</p>]]></description>
-    </item>
-    <item>
-      <title>Stealth Startup Just Exposed Holes in Every Major AI Code Sandbox</title>
-      <link>https://techtreck.tech//posts/stealth-startup-just-exposed-holes-in-every-major-ai-code-sandbox.html</link>
-      <guid>https://techtreck.tech//posts/stealth-startup-just-exposed-holes-in-every-major-ai-code-sandbox.html</guid>
-      <pubDate>Sat, 12 Sep 2026 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p>A stealth startup called Accomplish just reminded us that when AI writes code, the sandbox is the last line of defense. And right now, that line is leaking.</p>
-<p>The company, founded by Or Hiltch, Amit Avner, and Guy Zipori, disclosed vulnerabilities across Claude Code, OpenAI Codex, and Cursor after quietly reporting them to vendors this summer. The bugs let AI-generated code escape the sandboxes meant to contain it, a problem that becomes exponentially worse as developers hand more autonomy to AI agents.</p>
-<p>The timing matters. OpenAI just opened public beta for its Agents API two days ago, built on a managed Codex harness designed to handle sessions, orchestration, and recovery while developers focus on tools and execution environments. Built-in sandbox execution is supposed to be one of the safety rails. If those sandboxes are porous, the entire trust model breaks.</p>
-<p>Accomplish's disclosure is unusually specific: it names the platforms, credits the researchers, and confirms the vendors were notified before going public. That's the responsible path, but it also means these issues were live in production while the industry raced to ship agent-powered coding tools.</p>
-<p>What makes this scarier is the trend line. A Russian-speaking threat actor recently used hundreds of AI agents built on OpenAI's Codex and a DeepSeek model to exploit unrelated vulnerabilities, compromising 440 PaperCut instances across 395 organizations in 48 countries. That campaign started in August. The fact that someone can already weaponize AI agents at scale means sandbox escapes aren't theoretical edge cases anymore.</p>
-<p>The broader issue is that AI coding tools are being deployed faster than the security assumptions underneath them can be validated. Sandboxes work when the code inside is dumb and predictable. AI-generated code is neither. It's creative, context-aware, and increasingly capable of doing exactly what you didn't anticipate.</p>
-<p>Accomplish is still in stealth, so we don't know what they're building or whether they plan to sell a fix. But they've made their point: if you're betting your infrastructure on AI agents that write and run code, you'd better hope the vendors patched fast.</p>]]></description>
     </item>
   </channel>
 </rss>

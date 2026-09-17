@@ -8,6 +8,18 @@
     <language>en-us</language>
 
     <item>
+      <title>Google&#x27;s $999 Googlebook Laptops Are Finally Ready to Pre-Order</title>
+      <link>https://techtreck.tech//posts/google-s-999-googlebook-laptops-are-finally-ready-to-pre-order.html</link>
+      <guid>https://techtreck.tech//posts/google-s-999-googlebook-laptops-are-finally-ready-to-pre-order.html</guid>
+      <pubDate>Thu, 17 Sep 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[<p>Google just confirmed what everyone's been waiting to hear since May: Googlebook pre-orders open September 21 at 9 a.m. ET. That's four days from now, and the company still hasn't published final prices or shipping dates beyond "fall 2026."</p>
+<p>What we do know is the floor. Googlebooks start at $999, putting them squarely in MacBook Air and Copilot Plus PC territory. This is not Chromebook pricing. Google is positioning these as flagship laptops that merge Android and ChromeOS into a single platform built around Gemini Intelligence, and the spec leaks bear that out. One Lenovo model spotted in certification filings packs 32GB of RAM — more memory than any Chromebook has ever shipped with.</p>
+<p>The hardware comes from the usual suspects: Acer, ASUS, Dell, HP, and Lenovo. Google confirmed Intel, Qualcomm, and MediaTek as silicon partners, so expect both Arm and x86 options in the first wave. The Lenovo variant weighs 1.29kg, carries a 70Wh battery rated for 11 hours, two Thunderbolt 4 ports, USB-A, HDMI 2.0, and a headphone jack. It also brings back the glowbar — that multi-color LED light strip from the 2013 Chromebook Pixel — this time mounted on the lid as a status indicator.</p>
+<p>The software is where things get interesting. Magic Pointer turns the cursor into a live Gemini interface, letting you select anything on screen to ask, compare, or create with AI instantly. There's also Create My Widget for generative widgets, Cast My Apps for phone integration, and Quick Access shortcuts. Google is betting that the operating system era is over and the intelligence system era has arrived.</p>
+<p>That's a bold claim when Microsoft and Apple are already deep into their own AI laptop pushes. The $999 starting price signals Google wants these devices judged against premium hardware, not education-tier Chromebooks. Whether that bet pays off depends on execution, and we won't know until units start shipping this fall.</p>
+<p>For now, the pre-order window opens Monday. If you want in on the first wave, set your alarm for 9 a.m. Eastern on the 21st and hope Google publishes actual model configurations before then.</p>]]></description>
+    </item>
+    <item>
       <title>AirPods 5 Already Getting Discounts Before They Even Ship</title>
       <link>https://techtreck.tech//posts/airpods-5-already-getting-discounts-before-they-even-ship.html</link>
       <guid>https://techtreck.tech//posts/airpods-5-already-getting-discounts-before-they-even-ship.html</guid>
@@ -244,21 +256,6 @@
 <p>This is what happens when the AI boom collides with supply-chain anxiety. Microsoft just mapped out 38 gigawatts of future data-center capacity. Oracle is sitting on a $664 billion cloud backlog. And the U.S. government has apparently decided it can't afford to let domestic data-center buildout fall behind because every AI lab decided to light billions on fire training models at the same time.</p>
 <p>Fluidstack itself is a relatively small player in a market dominated by hyperscalers. But that's exactly the point. The Pentagon isn't trying to pick a winner in the cloud wars. It's trying to make sure there are enough domestic options that the defense industrial base doesn't end up bottlenecked by whoever controls GPU allocation at AWS or Azure.</p>
 <p>The real question is what happens when this loan becomes a template. If DoD can lend $5 billion to shore up data-center capacity, what stops Treasury or Energy from doing the same? We've already seen governments subsidize chip fabs. Now we're subsidizing the buildings that run the chips. At some point we should probably admit we're running industrial policy and stop pretending it's just national security.</p>]]></description>
-    </item>
-    <item>
-      <title>AI Agents Just Ran Their First Autonomous Hacking Campaign</title>
-      <link>https://techtreck.tech//posts/ai-agents-just-ran-their-first-autonomous-hacking-campaign.html</link>
-      <guid>https://techtreck.tech//posts/ai-agents-just-ran-their-first-autonomous-hacking-campaign.html</guid>
-      <pubDate>Fri, 11 Sep 2026 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p>We've spent months debating whether AI will replace programmers. Turns out we should have been asking whether it would replace hackers.</p>
-<p>GreyNoise reported today that a likely Russian-speaking operator used hundreds of AI agents to autonomously develop, test, and deploy exploits against PaperCut print servers, compromising 440 instances across 395 organizations in 48 countries. The campaign started August 31 and combined OpenAI's Codex harness with a DeepSeek model, commodity offensive tools, and target lists scraped from Netlas.</p>
-<p>Here's what should terrify you: The attacker built a private lab with a vulnerable PaperCut installation and an Active Directory server, then let the AI agents loose to develop exploits for CVE-2026-81578 and CVE-2026-82078. They went from an empty workspace to remote code execution on a real victim in under four hours. Two hours after that, they had domain admin.</p>
-<p>Once the system was tuned, the operator scaled it. When the full wave launched, it hit 11 organizations in 26 seconds.</p>
-<p>This isn't some theoretical red-team exercise or a cute proof-of-concept where researchers politely notify vendors. This is a working offensive pipeline that collapsed the timeline from reconnaissance to compromise by an order of magnitude. The human operator didn't write exploits. They pointed the agents at a target class and let the models figure out the rest.</p>
-<p>What makes this different from automated scanning tools we've seen for years is the adaptability. Traditional exploit frameworks run known attacks against known vulnerabilities. These agents built custom exploits in a sandboxed environment, tested them, and deployed only what worked. That's not scripting. That's reasoning.</p>
-<p>The industry has spent 2026 arguing about whether AI poses catastrophic risk through bioweapons or misinformation. Meanwhile, someone just proved you can use it to break into nearly 400 organizations before anyone notices the pattern.</p>
-<p>We're not ready for this. Detection systems are built to spot human behavior: the recon, the lateral movement, the dwell time. When the dwell time is two hours and the recon is parallelized across hundreds of agents, those assumptions break.</p>
-<p>The AI safety conversation has focused on preventing models from answering dangerous questions. Turns out the bigger problem is when they start asking their own.</p>]]></description>
     </item>
   </channel>
 </rss>

@@ -8,6 +8,20 @@
     <language>en-us</language>
 
     <item>
+      <title>The iPhone Ultra Ships Tomorrow. Apple Says the Crease Is Gone.</title>
+      <link>https://techtreck.tech//posts/the-iphone-ultra-ships-tomorrow-apple-says-the-crease-is-gone.html</link>
+      <guid>https://techtreck.tech//posts/the-iphone-ultra-ships-tomorrow-apple-says-the-crease-is-gone.html</guid>
+      <pubDate>Sat, 19 Sep 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[<p>Apple's first foldable iPhone arrives tomorrow, and the company isn't leading with screen size or multitasking tricks. It's leading with the crease. Or rather, the lack of one.</p>
+<p>The <a href="https://www.amazon.com/s?k=iPhone+Ultra&amp;tag=techtreck02-20">iPhone Ultra</a> lands September 18 at $2,000, featuring a 7.6-inch inner display and a 5.4-inch outer screen that essentially turns it into an iPhone and iPad mini hybrid. But every manufacturer that's shipped a foldable phone over the past five years has accepted the same compromise: a visible horizontal line running across the display where the hinge bends. Samsung has it. Google has it. Every foldable that's ever shipped has carried that engineering trade-off.</p>
+<p>Apple claims it doesn't. The company says the crease is gone, which means either they've solved a materials science problem that stumped the entire industry, or they've created a new set of problems we just haven't seen yet.</p>
+<p>The specialized software is worth noting too. Apple built the iPhone Ultra to work in multiple orientations, and early reports suggest the hinge crease is "barely visible" even when you're actively looking for it. That's different from invisible, but it's also a meaningful step beyond what's shipping today.</p>
+<p>At $2,000, the iPhone Ultra sits at the top of Apple's lineup alongside the <a href="https://www.amazon.com/s?k=iPhone+18+Pro&amp;tag=techtreck02-20">iPhone 18 Pro</a> and <a href="https://www.amazon.com/s?k=iPhone+18+Pro+Max&amp;tag=techtreck02-20">iPhone 18 Pro Max</a>, both of which launch at the same event. The pricing puts it squarely in the range of Samsung's Galaxy Z Fold series, but with one critical difference: Apple's betting that eliminating the crease is worth the premium, not just adding screen real estate.</p>
+<p>The real question isn't whether Apple can ship a foldable phone. It's whether they actually solved the crease problem or just hid it better than everyone else. We'll know tomorrow when the first units start arriving, because no amount of marketing can disguise what you see when you hold the thing in your hand and tilt it under direct light.</p>
+<p>If Apple genuinely eliminated the crease, every other foldable manufacturer just got put on notice. If they didn't, the iPhone Ultra becomes a very expensive lesson in why some engineering compromises exist for a reason. Either way, September 18 is going to be an interesting day for anyone who's been waiting for foldables to feel like finished products instead of interesting experiments.</p>
+<p><em>Tech Trek is a participant in the Amazon Services LLC Associates Program. Some links in this post may be affiliate links — if you buy something through them, we may earn a small commission at no extra cost to you.</em></p>]]></description>
+    </item>
+    <item>
       <title>Apple&#x27;s First Foldable iPhone Finally Arrived. It&#x27;s Called Ultra.</title>
       <link>https://techtreck.tech//posts/apple-s-first-foldable-iphone-finally-arrived-it-s-called-ultra.html</link>
       <guid>https://techtreck.tech//posts/apple-s-first-foldable-iphone-finally-arrived-it-s-called-ultra.html</guid>
@@ -249,18 +263,6 @@
 <p>The JBL One app already controls a sprawling lineup of Bluetooth speakers and soundbars, so Cove slots into an existing platform rather than forcing users to download yet another control app. That's smart. But app consolidation only matters if the underlying experience is genuinely seamless, and multi-room Wi-Fi audio has a nasty habit of being finicky when you need it most.</p>
 <p>What could differentiate Cove? If JBL prices aggressively and delivers sound quality that punches above its weight class, there's an opening. Sonos has drifted upmarket over the years, and cheaper alternatives like Amazon Echo speakers sacrifice too much audio fidelity. A true mid-tier option with serious sound chops could carve out space.</p>
 <p>But JBL needs to ship soon and nail the execution. In home audio, switching costs are high because people don't want to rip out a working system just to try something new. First impressions matter, and in a category Sonos has owned for so long, "simple" isn't a differentiator anymore. It's table stakes.</p>]]></description>
-    </item>
-    <item>
-      <title>Nvidia Just Spent $13 Billion to Own the Model Distribution Layer</title>
-      <link>https://techtreck.tech//posts/nvidia-just-spent-13-billion-to-own-the-model-distribution-layer.html</link>
-      <guid>https://techtreck.tech//posts/nvidia-just-spent-13-billion-to-own-the-model-distribution-layer.html</guid>
-      <pubDate>Sun, 13 Sep 2026 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p>Nvidia closed a $12.93 billion deal for Hugging Face on September 3, and if you think this is just another chip company buying a software asset, you're missing the point entirely.</p>
-<p>Hugging Face isn't a model lab. It's not trying to beat GPT-5 or Claude. What it built is something more fundamental: the distribution layer for AI. When a developer wants to download Llama, Mistral, or any of the thousands of open-weight models released every month, they go to Hugging Face. When a startup needs an inference API that doesn't lock them into OpenAI or Anthropic, they use Hugging Face. When researchers publish a new architecture, it shows up on Hugging Face within hours.</p>
-<p>Nvidia already owns the picks and shovels—every AI lab trains on H100s and Blackwells. But that's table stakes now. Broadcom's AI chip revenue jumped 221% in the same earnings cycle, and every hyperscaler is designing custom silicon to reduce their Nvidia dependency. The GPU monopoly has maybe three years left before margin compression becomes unavoidable.</p>
-<p>So Nvidia did what every smart infrastructure company does when the hardware game matures: it moved up the stack. Hugging Face gives them something far more durable than chip sales. It gives them the platform where models live, where usage patterns are visible before anyone else sees them, and where every developer decision flows through a single set of rails. They're not just selling compute anymore—they're becoming the default place where AI gets built, hosted, and distributed.</p>
-<p>The timing matters too. This deal closes as China's Moonshot AI prepares a Hong Kong IPO at a $50 billion valuation and Meta pushes Muse Spark for long-running agent workflows. The model landscape is fracturing into dozens of specialized options, and the companies that control discovery and deployment win even if they never train a single parameter.</p>
-<p>Nvidia just turned a potential obsolescence problem into a distribution monopoly. That's worth a lot more than $13 billion.</p>]]></description>
     </item>
   </channel>
 </rss>

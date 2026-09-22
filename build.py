@@ -50,6 +50,7 @@ SOCIAL_LINKS = [
 ROOT = os.path.dirname(os.path.abspath(__file__))
 POSTS_DIR = os.path.join(ROOT, "posts")
 IMAGES_DIR = os.path.join(ROOT, "images")  # NEW: put post images here, referenced by filename
+SOCIAL_CARDS_DIR = os.path.join(ROOT, "social-cards")  # NEW: written by generate_social_card.py
 DIST_DIR = os.path.join(ROOT, "dist")
 
 
@@ -193,7 +194,7 @@ def fmt_date_human(d):
 
 def generate_sitemap(posts):
     base = SITE_URL.rstrip("/")
-    urls = [f"{base}/", f"{base}/about.html"]
+    urls = [f"{base}/", f"{base}/about.html", f"{base}/privacy.html"]
     urls += [f"{base}/posts/{m['slug']}.html" for m in posts]
     entries = "".join(f"\n  <url><loc>{html.escape(u)}</loc></url>" for u in urls)
     return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -567,6 +568,28 @@ Want it without checking back constantly? Subscribe below for a once-daily diges
 
 Some posts link to products through the Amazon Associates program. When they do, it's always disclosed in the post — never disguised as a regular link."""
 
+PRIVACY_MARKDOWN = f"""This page explains what data {SITE_TITLE} collects and why, in plain language.
+
+## Advertising
+
+This site uses Google AdSense to display ads. Google and its partners may use cookies and similar technologies to serve ads based on your visits to this and other sites. You can opt out of personalized advertising by visiting [Google's Ads Settings](https://adssettings.google.com/) or [aboutads.info](https://www.aboutads.info/choices/).
+
+## Analytics
+
+This site uses Cloudflare Web Analytics to understand overall traffic (page views, referring sites). It does not use cookies and does not track individual visitors — it's built specifically to be privacy-friendly.
+
+## Affiliate links
+
+Some posts contain Amazon Associates affiliate links. If you click one and make a purchase, {SITE_TITLE} may earn a small commission at no extra cost to you. This is always disclosed within the post itself.
+
+## Newsletter
+
+If you subscribe to the newsletter, your email address is stored via Netlify Forms and used only to send you the daily digest. It is never sold or shared with third parties. You can unsubscribe at any time by contacting us.
+
+## Contact
+
+Questions about this policy? Reach out through any of the social links in the footer below."""
+
 HEAD = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -623,7 +646,7 @@ FOOT = """
   </main>
   {inline_signup}
   <footer class="site-foot">
-    <span>&#169; {site_title}</span>
+    <span>&#169; {site_title} &middot; <a class="u-link" href="{privacy_href}">privacy</a></span>
     <span class="social-links">{social_links}</span>
   </footer>
 </div>
@@ -678,6 +701,11 @@ def build():
     # NEW: copy images/ into dist/images/ so they're served alongside the site
     if os.path.isdir(IMAGES_DIR):
         shutil.copytree(IMAGES_DIR, os.path.join(DIST_DIR, "images"))
+
+    # NEW: copy social-cards/ into dist/ so each day's card is downloadable
+    # straight from the live site — no digging through GitHub needed.
+    if os.path.isdir(SOCIAL_CARDS_DIR):
+        shutil.copytree(SOCIAL_CARDS_DIR, os.path.join(DIST_DIR, "social-cards"))
 
     # NEW: cache headers — images didn't have any explicit cache lifetime
     # set, so browsers were re-checking them more often than necessary.
@@ -762,7 +790,7 @@ def build():
       {tags_html}
     </article>
         """
-        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML)
+        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, privacy_href="../privacy.html")
 
         out_path = os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html")
         with open(out_path, "w", encoding="utf-8") as f:
@@ -810,7 +838,7 @@ def build():
                 index += render_post_card(m, f"posts/{m['slug']}.html")
             index += '</div>'
 
-    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML)
+    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, privacy_href="privacy.html")
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index)
 
@@ -834,9 +862,33 @@ def build():
       </div>
     </article>
     """
-    about += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML)
+    about += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, privacy_href="privacy.html")
     with open(os.path.join(DIST_DIR, "about.html"), "w", encoding="utf-8") as f:
         f.write(about)
+
+    # ---- privacy page ----
+    privacy = HEAD.format(
+        title=f"Privacy Policy &middot; {SITE_TITLE}",
+        description=html.escape(f"Privacy Policy for {SITE_TITLE}"),
+        css=CSS,
+        site_title=SITE_TITLE,
+        site_tagline=SITE_TAGLINE,
+        home_href="index.html",
+        about_href="about.html",
+        analytics=_analytics_snippet(),
+        canonical_url=SITE_URL.rstrip("/") + "/privacy.html",
+    )
+    privacy += f"""
+    <article class="post-full">
+      <h1 class="post-title">Privacy Policy</h1>
+      <div class="post-body">
+        {markdown_to_html(PRIVACY_MARKDOWN)}
+      </div>
+    </article>
+    """
+    privacy += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, privacy_href="privacy.html")
+    with open(os.path.join(DIST_DIR, "privacy.html"), "w", encoding="utf-8") as f:
+        f.write(privacy)
 
     print(f"Built {len(posts)} post(s) into {DIST_DIR}/")
 

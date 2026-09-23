@@ -22,6 +22,19 @@
 <p><em>Tech Trek is a participant in the Amazon Services LLC Associates Program. Some links in this post may be affiliate links — if you buy something through them, we may earn a small commission at no extra cost to you.</em></p>]]></description>
     </item>
     <item>
+      <title>Qualcomm&#x27;s New Snapdragon Chip Has Two Names and a 5GHz Problem</title>
+      <link>https://techtreck.tech//posts/qualcomm-s-new-snapdragon-chip-has-two-names-and-a-5ghz-problem.html</link>
+      <guid>https://techtreck.tech//posts/qualcomm-s-new-snapdragon-chip-has-two-names-and-a-5ghz-problem.html</guid>
+      <pubDate>Wed, 23 Sep 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[<p>Qualcomm just announced not one but two flagship processors for next-generation Android phones, and the naming situation has officially gotten out of hand. Say hello to the <a href="https://www.amazon.com/s?k=Snapdragon+8+Elite+Gen+6&amp;tag=techtreck02-20">Snapdragon 8 Elite Gen 6</a> and the <a href="https://www.amazon.com/s?k=Snapdragon+8+Elite+Extreme+Gen+6&amp;tag=techtreck02-20">Snapdragon 8 Elite Extreme Gen 6</a>. Yes, Extreme is now an official tier, sitting above Elite, which was already meant to signal premium. It's confusing, it's excessive, and somehow it's real.</p>
+<p>But the chips themselves are legitimately impressive. Both are built on a 2nm process and feature Qualcomm's Oryon CPU with two Prime cores running at 5GHz and six Performance cores at 4GHz. That makes these the first smartphone processors to break the 5GHz barrier, beating the Snapdragon 8 Elite Gen 5 for Galaxy's 4.74GHz ceiling. The standard Elite Gen 6 delivers a 10% CPU performance bump and 37% better power efficiency compared to last year's Gen 5, while the Extreme variant pushes that to a 13% CPU improvement.</p>
+<p>The real differentiator is the Extreme's video capabilities. It supports 8K video recording at 60fps and 4K slow motion at 240fps, a massive leap for smartphone videography. The Extreme also gets Matrix Cores baked into the Adreno GPU, enabling what Qualcomm calls Adreno Neural Fusion for more advanced upscaling and frame generation with 40% power savings. The GPU performance gains are substantial: 35% for the standard Gen 6, 44% for the Extreme.</p>
+<p>Qualcomm also crammed in a new Flex Cache architecture that lets cores dynamically share a 16MB L2 cache pool, plus a beefed-up Hexagon NPU that can run AI models with over 30 billion parameters directly on-device. The Extreme variant gets 50% more shared memory for the NPU, allowing it to handle even larger models without constantly hitting external memory.</p>
+<p>Phones powered by these chips are coming fast. Motorola already announced the Signature 27 with the Snapdragon 8 Elite Extreme Gen 6, and Qualcomm says devices from HONOR, iQOO, OnePlus, OPPO, REDMI, RedMagic, vivo, and Xiaomi will arrive before the end of 2026. Expect the Galaxy S27 family to follow early next year.</p>
+<p>The performance story is strong. The name? Still ridiculous.</p>
+<p><em>Tech Trek is a participant in the Amazon Services LLC Associates Program. Some links in this post may be affiliate links — if you buy something through them, we may earn a small commission at no extra cost to you.</em></p>]]></description>
+    </item>
+    <item>
       <title>Xiaomi Just Built Its Own M5 Competitor. It Costs $715.</title>
       <link>https://techtreck.tech//posts/xiaomi-just-built-its-own-m5-competitor-it-costs-715.html</link>
       <guid>https://techtreck.tech//posts/xiaomi-just-built-its-own-m5-competitor-it-costs-715.html</guid>
@@ -260,20 +273,6 @@
 <p>The software is where things get interesting. Magic Pointer turns the cursor into a live Gemini interface, letting you select anything on screen to ask, compare, or create with AI instantly. There's also Create My Widget for generative widgets, Cast My Apps for phone integration, and Quick Access shortcuts. Google is betting that the operating system era is over and the intelligence system era has arrived.</p>
 <p>That's a bold claim when Microsoft and Apple are already deep into their own AI laptop pushes. The $999 starting price signals Google wants these devices judged against premium hardware, not education-tier Chromebooks. Whether that bet pays off depends on execution, and we won't know until units start shipping this fall.</p>
 <p>For now, the pre-order window opens Monday. If you want in on the first wave, set your alarm for 9 a.m. Eastern on the 21st and hope Google publishes actual model configurations before then.</p>]]></description>
-    </item>
-    <item>
-      <title>OpenAI Just Spent $300 Million on a Camera Company. What&#x27;s It Building?</title>
-      <link>https://techtreck.tech//posts/openai-just-spent-300-million-on-a-camera-company-what-s-it-building.html</link>
-      <guid>https://techtreck.tech//posts/openai-just-spent-300-million-on-a-camera-company-what-s-it-building.html</guid>
-      <pubDate>Thu, 17 Sep 2026 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p>OpenAI doesn't make phones. It doesn't make cameras. But it just spent more than $300 million to acquire Glass Imaging, a Los Altos startup founded by two former Apple engineers who helped create Portrait Mode on the iPhone. The deal, reported by The Wall Street Journal last weekend, tripled Glass Imaging's 2025 valuation and marks the clearest signal yet that OpenAI's hardware ambitions are more than vaporware.</p>
-<p>Glass Imaging builds AI-powered camera software that makes smartphone sensors punch above their weight. The company's GlassAI system uses neural networks trained on specific camera modules to improve image quality at the moment of capture, not as a post-processing trick. Where traditional camera pipelines handle noise reduction, sharpening, and color reconstruction as separate stages, Glass Imaging collapses it all into a single pass. The result, according to the company, is smartphone image quality that approaches what you'd get from a DSLR.</p>
-<p>The founders, Ziv Attar and Tom Bishop, left Apple specifically to rethink smartphone cameras without being constrained by the iPhone's broader design priorities. That kind of clean-sheet thinking is exactly what you'd want if you were building a device from scratch.</p>
-<p>And OpenAI is building a device from scratch. In 2025, the company paid $6.5 billion for io, the startup co-founded by CEO Sam Altman and Jony Ive, Apple's former design chief. Ive now oversees consumer devices at OpenAI, and reports suggest the first product could be a screenless speaker priced around $300. But internal comments from Altman paint a far bigger picture: he's reportedly said the device could add $1 trillion to OpenAI's valuation.</p>
-<p>That's not speaker money. That's something that fundamentally changes how people interact with AI in the physical world.</p>
-<p>The Glass Imaging acquisition fills the most obvious gap. A device designed to act on what it sees needs exceptional computer vision. It needs cameras that work well in bad lighting, with small sensors, under power constraints. It needs capture tech optimized for AI inference, not Instagram filters. Glass Imaging has spent years solving exactly that problem.</p>
-<p>What's still unclear is what form the device will take. Jony Ive described it in a 2025 video as a counterweight to the harmful effects of smartphones, which suggests something fundamentally different from just another phone. A wearable camera? An ambient assistant? Some kind of spatial computing play?</p>
-<p>OpenAI hasn't confirmed the acquisition publicly, and Glass Imaging declined to comment. But at $300 million, this isn't a talent grab. It's a piece of critical infrastructure. The kind you buy when you're ready to ship.</p>]]></description>
     </item>
   </channel>
 </rss>

@@ -8,6 +8,19 @@
     <language>en-us</language>
 
     <item>
+      <title>Clicks Communicator Just Got Better Specs. And a Battery Downgrade.</title>
+      <link>https://techtreck.tech//posts/clicks-communicator-just-got-better-specs-and-a-battery-downgrade.html</link>
+      <guid>https://techtreck.tech//posts/clicks-communicator-just-got-better-specs-and-a-battery-downgrade.html</guid>
+      <pubDate>Thu, 24 Sep 2026 00:00:00 +0000</pubDate>
+      <description><![CDATA[<p>Clicks updated the Communicator on September 18 with a spec sheet that reads like a lesson in compromise. The physical keyboard phone now packs 12GB of RAM instead of 8GB, and the battery bumped from 4,000 mAh to 4,350 mAh. Good news, right?</p>
+<p>Not quite. That battery upgrade comes with an asterisk the size of a safety warning: Clicks ditched its silicon-carbon battery chemistry entirely and switched back to conventional lithium-ion. The reason? The silicon-carbon cells were failing third-party battery tests at rates high enough to spook the company into retreat.</p>
+<p>Silicon-carbon batteries promise higher energy density and faster charging than lithium-ion, which is why Clicks bet on them in the first place. But the technology is still young, and turns out those promises don't mean much if the cells can't pass basic reliability testing. The switch to lithium-ion is the safe move, but it also means the Communicator is now running the same battery tech as nearly every other phone on the market.</p>
+<p>There's one more wrinkle in the battery story: an earlier announcement pegged capacity at 4,450 mAh, but the final spec landed at 4,350 mAh. No explanation was given for the 100 mAh haircut, but it's a reminder that even when a company upgrades, you still need to read the footnotes.</p>
+<p>The RAM bump to 12GB is straightforward good news, especially for a device trying to balance Android multitasking with a physical keyboard workflow. More headroom for keeping apps in memory matters when you're constantly switching between messaging, email, and whatever else justifies carrying a phone with actual keys in 2026.</p>
+<p>Clicks also showed off a demo of its Signal Light feature, which is still in development, and announced an on-device speech-to-text model. That last bit is worth watching. On-device processing means transcription happens without round-tripping to the cloud, which is faster, more private, and actually useful when your keyboard phone loses signal in a basement.</p>
+<p>The Communicator remains a niche product, but this update shows Clicks is at least paying attention to the details. The company just learned the hard way that bleeding-edge battery tech isn't worth the risk if it can't clear the safety bar. Lithium-ion might be boring, but boring batteries don't recall themselves.</p>]]></description>
+    </item>
+    <item>
       <title>iPhone 18 Pro Is Now in Stores. Here&#x27;s What Actually Changed.</title>
       <link>https://techtreck.tech//posts/iphone-18-pro-is-now-in-stores-here-s-what-actually-changed.html</link>
       <guid>https://techtreck.tech//posts/iphone-18-pro-is-now-in-stores-here-s-what-actually-changed.html</guid>
@@ -261,18 +274,6 @@
 <p>But checking boxes doesn't matter if nobody's buying. Industry observers have noted weak Plus sales since the line returned, and Apple's decision to discontinue it barely two years in suggests the numbers were even worse than expected. The company is essentially admitting that the market it thought existed for affordable large-screen iPhones was a mirage.</p>
 <p>For shoppers, this means your options are now clearer but more expensive. Want a big iPhone? That's the Pro Max, which will cost you a significant premium. Want to save money? That's the standard iPhone, which means living with a 6.1-inch screen. The in-between option is gone, and it's probably not coming back. Apple tried this twice, failed twice, and companies this size rarely go for a third attempt at the same strategy.</p>
 <p><em>Tech Trek is a participant in the Amazon Services LLC Associates Program. Some links in this post may be affiliate links — if you buy something through them, we may earn a small commission at no extra cost to you.</em></p>]]></description>
-    </item>
-    <item>
-      <title>Google&#x27;s $999 Googlebook Laptops Are Finally Ready to Pre-Order</title>
-      <link>https://techtreck.tech//posts/google-s-999-googlebook-laptops-are-finally-ready-to-pre-order.html</link>
-      <guid>https://techtreck.tech//posts/google-s-999-googlebook-laptops-are-finally-ready-to-pre-order.html</guid>
-      <pubDate>Thu, 17 Sep 2026 00:00:00 +0000</pubDate>
-      <description><![CDATA[<p>Google just confirmed what everyone's been waiting to hear since May: Googlebook pre-orders open September 21 at 9 a.m. ET. That's four days from now, and the company still hasn't published final prices or shipping dates beyond "fall 2026."</p>
-<p>What we do know is the floor. Googlebooks start at $999, putting them squarely in MacBook Air and Copilot Plus PC territory. This is not Chromebook pricing. Google is positioning these as flagship laptops that merge Android and ChromeOS into a single platform built around Gemini Intelligence, and the spec leaks bear that out. One Lenovo model spotted in certification filings packs 32GB of RAM — more memory than any Chromebook has ever shipped with.</p>
-<p>The hardware comes from the usual suspects: Acer, ASUS, Dell, HP, and Lenovo. Google confirmed Intel, Qualcomm, and MediaTek as silicon partners, so expect both Arm and x86 options in the first wave. The Lenovo variant weighs 1.29kg, carries a 70Wh battery rated for 11 hours, two Thunderbolt 4 ports, USB-A, HDMI 2.0, and a headphone jack. It also brings back the glowbar — that multi-color LED light strip from the 2013 Chromebook Pixel — this time mounted on the lid as a status indicator.</p>
-<p>The software is where things get interesting. Magic Pointer turns the cursor into a live Gemini interface, letting you select anything on screen to ask, compare, or create with AI instantly. There's also Create My Widget for generative widgets, Cast My Apps for phone integration, and Quick Access shortcuts. Google is betting that the operating system era is over and the intelligence system era has arrived.</p>
-<p>That's a bold claim when Microsoft and Apple are already deep into their own AI laptop pushes. The $999 starting price signals Google wants these devices judged against premium hardware, not education-tier Chromebooks. Whether that bet pays off depends on execution, and we won't know until units start shipping this fall.</p>
-<p>For now, the pre-order window opens Monday. If you want in on the first wave, set your alarm for 9 a.m. Eastern on the 21st and hope Google publishes actual model configurations before then.</p>]]></description>
     </item>
   </channel>
 </rss>

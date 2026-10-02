@@ -1,0 +1,64 @@
+{
+  "version": "1.7",
+  "identifier": "google-pixel-10a-just-jumped-to-599-the-same-phone-100-more",
+  "language": "en",
+  "title": "Google Pixel 10a Just Jumped to $599. The Same Phone, $100 More.",
+  "layout": {
+    "columns": 12,
+    "width": 1024,
+    "margin": 60,
+    "gutter": 20
+  },
+  "components": [
+    {
+      "role": "title",
+      "text": "Google Pixel 10a Just Jumped to $599. The Same Phone, $100 More."
+    },
+    {
+      "role": "intro",
+      "text": "Google quietly raised its budget Pixel price by $100 overnight, blaming memory costs for a phone that still runs a two-year-old chip."
+    },
+    {
+      "role": "body",
+      "text": "<p>Google raised the price of the <a href=\"https://www.amazon.com/s?k=Pixel+10a&amp;tag=techtreck02-20\">Pixel 10a</a> by $100 overnight. The phone that launched in March for $499 now costs $599 for the base 128GB model, with the 256GB variant climbing to $699. The new pricing is already live at the Google Store, Amazon, and Best Buy.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>The timing is rough. Samsung raised prices on some Galaxy S26 models just yesterday. Now Google follows with its own hike, citing rising component costs—specifically memory. The company had warned this was coming. Back in August, Google VP Shakil Barkat told reporters the company had shielded consumers from supply fluctuations as long as possible, but the economics had fundamentally shifted.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>What makes the increase particularly hard to swallow is what you're actually paying more for. The Pixel 10a still runs the Tensor G4 processor, the same chip that debuted with the Pixel 9 series back in 2024. That's a two-generation-old chipset at this point. Google did add upgraded wireless charging and satellite connectivity compared to the Pixel 9a, but the core experience is largely unchanged.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>At $499, the Pixel 10a was a solid value proposition—Google's AI features, a capable camera system, seven years of software updates, and a clean Android experience in a phone made with recycled materials. At $599, that value equation shifts. You're now $100 away from flagship territory, where phones with current-generation silicon and more premium builds start appearing.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>The international pricing follows the same pattern. The Pixel 10a now costs £599 in the UK, €649 in Europe, and $849 in Canada. All represent the same $100 equivalent increase.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p>Google isn't alone in this. Memory costs have been climbing across the industry, and phone makers are passing those increases directly to consumers. But when you're asking people to pay more for the same hardware they could have bought months ago at a lower price, the value proposition gets harder to defend. The Pixel 10a is still a capable phone. It's just not the deal it used to be.</p>",
+      "format": "html"
+    },
+    {
+      "role": "body",
+      "text": "<p><em>Tech Trek is a participant in the Amazon Services LLC Associates Program. Some links in this post may be affiliate links — if you buy something through them, we may earn a small commission at no extra cost to you.</em></p>",
+      "format": "html"
+    }
+  ],
+  "metadata": {
+    "canonicalURL": "https://techtreck.tech//posts/google-pixel-10a-just-jumped-to-599-the-same-phone-100-more.html",
+    "datePublished": "2026-10-02T00:00:00Z",
+    "generatorIdentifier": "TechTreckBuildPy",
+    "generatorName": "Tech Treck build.py",
+    "generatorVersion": "1.0"
+  }
+}

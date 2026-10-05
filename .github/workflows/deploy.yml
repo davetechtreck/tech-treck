@@ -1,11 +1,11 @@
-name: Daily brief, build and deploy
+name: Daily post, build and deploy
 
 on:
   push:
     branches: [main]
   schedule:
-    - cron: "30 11 * * *"   # 7:30am Toronto in summer time (EDT)
-    - cron: "30 12 * * *"   # 7:30am Toronto in winter time (EST)
+    - cron: "30 0 * * *"   # 8:30pm Toronto in summer time (EDT)
+    - cron: "30 1 * * *"   # 8:30pm Toronto in winter time (EST)
   workflow_dispatch:
 
 permissions:
@@ -29,9 +29,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      # Runs on the schedule and on manual runs, not when you push a post.
-      # If it fails (feeds down, API error), the site still builds and deploys.
-      - name: Make today's brief
+      # Runs on the schedule and on manual runs, not when you push a change.
+      # If it fails, the site still builds and deploys as normal.
+      - name: Write today's post and tweets
         if: github.event_name != 'push'
         continue-on-error: true
         env:
@@ -40,11 +40,13 @@ jobs:
           AMAZON_DOMAIN: ${{ vars.AMAZON_DOMAIN }}
           FORCE: ${{ github.event_name == 'workflow_dispatch' }}
         run: |
-          python daily_brief.py
+          pip install anthropic
+          python scripts/generate_posts.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add briefs
-          git diff --cached --quiet || (git commit -m "Daily brief" && git push)
+          mkdir -p posts tweets
+          git add posts tweets
+          git diff --cached --quiet || (git commit -m "Auto: daily post and tweets" && git push)
 
       - name: Build site
         run: python build.py

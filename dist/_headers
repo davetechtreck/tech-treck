@@ -1,8 +1,0 @@
-/images/*
-  Cache-Control: public, max-age=2592000
-
-/feed.xml
-  Cache-Control: public, max-age=3600
-
-/sitemap.xml
-  Cache-Control: public, max-age=3600

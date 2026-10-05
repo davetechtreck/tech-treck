@@ -1,21 +1,18 @@
 #!/usr/bin/env python3
 """
-Draft writer for Tech Trek.
+Daily auto-poster for Tech Trek.
 
-You write a few lines of YOUR take in notes/today.md. This script reads
-them (plus today's brief in briefs/, if there is one), does one targeted web
-search to confirm the facts, and drafts ONE post around your opinion.
+Once a day (8:30pm Toronto time) this:
+  1. uses Claude + web search to find ONE trending consumer-tech story,
+  2. writes the blog post (with Amazon affiliate links and a Sources line)
+     into posts/,
+  3. writes 4 ready-to-post tweets into tweets/ (a separate file).
 
-The draft is saved to drafts/ for you to read and fix. To publish it, move
-it into posts/ (on GitHub: open the file, click the pencil, and change the
-path from drafts/... to posts/...). Nothing goes live until you do that,
-unless you set PUBLISH_DIRECT = True below.
+Run by .github/workflows/deploy.yml. Needs ANTHROPIC_API_KEY (GitHub secret).
+Optional repo variables: AMAZON_TAG, AMAZON_DOMAIN, SITE_URL.
 
-No notes file = no post. Nothing is written without your input.
-
-Run by .github/workflows/daily-blog-post.yml whenever you commit
-notes/today.md (or by hand with "Run workflow").
-Requires the ANTHROPIC_API_KEY environment variable (a GitHub secret).
+Safety checks: it skips if a post for today already exists, and it will NOT
+publish a post that is too short, too long, or has no source links.
 """
 
 import os
@@ -32,21 +29,24 @@ import anthropic
 # ---- Config ----------------------------------------------------------------
 
 POSTS_DIR = Path("posts")
-DRAFTS_DIR = Path("drafts")
-BRIEFS_DIR = Path("briefs")
-NOTES_FILE = Path("notes/today.md")
-
-PUBLISH_DIRECT = False  # True = write straight to posts/ (skips your review)
+TWEETS_DIR = Path("tweets")
 TIMEZONE = "America/Toronto"
-MODEL = "claude-sonnet-4-5"
-TAGLINE = "field notes on Tech"
-MAX_SEARCHES = 1  # one targeted search to confirm facts; each search costs
-                  # about $0.01 plus the tokens of its results
 
-# Uses the AMAZON_TAG / AMAZON_DOMAIN repo variables if set, otherwise the
-# tag below. Set the tag to "" and leave the variable unset to skip links.
+# Low-cost model. For richer writing, change to "claude-sonnet-5-5".
+MODEL = "claude-haiku-4-5-20251001"
+MAX_SEARCHES = 2  # 1 to see what's trending, 1 to confirm the story's facts.
+                  # Each search costs about $0.01 plus its result tokens.
+TAGLINE = "field notes on Tech"
+
+SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://techtreck.tech").rstrip("/")
 AMAZON_AFFILIATE_TAG = os.environ.get("AMAZON_TAG", "").strip() or "techtreck02-20"
 AMAZON_DOMAIN = os.environ.get("AMAZON_DOMAIN", "").strip() or "amazon.com"
+
+SEND_HOUR, SEND_MINUTE_END = 20, 30  # window: 8:00pm to 9:29pm local time
+MIN_WORDS, MAX_WORDS = 250, 700
+NUM_TWEETS = 4
+TWEET_LIMIT = 280
+URL_COST = 25  # "\n\n" + 23 characters (X counts every link as 23)
 
 AFFILIATE_DISCLOSURE = (
     "\n\n*As an Amazon Associate I earn from qualifying purchases. Tech Trek "
@@ -55,13 +55,12 @@ AFFILIATE_DISCLOSURE = (
     "them, we may earn a small commission at no extra cost to you.*"
 )
 
-# ---- Frontmatter format (matches build.py's parser) --------------------
-# Values are written WITHOUT quotes, tags are a plain comma-separated string,
-# and the preview field is called "snippet".
-
+# Matches build.py's parser: no quotes around values, plain comma-separated
+# tags, "snippet" for the preview, and an explicit slug so tweet links match.
 FRONTMATTER_TEMPLATE = """---
 title: {title}
 date: {date}
+slug: {slug}
 tags: {tags}
 snippet: {snippet}
 ---
@@ -69,78 +68,80 @@ snippet: {snippet}
 {body}
 """
 
-# ---- The structured tool Claude calls to hand back its draft ---------------
-
 SUBMIT_POST_TOOL = {
     "name": "submit_post",
     "description": (
-        "Submit the finished draft once research and writing are complete. "
-        "Call this exactly once, as your final action."
+        "Submit the finished blog post and tweets once research and writing "
+        "are complete. Call this exactly once, as your final action."
     ),
     "input_schema": {
         "type": "object",
         "properties": {
-            "title": {
-                "type": "string",
-                "description": "Specific, under 70 chars, single line, no line breaks.",
-            },
-            "snippet": {
-                "type": "string",
-                "description": "One sentence, under 160 chars, single line, for preview use.",
-            },
+            "title": {"type": "string", "description": "Specific, under 70 chars, single line."},
+            "snippet": {"type": "string", "description": "One sentence, under 160 chars, single line."},
             "tags": {
                 "type": "array",
                 "items": {"type": "string"},
                 "description": "2-4 short lowercase tag strings.",
             },
-            "body": {
-                "type": "string",
-                "description": "The full Markdown body of the post.",
-            },
+            "body": {"type": "string", "description": "The full Markdown body of the post."},
             "product_mentions": {
                 "type": "array",
                 "items": {"type": "string"},
                 "description": (
-                    "Exact names of real, currently-purchasable products named in "
-                    "the body, written character-for-character as in the body "
-                    "(e.g. 'Sony WH-1000XM6'). Empty list if none."
+                    "Exact names of real, currently-purchasable products named in the "
+                    "body, written character-for-character as in the body. Empty if none."
                 ),
             },
             "sources": {
                 "type": "array",
-                "description": "The pages the facts in the post came from.",
+                "description": "The pages the post's facts came from.",
                 "items": {
                     "type": "object",
                     "properties": {
                         "name": {"type": "string", "description": "Site name, e.g. 'The Verge'."},
-                        "url": {"type": "string", "description": "Full https URL of the page."},
+                        "url": {"type": "string", "description": "Full https URL."},
                     },
                     "required": ["name", "url"],
                 },
             },
+            "tweets": {
+                "type": "array",
+                "description": (
+                    f"Exactly {NUM_TWEETS} different tweets about the post. Each under 230 "
+                    "characters, NO links (a link is added later), 0-2 hashtags, and only "
+                    "facts that appear in the post."
+                ),
+                "items": {"type": "string"},
+            },
         },
-        "required": ["title", "snippet", "tags", "body", "product_mentions", "sources"],
+        "required": ["title", "snippet", "tags", "body", "product_mentions", "sources", "tweets"],
     },
 }
 
 
+def now_local():
+    return datetime.now(ZoneInfo(TIMEZONE))
+
+
 def slugify(text: str) -> str:
-    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
-    text = re.sub(r"[^\w\s-]", "", text).strip().lower()
-    return re.sub(r"[-\s]+", "-", text)
+    # Same rules as build.py's slugify, so links always match.
+    return re.sub(r"[^a-z0-9]+", "-", text.lower().strip()).strip("-")
 
 
-def today_local():
-    return datetime.now(ZoneInfo(TIMEZONE)).date()
+def in_send_window(now) -> bool:
+    mins = now.hour * 60 + now.minute
+    return SEND_HOUR * 60 <= mins < SEND_HOUR * 60 + 90
+
+
+def post_exists_for(day) -> bool:
+    return POSTS_DIR.exists() and any(POSTS_DIR.glob(f"{day.isoformat()}-*.md"))
 
 
 def existing_titles() -> list[str]:
-    """Titles of recent posts and drafts, so a topic isn't repeated."""
     titles = []
-    for folder in (POSTS_DIR, DRAFTS_DIR):
-        if not folder.exists():
-            continue
-        for f in sorted(folder.glob("*.md"))[-40:]:
+    if POSTS_DIR.exists():
+        for f in sorted(POSTS_DIR.glob("*.md"))[-45:]:
             text = f.read_text(encoding="utf-8", errors="ignore")
             m = re.search(r'^title:\s*"?(.+?)"?\s*$', text, re.MULTILINE)
             if m:
@@ -148,20 +149,7 @@ def existing_titles() -> list[str]:
     return titles
 
 
-def read_notes():
-    if not NOTES_FILE.exists():
-        return ""
-    return NOTES_FILE.read_text(encoding="utf-8", errors="ignore").strip()
-
-
-def read_brief(day):
-    path = BRIEFS_DIR / f"{day.isoformat()}.md"
-    if not path.exists():
-        return ""
-    return path.read_text(encoding="utf-8", errors="ignore").strip()[:6000]
-
-
-def build_prompt(notes: str, brief: str, avoid_titles: list[str]) -> str:
+def build_prompt(avoid_titles: list[str]) -> str:
     avoid_block = ""
     if avoid_titles:
         avoid_block = (
@@ -169,72 +157,64 @@ def build_prompt(notes: str, brief: str, avoid_titles: list[str]) -> str:
             + "\n".join(f"- {t}" for t in avoid_titles[-30:])
             + "\n\n"
         )
-    brief_block = ""
-    if brief:
-        brief_block = f"TODAY'S NEWS BRIEF (background and source links):\n<brief>\n{brief}\n</brief>\n\n"
+    return f"""You write for "Tech Trek" (tagline: "{TAGLINE}"), a consumer tech and
+gadgets blog with a confident, clear, slightly opinionated voice: no fluff, no
+"in today's fast-paced digital world" openers, no "in conclusion" endings, no
+stock phrases like "game-changer".
 
-    search_plural = "" if MAX_SEARCHES == 1 else "es"
-    return f"""You are drafting one post for "Tech Trek" (tagline: "{TAGLINE}"), a
-consumer tech and gadgets blog. The post is the author's own: it is built
-around THE AUTHOR'S NOTES below, which say which story to cover and what
-the author thinks about it.
+Beat: CONSUMER TECH AND GADGETS people actually buy: phones, laptops,
+wearables, headphones, smart home, gaming hardware, cameras. Good topics are
+new launches, notable price drops or deals, spec comparisons, and buying
+advice. Avoid enterprise software, corporate finance, and research-paper
+stories unless they tie directly to a product people can buy.
 
-AUTHOR'S NOTES:
-<notes>
-{notes}
-</notes>
+You have {MAX_SEARCHES} web searches in total:
+1. Spend the first on what is trending in consumer tech right now (a broad
+   query such as "trending gadget tech news today").
+2. Spend the second on the exact facts (model name, price, specs, dates) of
+   the ONE story you pick that has not been covered yet.
+Do not search again after that.
 
-{brief_block}{avoid_block}How to write it:
-- Make the author's take the spine of the post. Express their stated
-  opinions as theirs, in a confident, clear, conversational voice. No fluff,
-  no "in today's fast-paced digital world" openers, no "in conclusion"
-  endings, no stock phrases like "game-changer".
-- NEVER invent opinions, hands-on testing, ownership, or personal
-  experience. If the notes don't say the author used something, don't imply
-  they did.
-- Vary the structure from post to post. Don't default to the same
-  intro / three points / verdict template. Open with the most interesting
-  specific thing, not a throat-clear.
-- 350-500 words, Markdown, no title heading inside the body (the title lives
-  in frontmatter), no "---" on its own line, no citation markup, no
-  footnote markers, no <cite> tags.
+{avoid_block}Write one post:
+- 350-500 words of Markdown. No title heading inside the body (the title is
+  in frontmatter). No "---" on its own line. No citation markup, footnote
+  markers or <cite> tags.
+- State only facts found in your search results. If a price or spec is not
+  confirmed by a source, leave it out or say it is not confirmed yet.
+- Write in an editorial voice. NEVER claim you tested, used, or owned a
+  product, and never invent quotes or personal anecdotes.
+- Vary the structure from day to day; open with the most interesting specific
+  thing, not a throat-clear.
+- Name each real, purchasable product exactly the same way in the body and in
+  product_mentions (for example "Sony WH-1000XM6", not "the new headphones").
+  Re-read your body for named products before finishing.
+- In sources, list the pages your facts came from (site name and full URL).
 
-Facts: you have {MAX_SEARCHES} search{search_plural}. Use it to confirm the
-specific facts for the story the notes point to (exact model name, price,
-specs, dates). State only facts you found in the brief or in search results.
-If a price or spec isn't confirmed by a source, leave it out or say it isn't
-confirmed yet. Do not search again once your budget is used.
+Also write {NUM_TWEETS} different tweets that promote the post: for example a
+sharp take, a key number or fact, a question, a buying tip. Each under 230
+characters, no links, at most 2 hashtags, and no hype or invented claims.
 
-Name each real, purchasable product exactly the same way in the body and in
-product_mentions (e.g. "Sony WH-1000XM6", not "the new headphones"), and
-re-read your body for named products before finishing. In sources, list the
-pages your facts came from (name and full URL).
-
-Do your research first, then call the submit_post tool exactly once with
-the finished draft. That is how you deliver your answer, not as a message.
+Research first, then call submit_post exactly once with everything. That is
+how you deliver your answer, not as a message.
 """
 
 
 def _strip_citation_tags(text: str) -> str:
-    """Web-search responses sometimes wrap claims in <cite ...> tags. build.py
-    would show them as raw text, so remove the tags and keep the text."""
     text = re.sub(r"<cite[^>]*>", "", text)
     return re.sub(r"</cite>", "", text)
 
 
 def call_claude(prompt: str) -> dict:
-    client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
-
+    client = anthropic.Anthropic()
     response = client.messages.create(
         model=MODEL,
-        max_tokens=4000,
+        max_tokens=4500,
         tools=[
             {"type": "web_search_20250305", "name": "web_search", "max_uses": MAX_SEARCHES},
             SUBMIT_POST_TOOL,
         ],
         messages=[{"role": "user", "content": prompt}],
     )
-
     tool_call = next(
         (b for b in response.content if b.type == "tool_use" and b.name == "submit_post"),
         None,
@@ -245,11 +225,10 @@ def call_claude(prompt: str) -> dict:
             "Claude finished without calling submit_post. "
             f"stop_reason={response.stop_reason!r}. Text output was:\n{text}"
         )
-
     post = tool_call.input
     for key in ("title", "snippet", "body"):
         if not isinstance(post.get(key), str) or not post[key].strip():
-            raise ValueError(f"submit_post is missing '{key}': {post!r}")
+            raise ValueError(f"submit_post is missing '{key}'")
     return post
 
 
@@ -260,92 +239,139 @@ def _amazon_search_url(product_name: str) -> str:
     return url
 
 
-def _add_affiliate_links(body: str, product_mentions: list[str]):
-    """Link the first mention of each named product to an Amazon search
-    (searches don't go stale like a fixed product link can).
+def _add_affiliate_links(body: str, product_mentions):
+    """Link the first mention of each named product to an Amazon search.
     Returns (body, whether_any_link_was_added)."""
     if not AMAZON_AFFILIATE_TAG or not product_mentions:
         return body, False
-
     linked_any = False
     for product in product_mentions:
-        product = product.strip()
+        product = str(product).strip()
         if not product or f"]({_amazon_search_url(product)})" in body:
             continue
         pattern = re.compile(re.escape(product))
         if pattern.search(body):
             body = pattern.sub(
-                lambda m: f"[{m.group(0)}]({_amazon_search_url(product)})",
-                body,
-                count=1,
+                lambda m: f"[{m.group(0)}]({_amazon_search_url(product)})", body, count=1
             )
             linked_any = True
     return body, linked_any
 
 
-def _sources_line(sources) -> str:
-    items = []
+def _clean_sources(sources):
+    out = []
     for s in sources or []:
         url = str(s.get("url", "")).strip()
         name = re.sub(r"[\[\]]", "", " ".join(str(s.get("name", "source")).split()))
-        if url.startswith("http"):
-            items.append(f"[{name}]({url})")
-    return ("\n\n**Sources:** " + ", ".join(items)) if items else ""
+        if url.startswith("https://") or url.startswith("http://"):
+            out.append((name or "source", url))
+    return out
 
 
 def _single_line(text: str) -> str:
-    """Frontmatter fields must be one line (build.py reads them line by line)."""
     return " ".join(text.split())
 
 
-def write_post(post: dict, today) -> Path:
-    out_dir = POSTS_DIR if PUBLISH_DIRECT else DRAFTS_DIR
-    out_dir.mkdir(parents=True, exist_ok=True)
-    title = _single_line(_strip_citation_tags(post["title"]))
-    path = out_dir / f"{today.isoformat()}-{slugify(title)}.md"
+def make_tweets(raw_tweets, post_url):
+    """Trim each tweet to fit X's 280 limit; add the post link to the first two."""
+    tweets = []
+    for i, t in enumerate(raw_tweets or []):
+        text = _single_line(_strip_citation_tags(str(t)))
+        if not text:
+            continue
+        with_link = i < 2
+        room = TWEET_LIMIT - (URL_COST if with_link else 0)
+        if len(text) > room:
+            text = text[: room - 1].rsplit(" ", 1)[0].rstrip(",;:") + "…"
+        final = f"{text}\n\n{post_url}" if with_link else text
+        used = len(text) + (URL_COST if with_link else 0)
+        tweets.append((final, used))
+    return tweets
 
-    tags = ", ".join(t.strip() for t in post.get("tags", []) if t.strip())
+
+def write_tweets_file(tweets, today, title, post_url) -> Path:
+    TWEETS_DIR.mkdir(parents=True, exist_ok=True)
+    path = TWEETS_DIR / f"{today.isoformat()}.md"
+    lines = [f"# Tweets for {today.isoformat()}", "", f"Post: [{title}]({post_url})", "",
+             "Copy one into X. The count shown is how X will count it (links = 23).", ""]
+    for n, (text, used) in enumerate(tweets, 1):
+        lines += [f"### Tweet {n} ({used}/{TWEET_LIMIT})", "", "```text", text, "```", ""]
+    path.write_text("\n".join(lines), encoding="utf-8")
+    return path
+
+
+def write_post(post: dict, today):
+    title = _single_line(_strip_citation_tags(post["title"]))
+    slug = slugify(title)
+    if not slug:
+        raise ValueError("Title produced an empty slug.")
 
     body = _strip_citation_tags(post["body"])
-    body = re.sub(r"(?m)^\s*---+\s*$", "", body)  # no horizontal rules
+    body = re.sub(r"(?m)^\s*---+\s*$", "", body).strip()
+
+    words = len(body.split())
+    sources = _clean_sources(post.get("sources"))
+    if not (MIN_WORDS <= words <= MAX_WORDS):
+        raise ValueError(f"Post has {words} words (allowed {MIN_WORDS}-{MAX_WORDS}). Not publishing.")
+    if not sources:
+        raise ValueError("Post has no source links. Not publishing.")
+
     body, linked_any = _add_affiliate_links(body, post.get("product_mentions", []))
-    body = body.rstrip() + _sources_line(post.get("sources"))
+    body += "\n\n**Sources:** " + ", ".join(f"[{n}]({u})" for n, u in sources)
     if linked_any:
         body += AFFILIATE_DISCLOSURE
 
+    tags = ", ".join(t.strip() for t in post.get("tags", []) if t.strip())
     content = FRONTMATTER_TEMPLATE.format(
         title=title,
         date=today.isoformat(),
+        slug=slug,
         tags=tags,
         snippet=_single_line(_strip_citation_tags(post.get("snippet", ""))),
         body=body,
     )
+    POSTS_DIR.mkdir(parents=True, exist_ok=True)
+    path = POSTS_DIR / f"{today.isoformat()}-{slug}.md"
     path.write_text(content, encoding="utf-8")
-    return path
+    return path, title, slug
 
 
 def main():
-    notes = read_notes()
-    if len(notes) < 20:
-        print("No notes found in notes/today.md (or too short). Nothing to draft.")
-        return
-
     if not os.environ.get("ANTHROPIC_API_KEY"):
         print("ERROR: ANTHROPIC_API_KEY is not set.", file=sys.stderr)
         sys.exit(1)
 
-    today = today_local()
-    print(f"[{datetime.now().isoformat()}] Drafting one post from your notes...")
-    prompt = build_prompt(notes, read_brief(today), existing_titles())
-    post = call_claude(prompt)
+    now = now_local()
+    today = now.date()
+    force = os.environ.get("FORCE", "").lower() == "true"
 
-    path = write_post(post, today)
+    if not force:
+        if not in_send_window(now):
+            print(f"Local time is {now:%H:%M}, outside the 8:00-9:30pm window. Skipping.")
+            return
+        if post_exists_for(today):
+            print("A post for today already exists. Skipping.")
+            return
+
+    print(f"[{now.isoformat()}] Writing today's post...")
+    post = call_claude(build_prompt(existing_titles()))
+
+    path, title, slug = write_post(post, today)
     print(f"  wrote {path}")
-    print(f"  product_mentions from model: {post.get('product_mentions', [])!r}")
-    if not PUBLISH_DIRECT:
-        print("  Review it, then move it into posts/ to publish.")
+    print(f"  product_mentions: {post.get('product_mentions', [])!r}")
+
+    post_url = f"{SITE_URL}/posts/{slug}.html"
+    tweets = make_tweets(post.get("tweets"), post_url)
+    if tweets:
+        print(f"  wrote {write_tweets_file(tweets, today, title, post_url)}")
+    else:
+        print("  WARNING: no tweets were returned.", file=sys.stderr)
     print("Done.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"Post generation failed: {e}", file=sys.stderr)
+        sys.exit(1)

@@ -1,12 +1,15 @@
-name: Build and deploy to GitHub Pages
+name: Daily brief, build and deploy
 
 on:
   push:
     branches: [main]
+  schedule:
+    - cron: "30 11 * * *"   # 7:30am Toronto in summer time (EDT)
+    - cron: "30 12 * * *"   # 7:30am Toronto in winter time (EST)
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -26,8 +29,27 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Runs on the schedule and on manual runs, not when you push a post.
+      # If it fails (feeds down, API error), the site still builds and deploys.
+      - name: Make today's brief
+        if: github.event_name != 'push'
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          AMAZON_TAG: ${{ vars.AMAZON_TAG }}
+          AMAZON_DOMAIN: ${{ vars.AMAZON_DOMAIN }}
+          FORCE: ${{ github.event_name == 'workflow_dispatch' }}
+        run: |
+          python daily_brief.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add briefs
+          git diff --cached --quiet || (git commit -m "Daily brief" && git push)
+
       - name: Build site
         run: python build.py
+        env:
+          CLOUDFLARE_ANALYTICS_TOKEN: ${{ secrets.CLOUDFLARE_ANALYTICS_TOKEN }}
 
       - name: Upload dist folder
         uses: actions/upload-pages-artifact@v3

@@ -10,8 +10,8 @@ Group 1: GitHub Pages fixes
   - hides the "Subscribe below" line on the About page while it's hidden
 Group 2: adds a short "produced with the help of AI" paragraph to About
 
-Group 3: points the signup popup + bottom band at your Kit signup page
-         (the Subscribe button opens it in a new tab)
+Group 3: connects the signup popup + bottom band to your Kit form, so
+         visitors type their email on your site and it goes to Kit
 
 Each group is applied all-or-nothing, and skipped if it's already applied.
 A backup is saved as build.py.bak.
@@ -21,7 +21,7 @@ Usage:  python3 patch_build.py      (run in the same folder as build.py)
 import re, shutil, sys
 
 PATH = "build.py"
-KIT_URL = "https://tech-trek-signup.kit.com/2780114860"
+KIT_URL = "https://app.kit.com/forms/10008445/subscriptions"  # your Kit form
 src = open(PATH, encoding="utf-8").read()
 
 SUBSCRIBE_PARA = (
@@ -119,48 +119,63 @@ for name, edits, done_marker in GROUPS:
     applied.append(name)
 
 
-# ---- Group 3: Kit signup page (custom, uses a regex) -------------------------
-BUTTON_STYLE = (
-    "display:inline-block;padding:14px 24px;border-radius:8px;background:var(--accent);"
-    "color:var(--accent-ink);font-weight:600;font-size:1rem;font-family:var(--font-sans);"
-    "text-decoration:none;white-space:nowrap"
+# ---- Group 3: Kit signup form (custom, uses regex) ---------------------------
+KIT_NAME = "Connect the signup boxes to Kit"
+CONTAINER_RE = re.compile(
+    r'<form class="newsletter-form".*?</form>'
+    r'|<div class="newsletter-form"><a href=.*?</a></div>',
+    re.DOTALL,
 )
-FORM_RE = re.compile(r'<form class="newsletter-form".*?</form>', re.DOTALL)
-KIT_NAME = "Point signup at the Kit page"
+ENDPOINT_RE = re.compile(r'^NEWSLETTER_ENDPOINT = ".*"$', re.MULTILINE)
+HIDE_OLD = 'if not NEWSLETTER_ENDPOINT:\n    POPUP_HTML = ""'
+SUCCESS_OLD = "You're in \u2014 check your inbox tomorrow."
+SUCCESS_NEW = "Almost done: check your email to confirm your subscription."
+CATCH_OLD = ".catch(function(){ if(status) status.textContent = 'Something went wrong \u2014 please try again.'; });"
+CATCH_NEW = (".catch(function(){ try{ form.submit(); }catch(e){ if(status) "
+             "status.textContent = 'Something went wrong \u2014 please try again.'; } });")
 
 
-def kit_button(extra=""):
+def kit_form(which):
     return (
-        f'<div class="newsletter-form"><a href="__NL_URL__" target="_blank" '
-        f'rel="noopener"{extra} style="{BUTTON_STYLE}">Subscribe</a></div>'
+        f'<form class="newsletter-form" method="POST" action="__NL_URL__">\n'
+        f'      <label for="nl-email-{which}" class="sr-only">Email address</label>\n'
+        f'      <input id="nl-email-{which}" type="email" name="email_address" '
+        f'placeholder="you@example.com" required />\n'
+        f'      <button type="submit">Subscribe</button>\n'
+        f'    </form>'
     )
 
 
-if "__NL_URL__" in new_src:
+if 'name="email_address"' in new_src:
     skipped.append(KIT_NAME)
 else:
-    set_old = 'NEWSLETTER_ENDPOINT = ""'
-    hide_old = 'if not NEWSLETTER_ENDPOINT:\n    POPUP_HTML = ""'
-    n_forms = len(FORM_RE.findall(new_src))
     problems = []
-    if new_src.count(set_old) != 1:
-        problems.append((set_old, 1, new_src.count(set_old)))
-    if new_src.count(hide_old) != 1:
-        problems.append((hide_old[:60], 1, new_src.count(hide_old)))
-    if n_forms != 2:
-        problems.append(("<form class=\"newsletter-form\" ... </form>", 2, n_forms))
+    n_end = len(ENDPOINT_RE.findall(new_src))
+    n_box = len(CONTAINER_RE.findall(new_src))
+    has_replace = 'POPUP_HTML = POPUP_HTML.replace("__NL_URL__"' in new_src
+    if n_end != 1:
+        problems.append(('NEWSLETTER_ENDPOINT = "..."', 1, n_end))
+    if n_box != 2:
+        problems.append(("the two signup <form> / button blocks", 2, n_box))
+    if not has_replace and new_src.count(HIDE_OLD) != 1:
+        problems.append((HIDE_OLD[:60], 1, new_src.count(HIDE_OLD)))
     if problems:
         failed.append((KIT_NAME, problems))
     else:
-        new_src = new_src.replace(set_old, f'NEWSLETTER_ENDPOINT = "{KIT_URL}"')
-        buttons = iter([kit_button(" data-nl-close"), kit_button()])  # popup, then bottom band
-        new_src = FORM_RE.sub(lambda m: next(buttons), new_src)
-        new_src = new_src.replace(
-            hide_old,
-            'POPUP_HTML = POPUP_HTML.replace("__NL_URL__", NEWSLETTER_ENDPOINT)\n'
-            'INLINE_SIGNUP_HTML = INLINE_SIGNUP_HTML.replace("__NL_URL__", NEWSLETTER_ENDPOINT)\n\n'
-            + hide_old,
-        )
+        new_src = ENDPOINT_RE.sub(f'NEWSLETTER_ENDPOINT = "{KIT_URL}"', new_src)
+        boxes = iter([kit_form("popup"), kit_form("inline")])  # popup first, then bottom band
+        new_src = CONTAINER_RE.sub(lambda m: next(boxes), new_src)
+        if not has_replace:
+            new_src = new_src.replace(
+                HIDE_OLD,
+                'POPUP_HTML = POPUP_HTML.replace("__NL_URL__", NEWSLETTER_ENDPOINT)\n'
+                'INLINE_SIGNUP_HTML = INLINE_SIGNUP_HTML.replace("__NL_URL__", NEWSLETTER_ENDPOINT)\n\n'
+                + HIDE_OLD,
+            )
+        if new_src.count(SUCCESS_OLD) == 1:
+            new_src = new_src.replace(SUCCESS_OLD, SUCCESS_NEW)
+        if new_src.count(CATCH_OLD) == 1:
+            new_src = new_src.replace(CATCH_OLD, CATCH_NEW)
         applied.append(KIT_NAME)
 
 for name in skipped:

@@ -2,7 +2,7 @@
 """
 Daily auto-poster for Tech Trek.
 
-Once a day (8:30pm Toronto time) this:
+Once a day (8:30am Toronto time) this:
   1. uses Claude + web search to find ONE trending consumer-tech story,
   2. writes the blog post (with Amazon affiliate links and a Sources line)
      into posts/,
@@ -42,7 +42,7 @@ SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://techtreck.tech").
 AMAZON_AFFILIATE_TAG = os.environ.get("AMAZON_TAG", "").strip() or "techtreck02-20"
 AMAZON_DOMAIN = os.environ.get("AMAZON_DOMAIN", "").strip() or "amazon.com"
 
-SEND_HOUR, SEND_MINUTE_END = 20, 30  # window: 8:00pm to 9:29pm local time
+SEND_HOUR = 8  # runs only between 8:00am and 9:29am Toronto time
 MIN_WORDS, MAX_WORDS = 250, 700
 NUM_TWEETS = 4
 TWEET_LIMIT = 280
@@ -347,7 +347,7 @@ def main():
 
     if not force:
         if not in_send_window(now):
-            print(f"Local time is {now:%H:%M}, outside the 8:00-9:30pm window. Skipping.")
+            print(f"Local time is {now:%H:%M}, outside the 8:00-9:30am window. Skipping.")
             return
         if post_exists_for(today):
             print("A post for today already exists. Skipping.")

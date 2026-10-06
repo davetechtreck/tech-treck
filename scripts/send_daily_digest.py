@@ -5,7 +5,7 @@ Tech Trek: daily newsletter digest, sent through Kit.
 Replaces the old Netlify Forms + Resend version. Kit now holds your
 subscribers, sends the email, and adds the unsubscribe link.
 
-Once a day (8:00-9:30pm Toronto time, right after the daily post is written):
+Once a day (8:00-9:30am Toronto time, right after the daily post is written):
   1. finds posts in posts/ dated today (exits quietly if there are none),
   2. skips if today's digest was already created in Kit,
   3. creates a Kit broadcast to ALL your subscribers, scheduled to send
@@ -33,6 +33,7 @@ from zoneinfo import ZoneInfo
 API = "https://api.kit.com/v4"
 TIMEZONE = "America/Toronto"
 SEND_DELAY_MINUTES = 15
+SEND_HOUR = 8  # window: 8:00am to 9:29am Toronto time
 SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://techtreck.tech").rstrip("/")
 KIT_API_KEY = os.environ.get("KIT_API_KEY", "").strip()
 DRY_RUN = os.environ.get("DRY_RUN", "").lower() == "true"
@@ -64,7 +65,7 @@ def kit(path, method="GET", body=None):
 
 def in_send_window(now):
     mins = now.hour * 60 + now.minute
-    return 20 * 60 <= mins < 20 * 60 + 90
+    return SEND_HOUR * 60 <= mins < SEND_HOUR * 60 + 90
 
 
 def slugify(text):
@@ -134,7 +135,7 @@ def main():
         fail("KIT_API_KEY is not set.")
 
     if not FORCE and not in_send_window(NOW_LOCAL):
-        print(f"Local time is {NOW_LOCAL:%H:%M}, outside the 8:00-9:30pm window. Skipping.")
+        print(f"Local time is {NOW_LOCAL:%H:%M}, outside the 8:00-9:30am window. Skipping.")
         return
 
     posts = find_todays_posts()

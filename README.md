@@ -10,7 +10,7 @@ and redeploys automatically. You don't touch anything after setup.
 1. **Copy these files into your Tech Trek repo**, keeping the same paths:
    - `.github/workflows/daily-blog-post.yml`
    - `scripts/generate_posts.py`
-
+ 
 2. **Get an Anthropic API key**: console.anthropic.com → API Keys → Create Key.
    (This uses the paid API, billed per token — 3 posts/day is roughly a few
    cents to ~$0.10/day depending on length and how much search it does.

@@ -1,46 +1,46 @@
 #!/usr/bin/env python3
 """
-Tech Trek — daily newsletter digest.
+Tech Trek: daily newsletter digest, sent through Kit.
 
-Stdlib only, matching build.py's no-dependency style.
+Replaces the old Netlify Forms + Resend version. Kit now holds your
+subscribers, sends the email, and adds the unsubscribe link.
 
-What it does, once a day (run via GitHub Actions cron):
-  1. Scans posts/*.md for posts dated today.
-  2. If there are none, exits quietly (no email sent, no API calls wasted).
-  3. Pulls the current subscriber list from Netlify Forms.
-  4. Sends everyone one digest email (via the Resend API) listing today's posts.
+Once a day (8:00-9:30pm Toronto time, right after the daily post is written):
+  1. finds posts in posts/ dated today (exits quietly if there are none),
+  2. skips if today's digest was already created in Kit,
+  3. creates a Kit broadcast to ALL your subscribers, scheduled to send
+     15 minutes from now so the site has time to finish deploying.
 
-Required environment variables (set as GitHub Actions secrets):
-  NETLIFY_ACCESS_TOKEN   Personal access token from Netlify (User settings > Applications)
-  NETLIFY_SITE_ID        Your site's API ID (Site settings > General > Site details)
-  RESEND_API_KEY         API key from resend.com
-  FROM_EMAIL             e.g. "Tech Trek <digest@yourdomain.com>" (domain must be verified in Resend)
-  SITE_URL               e.g. "https://techtrek.example.com" (no trailing slash)
-
-Optional:
-  POSTS_DIR              default "posts"
-  FORM_NAME              default "newsletter" (must match the <form name="..."> in popup-signup.html)
-  DIGEST_DATE            override "today" for testing, format YYYY-MM-DD
+Standard library only. Environment variables:
+  KIT_API_KEY   Your Kit V4 API key (GitHub secret)   [required]
+  SITE_URL      default "https://techtreck.tech"
+  DRY_RUN       "true" = check the key and print the email, send nothing
+  FORCE         "true" = ignore the time window and the duplicate check
+  DIGEST_DATE   override "today" for testing (YYYY-MM-DD)
 """
 
+import html
 import json
 import os
 import re
 import sys
-import time
 import urllib.error
 import urllib.request
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
-NETLIFY_TOKEN = os.environ.get("NETLIFY_ACCESS_TOKEN")
-NETLIFY_SITE_ID = os.environ.get("NETLIFY_SITE_ID")
-RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
-FROM_EMAIL = os.environ.get("FROM_EMAIL")
-SITE_URL = os.environ.get("SITE_URL", "").rstrip("/")
-POSTS_DIR = os.environ.get("POSTS_DIR", "posts")
-FORM_NAME = os.environ.get("FORM_NAME", "newsletter")
-TODAY = os.environ.get("DIGEST_DATE") or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+API = "https://api.kit.com/v4"
+TIMEZONE = "America/Toronto"
+SEND_DELAY_MINUTES = 15
+SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://techtreck.tech").rstrip("/")
+KIT_API_KEY = os.environ.get("KIT_API_KEY", "").strip()
+DRY_RUN = os.environ.get("DRY_RUN", "").lower() == "true"
+FORCE = os.environ.get("FORCE", "").lower() == "true"
+POSTS_DIR = Path("posts")
+
+NOW_LOCAL = datetime.now(ZoneInfo(TIMEZONE))
+TODAY = os.environ.get("DIGEST_DATE", "").strip() or NOW_LOCAL.strftime("%Y-%m-%d")
 
 
 def fail(msg):
@@ -48,154 +48,133 @@ def fail(msg):
     sys.exit(1)
 
 
-def http_json(url, method="GET", headers=None, body=None):
+def kit(path, method="GET", body=None):
     data = json.dumps(body).encode("utf-8") if body is not None else None
-    req = urllib.request.Request(url, data=data, method=method)
+    req = urllib.request.Request(f"{API}{path}", data=data, method=method)
     req.add_header("Content-Type", "application/json")
-    for k, v in (headers or {}).items():
-        req.add_header(k, v)
+    req.add_header("Accept", "application/json")
+    req.add_header("X-Kit-Api-Key", KIT_API_KEY)
     try:
-        with urllib.request.urlopen(req, timeout=20) as resp:
+        with urllib.request.urlopen(req, timeout=30) as resp:
             raw = resp.read()
-            return json.loads(raw) if raw else None
+            return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
-        raise RuntimeError(f"{method} {url} -> {e.code}: {e.read().decode('utf-8', 'ignore')}")
+        raise RuntimeError(f"{method} {path} -> {e.code}: {e.read().decode('utf-8', 'ignore')[:300]}")
+
+
+def in_send_window(now):
+    mins = now.hour * 60 + now.minute
+    return 20 * 60 <= mins < 20 * 60 + 90
+
+
+def slugify(text):
+    return re.sub(r"[^a-z0-9]+", "-", text.lower().strip()).strip("-")
 
 
 def parse_frontmatter(text):
-    """Very small '---\\nkey: value\\n---' frontmatter parser."""
     m = re.match(r"^---\s*\n(.*?)\n---\s*\n?(.*)$", text, re.S)
     if not m:
         return {}, text
-    raw_fm, body = m.group(1), m.group(2)
     fm = {}
-    for line in raw_fm.splitlines():
+    for line in m.group(1).splitlines():
         if ":" in line:
-            key, _, val = line.partition(":")
-            fm[key.strip().lower()] = val.strip().strip('"').strip("'")
-    return fm, body
+            k, _, v = line.partition(":")
+            fm[k.strip().lower()] = v.strip().strip('"').strip("'")
+    return fm, m.group(2)
 
 
 def find_todays_posts():
     posts = []
-    posts_dir = Path(POSTS_DIR)
-    if not posts_dir.exists():
-        fail(f"posts directory '{POSTS_DIR}' not found (cwd: {os.getcwd()})")
-
-    for md_file in sorted(posts_dir.glob("*.md")):
-        fm, body = parse_frontmatter(md_file.read_text(encoding="utf-8"))
-        date = fm.get("date", "")[:10]  # tolerate a trailing time component
-        if date != TODAY:
+    if not POSTS_DIR.exists():
+        fail(f"posts folder not found (cwd: {os.getcwd()})")
+    for f in sorted(POSTS_DIR.glob("*.md")):
+        fm, body = parse_frontmatter(f.read_text(encoding="utf-8"))
+        if fm.get("date", "")[:10] != TODAY:
             continue
-        title = fm.get("title", md_file.stem)
-        slug = fm.get("slug", md_file.stem)
-        excerpt = fm.get("excerpt") or fm.get("description") or ""
+        title = fm.get("title") or f.stem
+        slug = fm.get("slug") or slugify(title)
+        excerpt = fm.get("snippet") or fm.get("excerpt") or ""
         if not excerpt:
-            # fall back to the first non-empty line of the body
             for line in body.splitlines():
                 line = line.strip()
                 if line and not line.startswith("#"):
-                    excerpt = (line[:180] + "…") if len(line) > 180 else line
+                    excerpt = line[:180] + ("…" if len(line) > 180 else "")
                     break
-        posts.append({"title": title, "slug": slug, "excerpt": excerpt})
+        posts.append({"title": title, "url": f"{SITE_URL}/posts/{slug}.html", "excerpt": excerpt})
     return posts
 
 
-def get_form_id():
-    forms = http_json(
-        f"https://api.netlify.com/api/v1/sites/{NETLIFY_SITE_ID}/forms",
-        headers={"Authorization": f"Bearer {NETLIFY_TOKEN}"},
-    )
-    for f in forms:
-        if f.get("name") == FORM_NAME:
-            return f["id"]
-    fail(
-        f"No Netlify form named '{FORM_NAME}' found yet. "
-        "It only appears after your site has been deployed at least once "
-        "with popup-signup.html's <form> in the built HTML."
-    )
-
-
-def get_subscribers(form_id):
-    submissions = http_json(
-        f"https://api.netlify.com/api/v1/forms/{form_id}/submissions",
-        headers={"Authorization": f"Bearer {NETLIFY_TOKEN}"},
-    )
-    emails = set()
-    for s in submissions:
-        email = (s.get("data") or {}).get("email")
-        if email:
-            emails.add(email.strip().lower())
-    return sorted(emails)
-
-
-def build_digest_html(posts):
+def build_html(posts):
     items = []
     for p in posts:
-        url = f"{SITE_URL}/{p['slug']}" if SITE_URL else p["slug"]
         items.append(
-            f"<li style='margin-bottom:18px'>"
-            f"<a href='{url}' style='font-size:17px;font-weight:600;text-decoration:none;color:#111'>{p['title']}</a>"
-            f"<p style='margin:4px 0 0;color:#555;font-size:14px'>{p['excerpt']}</p>"
-            f"</li>"
+            "<div style='margin-bottom:22px'>"
+            f"<a href='{html.escape(p['url'])}' style='font-size:19px;font-weight:700;"
+            f"text-decoration:none;color:#111'>{html.escape(p['title'])}</a>"
+            f"<p style='margin:6px 0 8px;color:#444;font-size:15px;line-height:1.5'>{html.escape(p['excerpt'])}</p>"
+            f"<a href='{html.escape(p['url'])}' style='font-size:14px;color:#2F49FF'>Read the full post &rarr;</a>"
+            "</div>"
         )
     return (
         "<div style='font-family:Georgia,serif;max-width:560px;margin:0 auto'>"
-        f"<h2 style='font-family:monospace;font-size:14px;letter-spacing:1px;color:#888;text-transform:uppercase'>Tech Trek · {TODAY}</h2>"
-        f"<ul style='list-style:none;padding:0'>{''.join(items)}</ul>"
-        "<p style='font-size:12px;color:#999;margin-top:32px'>You're receiving this because you subscribed at Tech Trek.</p>"
-        "</div>"
+        f"<p style='font-family:monospace;font-size:12px;letter-spacing:1px;color:#888;"
+        f"text-transform:uppercase'>Tech Trek &middot; {TODAY}</p>"
+        + "".join(items)
+        + "</div>"
     )
 
 
-def send_email(to_email, html):
-    http_json(
-        "https://api.resend.com/emails",
-        method="POST",
-        headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
-        body={
-            "from": FROM_EMAIL,
-            "to": [to_email],
-            "subject": f"Tech Trek daily digest — {TODAY}",
-            "html": html,
-        },
-    )
+def already_created(subject):
+    data = kit("/broadcasts?per_page=50")
+    return any((b or {}).get("subject") == subject for b in data.get("broadcasts", []))
 
 
 def main():
-    for var, val in [
-        ("NETLIFY_ACCESS_TOKEN", NETLIFY_TOKEN),
-        ("NETLIFY_SITE_ID", NETLIFY_SITE_ID),
-        ("RESEND_API_KEY", RESEND_API_KEY),
-        ("FROM_EMAIL", FROM_EMAIL),
-    ]:
-        if not val:
-            fail(f"missing required env var {var}")
+    if not KIT_API_KEY:
+        fail("KIT_API_KEY is not set.")
+
+    if not FORCE and not in_send_window(NOW_LOCAL):
+        print(f"Local time is {NOW_LOCAL:%H:%M}, outside the 8:00-9:30pm window. Skipping.")
+        return
 
     posts = find_todays_posts()
     if not posts:
-        print(f"No posts dated {TODAY} — nothing to send.")
+        print(f"No posts dated {TODAY}. Nothing to send.")
         return
 
-    form_id = get_form_id()
-    subscribers = get_subscribers(form_id)
-    if not subscribers:
-        print("No subscribers yet — skipping send.")
+    subject = f"Tech Trek daily digest: {TODAY}"
+    preview = posts[0]["title"][:140]
+    send_at = (datetime.now(timezone.utc) + timedelta(minutes=SEND_DELAY_MINUTES)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+    if DRY_RUN:
+        acct = kit("/account")  # proves the API key works
+        print(f"DRY RUN: Kit key OK ({json.dumps(acct)[:120]}).")
+        print(f"Would send '{subject}' with {len(posts)} post(s) at {send_at}:")
+        for p in posts:
+            print(f"  - {p['title']}  {p['url']}")
         return
 
-    html = build_digest_html(posts)
-    sent, errors = 0, 0
-    for email in subscribers:
-        try:
-            send_email(email, html)
-            sent += 1
-        except Exception as e:
-            errors += 1
-            print(f"Failed to send to {email}: {e}", file=sys.stderr)
-        time.sleep(0.3)  # gentle pacing against rate limits
+    if not FORCE and already_created(subject):
+        print("Today's digest was already created. Skipping.")
+        return
 
-    print(f"Done. {len(posts)} post(s), sent to {sent} subscriber(s), {errors} failure(s).")
+    result = kit("/broadcasts", method="POST", body={
+        "subject": subject,
+        "preview_text": preview,
+        "content": build_html(posts),
+        "description": f"Daily digest {TODAY}",
+        "public": False,
+        "send_at": send_at,
+    })
+    bid = (result.get("broadcast") or {}).get("id")
+    print(f"Created Kit broadcast {bid}: '{subject}', {len(posts)} post(s), scheduled for {send_at}.")
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except SystemExit:
+        raise
+    except Exception as e:
+        print(f"Digest failed: {e}", file=sys.stderr)
+        sys.exit(1)

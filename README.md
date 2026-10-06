@@ -15,7 +15,7 @@ and redeploys automatically. You don't touch anything after setup.
    (This uses the paid API, billed per token — 3 posts/day is roughly a few
    cents to ~$0.10/day depending on length and how much search it does.
    Check current pricing at anthropic.com/pricing.)
-
+ 
 3. **Add it as a GitHub secret**: in your repo, go to
    Settings → Secrets and variables → Actions → New repository secret.
    - Name: `ANTHROPIC_API_KEY`

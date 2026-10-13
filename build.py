@@ -30,6 +30,11 @@ SITE_URL = "https://techtreck.tech/"  # NEW: replace with your real domain, no t
 # analytics entirely.
 CLOUDFLARE_ANALYTICS_TOKEN = os.environ.get("CLOUDFLARE_ANALYTICS_TOKEN", "")
 
+# Kit (ConvertKit) form that newsletter signups are sent to. Both the popup
+# and the bottom-of-page signup post here.
+KIT_FORM_ID = "10041123"
+KIT_FORM_ACTION = f"https://app.kit.com/forms/{KIT_FORM_ID}/subscriptions"
+
 def _analytics_snippet():
     if not CLOUDFLARE_ANALYTICS_TOKEN:
         return ""
@@ -443,10 +448,9 @@ if('IntersectionObserver' in window){
 """
 
 # ---------------------------------------------------------------------------
-# NEW: newsletter signup — a centered popup PLUS a second signup band at the
-# bottom of every page. Both are real static HTML (not JS-injected) so
-# Netlify detects the form at deploy time. Both forms share name="newsletter"
-# so submissions from either one land in the same place in Netlify Forms.
+# Newsletter signup — a centered popup PLUS a second signup band at the
+# bottom of every page. Both forms post to the Kit form (KIT_FORM_ID above).
+# Kit expects the email field to be named exactly "email_address".
 # ---------------------------------------------------------------------------
 
 NEWSLETTER_STYLE = """
@@ -497,13 +501,15 @@ NEWSLETTER_SCRIPT = """
   var SHOW_AFTER_MS=8000, RESHOW_AFTER_DAYS=14;
   function daysSince(ts){return (Date.now()-Number(ts))/(1000*60*60*24);}
   function shouldShow(){
-    if(localStorage.getItem(SUBSCRIBED_KEY)==='true') return false;
-    var d=localStorage.getItem(DISMISS_KEY);
-    if(d && daysSince(d)<RESHOW_AFTER_DAYS) return false;
+    try{
+      if(localStorage.getItem(SUBSCRIBED_KEY)==='true') return false;
+      var d=localStorage.getItem(DISMISS_KEY);
+      if(d && daysSince(d)<RESHOW_AFTER_DAYS) return false;
+    }catch(e){}
     return true;
   }
   function openPopup(){var el=document.getElementById('newsletter-popup'); if(el){el.classList.add('is-visible'); el.setAttribute('aria-hidden','false');}}
-  function closePopup(){var el=document.getElementById('newsletter-popup'); if(el){el.classList.remove('is-visible'); el.setAttribute('aria-hidden','true'); localStorage.setItem(DISMISS_KEY,String(Date.now()));}}
+  function closePopup(){var el=document.getElementById('newsletter-popup'); if(el){el.classList.remove('is-visible'); el.setAttribute('aria-hidden','true'); try{localStorage.setItem(DISMISS_KEY,String(Date.now()));}catch(e){}}}
   document.addEventListener('DOMContentLoaded', function(){
     if(shouldShow()) setTimeout(openPopup, SHOW_AFTER_MS);
     document.querySelectorAll('[data-nl-close]').forEach(function(btn){btn.addEventListener('click', closePopup);});
@@ -511,14 +517,15 @@ NEWSLETTER_SCRIPT = """
       form.addEventListener('submit', function(e){
         e.preventDefault();
         var status = form.parentElement.querySelector('.nl-status');
-        var data = new URLSearchParams(new FormData(form)).toString();
-        fetch('/', {method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'}, body:data})
-          .then(function(){
-            if(status) status.textContent = "You're in — check your inbox tomorrow.";
-            localStorage.setItem(SUBSCRIBED_KEY,'true');
-            setTimeout(closePopup, 1800);
+        if(status) status.textContent = 'Subscribing...';
+        fetch(form.action, {method:'POST', body:new FormData(form), headers:{'Accept':'application/json'}})
+          .then(function(res){
+            if(!res.ok){ throw new Error('bad status'); }
+            if(status) status.textContent = 'Almost there! Check your email to confirm your subscription.';
+            try{ localStorage.setItem(SUBSCRIBED_KEY,'true'); }catch(e){}
+            setTimeout(closePopup, 3500);
           })
-          .catch(function(){ if(status) status.textContent = 'Something went wrong — please try again.'; });
+          .catch(function(){ if(status) status.textContent = 'Something went wrong. Please try again.'; });
       });
     });
   });
@@ -533,34 +540,30 @@ POPUP_HTML = NEWSLETTER_STYLE + """
     <button type="button" class="nl-popup__close" data-nl-close aria-label="Close">&times;</button>
     <h3 id="nl-popup-title" class="newsletter-card__title">Get Tech Treck in your inbox</h3>
     <p class="newsletter-card__body">One short daily digest of what got published. No spam, unsubscribe anytime.</p>
-    <form class="newsletter-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field-popup">
-      <input type="hidden" name="form-name" value="newsletter" />
-      <p style="display:none"><label>Don't fill this out: <input name="nl-bot-field-popup" /></label></p>
+    <form class="newsletter-form" action="__KIT_FORM_ACTION__" method="post">
       <label for="nl-email-popup" class="sr-only">Email address</label>
-      <input id="nl-email-popup" type="email" name="email" placeholder="you@example.com" required />
+      <input id="nl-email-popup" type="email" name="email_address" placeholder="you@example.com" required />
       <button type="submit">Subscribe</button>
     </form>
     <p class="nl-status"></p>
   </div>
 </div>
-""" + NEWSLETTER_SCRIPT
+""".replace("__KIT_FORM_ACTION__", KIT_FORM_ACTION) + NEWSLETTER_SCRIPT
 
 INLINE_SIGNUP_HTML = """
 <section class="nl-inline">
   <div class="newsletter-card">
     <h3 class="newsletter-card__title">Get Tech Treck in your inbox</h3>
     <p class="newsletter-card__body">One short daily digest of what got published. No spam, unsubscribe anytime.</p>
-    <form class="newsletter-form" name="newsletter" method="POST" data-netlify="true" netlify-honeypot="nl-bot-field-inline">
-      <input type="hidden" name="form-name" value="newsletter" />
-      <p style="display:none"><label>Don't fill this out: <input name="nl-bot-field-inline" /></label></p>
+    <form class="newsletter-form" action="__KIT_FORM_ACTION__" method="post">
       <label for="nl-email-inline" class="sr-only">Email address</label>
-      <input id="nl-email-inline" type="email" name="email" placeholder="you@example.com" required />
+      <input id="nl-email-inline" type="email" name="email_address" placeholder="you@example.com" required />
       <button type="submit">Subscribe</button>
     </form>
     <p class="nl-status"></p>
   </div>
 </section>
-"""
+""".replace("__KIT_FORM_ACTION__", KIT_FORM_ACTION)
 
 ABOUT_MARKDOWN = """Tech Trek covers what's actually worth knowing in consumer tech — phones, laptops, wearables, headphones, smart home gear, gaming hardware, cameras. New posts land daily: real launches, real prices, real specs, and an actual point of view, not a repackaged press release.
 
@@ -584,7 +587,7 @@ Some posts contain Amazon Associates affiliate links. If you click one and make 
 
 ## Newsletter
 
-If you subscribe to the newsletter, your email address is stored via Netlify Forms and used only to send you the daily digest. It is never sold or shared with third parties. You can unsubscribe at any time by contacting us.
+If you subscribe to the newsletter, your email address is stored with our email service provider, Kit, and used only to send you the daily digest. It is never sold or shared with third parties. You can unsubscribe at any time using the link in every email.
 
 ## Contact
 

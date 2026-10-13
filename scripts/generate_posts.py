@@ -2,7 +2,7 @@
 """
 Daily auto-poster for Tech Trek.
 
-Once a day (8:30am Toronto time) this:
+Once a day (triggered by the GitHub Actions schedule) this:
   1. uses Claude + web search to find ONE trending consumer-tech story,
   2. writes the blog post (with Amazon affiliate links and a Sources line)
      into posts/,
@@ -13,6 +13,7 @@ Optional repo variables: AMAZON_TAG, AMAZON_DOMAIN, SITE_URL.
 
 Safety checks: it skips if a post for today already exists, and it will NOT
 publish a post that is too short, too long, or has no source links.
+The time of day is controlled by the cron lines in the workflow, not here.
 """
 
 import os
@@ -42,7 +43,6 @@ SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://techtreck.tech").
 AMAZON_AFFILIATE_TAG = os.environ.get("AMAZON_TAG", "").strip() or "techtreck02-20"
 AMAZON_DOMAIN = os.environ.get("AMAZON_DOMAIN", "").strip() or "amazon.com"
 
-SEND_HOUR = 8  # runs only between 8:00am and 9:29am Toronto time
 MIN_WORDS, MAX_WORDS = 250, 700
 NUM_TWEETS = 4
 TWEET_LIMIT = 280
@@ -127,11 +127,6 @@ def now_local():
 def slugify(text: str) -> str:
     # Same rules as build.py's slugify, so links always match.
     return re.sub(r"[^a-z0-9]+", "-", text.lower().strip()).strip("-")
-
-
-def in_send_window(now) -> bool:
-    mins = now.hour * 60 + now.minute
-    return SEND_HOUR * 60 <= mins < SEND_HOUR * 60 + 90
 
 
 def post_exists_for(day) -> bool:
@@ -345,13 +340,11 @@ def main():
     today = now.date()
     force = os.environ.get("FORCE", "").lower() == "true"
 
-    if not force:
-        if not in_send_window(now):
-            print(f"Local time is {now:%H:%M}, outside the 8:00-9:30am window. Skipping.")
-            return
-        if post_exists_for(today):
-            print("A post for today already exists. Skipping.")
-            return
+    # The workflow's cron decides WHEN this runs. The only guard here is
+    # "don't write a second post for the same day" (two crons fire daily).
+    if not force and post_exists_for(today):
+        print("A post for today already exists. Skipping.")
+        return
 
     print(f"[{now.isoformat()}] Writing today's post...")
     post = call_claude(build_prompt(existing_titles()))

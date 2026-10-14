@@ -5,17 +5,19 @@ Tech Trek: daily newsletter digest, sent through Kit.
 Replaces the old Netlify Forms + Resend version. Kit now holds your
 subscribers, sends the email, and adds the unsubscribe link.
 
-Once a day (8:00-9:30am Toronto time, right after the daily post is written):
+Once a day (when the workflow runs, right after the daily post is written):
   1. finds posts in posts/ dated today (exits quietly if there are none),
   2. skips if today's digest was already created in Kit,
   3. creates a Kit broadcast to ALL your subscribers, scheduled to send
      15 minutes from now so the site has time to finish deploying.
 
+The time of day is controlled by the cron lines in the workflow, not here.
+
 Standard library only. Environment variables:
   KIT_API_KEY   Your Kit V4 API key (GitHub secret)   [required]
   SITE_URL      default "https://techtreck.tech"
   DRY_RUN       "true" = check the key and print the email, send nothing
-  FORCE         "true" = ignore the time window and the duplicate check
+  FORCE         "true" = ignore the duplicate check
   DIGEST_DATE   override "today" for testing (YYYY-MM-DD)
 """
 
@@ -33,7 +35,6 @@ from zoneinfo import ZoneInfo
 API = "https://api.kit.com/v4"
 TIMEZONE = "America/Toronto"
 SEND_DELAY_MINUTES = 15
-SEND_HOUR = 8  # window: 8:00am to 9:29am Toronto time
 SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://techtreck.tech").rstrip("/")
 KIT_API_KEY = os.environ.get("KIT_API_KEY", "").strip()
 DRY_RUN = os.environ.get("DRY_RUN", "").lower() == "true"
@@ -61,11 +62,6 @@ def kit(path, method="GET", body=None):
             return json.loads(raw) if raw else {}
     except urllib.error.HTTPError as e:
         raise RuntimeError(f"{method} {path} -> {e.code}: {e.read().decode('utf-8', 'ignore')[:300]}")
-
-
-def in_send_window(now):
-    mins = now.hour * 60 + now.minute
-    return SEND_HOUR * 60 <= mins < SEND_HOUR * 60 + 90
 
 
 def slugify(text):
@@ -133,10 +129,6 @@ def already_created(subject):
 def main():
     if not KIT_API_KEY:
         fail("KIT_API_KEY is not set.")
-
-    if not FORCE and not in_send_window(NOW_LOCAL):
-        print(f"Local time is {NOW_LOCAL:%H:%M}, outside the 8:00-9:30am window. Skipping.")
-        return
 
     posts = find_todays_posts()
     if not posts:

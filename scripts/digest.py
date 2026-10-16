@@ -67,12 +67,12 @@ TODAY = os.environ.get("DIGEST_DATE", "").strip() or NOW_LOCAL.strftime("%Y-%m-%
 TAGLINE = "field notes on tech"
 
 # Fill in your real profile URLs. Empty ones are left out of the email.
-SOCIAL_LINKS = {
-    "Instagram": "",
-    "X": "",
-    "YouTube": "",
-    "TikTok": "",
-}
+SOCIAL_LINKS = [
+    ("Instagram", "https://www.instagram.com/techtrec3k?stkn=dnh6djY3eHQ5a3dq&utm_source=qr"),
+    ("x", "https://x.com/techtre3k"),
+    ("Youtube", " https://www.youtube.com/@TechTrecck"),
+    ("tiktok" , "https://www.tiktok.com/@tech.tre3k?is_from_webapp=1&sender_device=pc "),
+]
 
 # Email clients ignore most web fonts, so these are safe system stacks.
 SERIF = "Georgia,'Times New Roman',serif"

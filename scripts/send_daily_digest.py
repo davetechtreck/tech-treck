@@ -67,12 +67,12 @@ TODAY = os.environ.get("DIGEST_DATE", "").strip() or NOW_LOCAL.strftime("%Y-%m-%
 TAGLINE = "field notes on tech"
 
 # Fill in your real profile URLs. Empty ones are left out of the email.
-SOCIAL_LINKS = [
-    ("Instagram", "https://www.instagram.com/techtrec3k?stkn=dnh6djY3eHQ5a3dq&utm_source=qr"),
-    ("x", "https://x.com/techtre3k"),
-    ("Youtube", " https://www.youtube.com/@TechTrecck"),
-    ("tiktok" , "https://www.tiktok.com/@tech.tre3k?is_from_webapp=1&sender_device=pc "),
-]
+SOCIAL_LINKS = {
+    "Instagram": "https://www.instagram.com/techtrec3k",
+    "X": "https://x.com/techtre3k",
+    "YouTube": "https://www.youtube.com/@TechTrecck",
+    "TikTok": "https://www.tiktok.com/@tech.tre3k",
+}
 
 # Email clients ignore most web fonts, so these are safe system stacks.
 SERIF = "Georgia,'Times New Roman',serif"
@@ -237,6 +237,12 @@ WEB_HEAD_SCRIPT = """
 """
 
 
+def _social_pairs():
+    """SOCIAL_LINKS may be a dict {"Instagram": url} or a list of (label, url) pairs."""
+    links = SOCIAL_LINKS.items() if isinstance(SOCIAL_LINKS, dict) else SOCIAL_LINKS
+    return [(str(name).strip(), str(url).strip()) for name, url in links]
+
+
 def _markup(posts, web_url=None):
     L = LIGHT
     e = html.escape
@@ -284,7 +290,7 @@ def _markup(posts, web_url=None):
     socials = "".join(
         f'<a class="tt-link" href="{e(url)}" style="font-family:{MONO};font-size:12px;'
         f'color:{L["link"]};margin-right:16px;text-decoration:none">{e(name)}</a>'
-        for name, url in SOCIAL_LINKS.items() if url
+        for name, url in _social_pairs() if url
     )
     domain = SITE_URL.replace("https://", "").replace("http://", "")
     rows.append(

@@ -4,8 +4,10 @@ on:
   push:
     branches: [main]
   schedule:
-    - cron: "30 12 * * *"  # 8:30am Toronto in summer time (EDT)
-    - cron: "30 13 * * *"  # 8:30am Toronto in winter time (EST)
+    # Two crons because GitHub schedules in UTC and Toronto changes offset
+    # with daylight saving. The "check" job below lets only the matching one run.
+    - cron: "30 12 * * *"  # 8:30am Toronto in summer time (EDT, UTC-4)
+    - cron: "30 13 * * *"  # 8:30am Toronto in winter time (EST, UTC-5)
   workflow_dispatch:
 
 permissions:
@@ -18,7 +20,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.gate.outputs.run }}
+    steps:
+      - name: Only run the cron that matches Toronto's current UTC offset
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          OFFSET=$(TZ=America/Toronto date +%z)
+          RUN=false
+          if [ "$EVENT" != "schedule" ]; then
+            RUN=true   # pushes and manual runs always go ahead
+          elif [ "$OFFSET" = "-0400" ] && [ "$SCHEDULE" = "30 12 * * *" ]; then
+            RUN=true
+          elif [ "$OFFSET" = "-0500" ] && [ "$SCHEDULE" = "30 13 * * *" ]; then
+            RUN=true
+          fi
+          echo "Toronto offset $OFFSET, event $EVENT, schedule '$SCHEDULE' -> run=$RUN"
+          echo "run=$RUN" >> "$GITHUB_OUTPUT"
+
   build:
+    needs: check
+    if: needs.check.outputs.run == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Check out repo
@@ -48,16 +75,8 @@ jobs:
           git add posts tweets
           git diff --cached --quiet || (git commit -m "Auto: daily post and tweets" && git push)
 
-      # Creates today's email in Kit (it sends 15 minutes later). On manual
-      # runs it only does a dry run: checks your Kit key, sends nothing.
-      - name: Email today's digest through Kit
-        if: github.event_name != 'push'
-        continue-on-error: true
-        env:
-          KIT_API_KEY: ${{ secrets.KIT_API_KEY }}
-          DRY_RUN: ${{ github.event_name == 'workflow_dispatch' }}
-          FORCE: ${{ github.event_name == 'workflow_dispatch' }}
-        run: python scripts/send_daily_digest.py
+      # The daily email digest now has its own workflow (Daily newsletter
+      # digest), which runs at 9:30am Toronto time.
 
       - name: Build site
         run: python build.py

@@ -366,8 +366,8 @@ def main():
         print(f"No posts dated {TODAY}. Nothing to send.")
         return
 
-    subject = f"Tech Trek daily digest: {TODAY}"
-    preview = posts[0]["title"][:140]
+    subject = posts[0]["title"]
+    preview = (posts[0].get("excerpt") or posts[0]["title"])[:140]
     send_at = (datetime.now(timezone.utc) + timedelta(minutes=SEND_DELAY_MINUTES)).strftime("%Y-%m-%dT%H:%M:%SZ")
     web_url = f"{SITE_URL}/digest/{TODAY}.html" if WEB_VERSION else None
 

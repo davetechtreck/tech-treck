@@ -35,6 +35,12 @@ CLOUDFLARE_ANALYTICS_TOKEN = os.environ.get("CLOUDFLARE_ANALYTICS_TOKEN", "")
 KIT_FORM_ID = "10041123"
 KIT_FORM_ACTION = f"https://app.kit.com/forms/{KIT_FORM_ID}/subscriptions"
 
+# Who runs the site and how readers reach you. Shown on the About, Contact,
+# Editorial policy and Privacy pages.
+AUTHOR_NAME = "Dave"
+AUTHOR_EMAIL = "Davis@techtreck.tech"
+INFO_EMAIL = "info@techtreck.com"
+
 def _analytics_snippet():
     if not CLOUDFLARE_ANALYTICS_TOKEN:
         return ""
@@ -199,7 +205,8 @@ def fmt_date_human(d):
 
 def generate_sitemap(posts):
     base = SITE_URL.rstrip("/")
-    urls = [f"{base}/", f"{base}/about.html", f"{base}/privacy.html"]
+    urls = [f"{base}/", f"{base}/about.html", f"{base}/editorial-policy.html",
+            f"{base}/contact.html", f"{base}/privacy.html"]
     urls += [f"{base}/posts/{m['slug']}.html" for m in posts]
     entries = "".join(f"\n  <url><loc>{html.escape(u)}</loc></url>" for u in urls)
     return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -565,11 +572,23 @@ INLINE_SIGNUP_HTML = """
 </section>
 """.replace("__KIT_FORM_ACTION__", KIT_FORM_ACTION)
 
-ABOUT_MARKDOWN = """Tech Trek covers what's actually worth knowing in consumer tech — phones, laptops, wearables, headphones, smart home gear, gaming hardware, cameras. New posts land daily: real launches, real prices, real specs, and an actual point of view, not a repackaged press release.
+ABOUT_MARKDOWN = f"""{SITE_TITLE} is a consumer tech blog covering phones, laptops, wearables, headphones, smart home gear, gaming hardware, and cameras: new launches, price changes, spec comparisons, and buying advice, with a clear point of view.
 
-Want it without checking back constantly? Subscribe below for a once-daily digest — everything published that day, one email, no spam.
+## Who runs it
 
-Some posts link to products through the Amazon Associates program. When they do, it's always disclosed in the post — never disguised as a regular link."""
+I'm {AUTHOR_NAME}, and I run {SITE_TITLE}. You can reach me at [{AUTHOR_EMAIL}](mailto:{AUTHOR_EMAIL}).
+
+## How posts are made
+
+New posts go up daily. They are researched and drafted with the help of AI tools working from published sources, and every post lists those sources at the bottom so you can check the facts yourself. We state only what those sources confirm, and we never claim to have tested a product we haven't. Read the full [editorial policy](editorial-policy.html).
+
+## Newsletter
+
+Want it without checking back constantly? Subscribe below for a once-daily digest of everything published that day: one email, no spam.
+
+## Affiliate links
+
+Some posts link to products through the Amazon Associates program. When they do, it's always disclosed in the post, never disguised as a regular link."""
 
 PRIVACY_MARKDOWN = f"""This page explains what data {SITE_TITLE} collects and why, in plain language.
 
@@ -591,7 +610,44 @@ If you subscribe to the newsletter, your email address is stored with our email 
 
 ## Contact
 
-Questions about this policy? Reach out through any of the social links in the footer below."""
+Questions about this policy? Email [{AUTHOR_EMAIL}](mailto:{AUTHOR_EMAIL})."""
+
+EDITORIAL_MARKDOWN = f"""This page explains how {SITE_TITLE} decides what to cover, where the information comes from, and how posts are written.
+
+## What we cover
+
+Consumer tech people actually buy: phones, laptops, wearables, headphones, smart home gear, gaming hardware, and cameras. We focus on launches, notable price changes, spec comparisons, and buying advice.
+
+## How stories are chosen
+
+Each day we look at what is trending in consumer tech and pick one story that we haven't already covered. We skip stories that don't connect to a product people can buy.
+
+## Sources and accuracy
+
+Every post lists the pages its facts came from in a Sources line at the bottom. A post may only state facts found in those sources. If a price or spec isn't confirmed, we leave it out or say it isn't confirmed yet.
+
+## How posts are written
+
+Our daily posts are researched and drafted with the help of AI tools. The tools search the web and write from the sources they find. These posts are not hands-on reviews: we haven't tested a product unless a post explicitly says so, and we don't invent quotes or personal experiences.
+
+## Affiliate links and ads
+
+Some posts contain Amazon Associates affiliate links, and we may earn a small commission if you buy through them, at no extra cost to you. This is disclosed in the post. Some pages may also show ads through Google AdSense. Affiliate links and ads don't decide which stories we cover.
+
+## Corrections
+
+If you spot a mistake, email [{AUTHOR_EMAIL}](mailto:{AUTHOR_EMAIL}) with a link to the post. We fix confirmed errors and note significant corrections in the post.
+
+## Who to contact
+
+{AUTHOR_NAME} runs {SITE_TITLE}. See the [contact page](contact.html) for how to reach us."""
+
+CONTACT_MARKDOWN = f"""Questions, corrections, story tips, or partnership requests? Email us:
+
+- {AUTHOR_NAME}: [{AUTHOR_EMAIL}](mailto:{AUTHOR_EMAIL})
+- General information: [{INFO_EMAIL}](mailto:{INFO_EMAIL})
+
+You can also find {SITE_TITLE} on social media through the links in the footer. For how we choose and write our stories, see the [editorial policy](editorial-policy.html)."""
 
 HEAD = """<!DOCTYPE html>
 <html lang="en">
@@ -649,7 +705,7 @@ FOOT = """
   </main>
   {inline_signup}
   <footer class="site-foot">
-    <span>&#169; {site_title} &middot; <a class="u-link" href="{privacy_href}">privacy</a></span>
+    <span>&#169; {site_title} &middot; {footer_links}</span>
     <span class="social-links">{social_links}</span>
   </footer>
 </div>
@@ -658,6 +714,15 @@ FOOT = """
 </body>
 </html>
 """
+
+
+def footer_links(prefix):
+    """Footer page links. prefix is "" on root pages and "../" on post pages."""
+    pages = [("privacy", "privacy.html"), ("editorial", "editorial-policy.html"),
+             ("contact", "contact.html")]
+    return " &middot; ".join(
+        f'<a class="u-link" href="{prefix}{href}">{label}</a>' for label, href in pages
+    )
 
 
 def render_social_links():
@@ -793,7 +858,7 @@ def build():
       {tags_html}
     </article>
         """
-        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, privacy_href="../privacy.html")
+        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links("../"))
 
         out_path = os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html")
         with open(out_path, "w", encoding="utf-8") as f:
@@ -841,7 +906,7 @@ def build():
                 index += render_post_card(m, f"posts/{m['slug']}.html")
             index += '</div>'
 
-    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, privacy_href="privacy.html")
+    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links(""))
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index)
 
@@ -865,7 +930,7 @@ def build():
       </div>
     </article>
     """
-    about += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, privacy_href="privacy.html")
+    about += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links(""))
     with open(os.path.join(DIST_DIR, "about.html"), "w", encoding="utf-8") as f:
         f.write(about)
 
@@ -889,9 +954,37 @@ def build():
       </div>
     </article>
     """
-    privacy += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, privacy_href="privacy.html")
+    privacy += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links(""))
     with open(os.path.join(DIST_DIR, "privacy.html"), "w", encoding="utf-8") as f:
         f.write(privacy)
+
+    # ---- editorial policy + contact pages ----
+    for filename, page_title, md in (
+        ("editorial-policy.html", "Editorial Policy", EDITORIAL_MARKDOWN),
+        ("contact.html", "Contact", CONTACT_MARKDOWN),
+    ):
+        simple = HEAD.format(
+            title=f"{page_title} &middot; {SITE_TITLE}",
+            description=html.escape(f"{page_title} for {SITE_TITLE}"),
+            css=CSS,
+            site_title=SITE_TITLE,
+            site_tagline=SITE_TAGLINE,
+            home_href="index.html",
+            about_href="about.html",
+            analytics=_analytics_snippet(),
+            canonical_url=SITE_URL.rstrip("/") + "/" + filename,
+        )
+        simple += f"""
+    <article class="post-full">
+      <h1 class="post-title">{html.escape(page_title)}</h1>
+      <div class="post-body">
+        {markdown_to_html(md)}
+      </div>
+    </article>
+    """
+        simple += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links(""))
+        with open(os.path.join(DIST_DIR, filename), "w", encoding="utf-8") as f:
+            f.write(simple)
 
     print(f"Built {len(posts)} post(s) into {DIST_DIR}/")
 

@@ -33,11 +33,16 @@ POSTS_DIR = Path("posts")
 TWEETS_DIR = Path("tweets")
 TIMEZONE = "America/Toronto"
 
-# Low-cost model. For richer writing, change to "claude-sonnet-5-5".
-MODEL = "claude-haiku-4-5-20251001"
+# Sonnet writes more naturally than Haiku but costs more per post.
+# To go back to the cheaper model, use "claude-haiku-4-5-20251001".
+MODEL = "claude-sonnet-5-5"
 MAX_SEARCHES = 2  # 1 to see what's trending, 1 to confirm the story's facts.
                   # Each search costs about $0.01 plus its result tokens.
 TAGLINE = "field notes on Tech"
+
+# OPTIONAL: paste one of your best posts here (about 200-300 words, plain text).
+# The model will match its rhythm and attitude. Leave it empty ("") to skip.
+STYLE_SAMPLE = ""
 
 SITE_URL = (os.environ.get("SITE_URL", "").strip() or "https://techtreck.tech").rstrip("/")
 AMAZON_AFFILIATE_TAG = os.environ.get("AMAZON_TAG", "").strip() or "techtreck02-20"
@@ -152,12 +157,28 @@ def build_prompt(avoid_titles: list[str]) -> str:
             + "\n".join(f"- {t}" for t in avoid_titles[-30:])
             + "\n\n"
         )
+    style_block = ""
+    if STYLE_SAMPLE.strip():
+        style_block = (
+            "Here is a sample of the voice to match. Match its rhythm and "
+            "attitude, not its topic or wording:\n---\n"
+            + STYLE_SAMPLE.strip()
+            + "\n---\n\n"
+        )
     return f"""You write for "Tech Trek" (tagline: "{TAGLINE}"), a consumer tech and
-gadgets blog with a confident, clear, slightly opinionated voice: no fluff, no
-"in today's fast-paced digital world" openers, no "in conclusion" endings, no
-stock phrases like "game-changer".
+gadgets blog.
 
-Beat: CONSUMER TECH AND GADGETS people actually buy: phones, laptops,
+Voice: write like a sharp editor telling a friend what actually matters about
+this story. Plain words, contractions, a mix of short and long sentences, and
+one clear opinion (who should buy this, who should skip it, what is overhyped)
+backed by the facts you found. A dry joke is fine; forced enthusiasm is not.
+Avoid: opening with a question, "Here's the thing", "It's not just X, it's Y",
+a three-item list in every paragraph, heavy em-dash use, "dive into",
+"landscape", "game-changer", "in today's fast-paced digital world", and any
+wrap-up paragraph that repeats the post. End on something practical, like what
+to do or what to watch for.
+
+{style_block}Beat: CONSUMER TECH AND GADGETS people actually buy: phones, laptops,
 wearables, headphones, smart home, gaming hardware, cameras. Good topics are
 new launches, notable price drops or deals, spec comparisons, and buying
 advice. Avoid enterprise software, corporate finance, and research-paper

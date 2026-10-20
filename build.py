@@ -39,7 +39,7 @@ KIT_FORM_ACTION = f"https://app.kit.com/forms/{KIT_FORM_ID}/subscriptions"
 # Editorial policy and Privacy pages.
 AUTHOR_NAME = "Dave"
 AUTHOR_EMAIL = "Davis@techtreck.tech"
-INFO_EMAIL = "info@techtreck.com"
+INFO_EMAIL = "info@techtreck.tech"
 
 def _analytics_snippet():
     if not CLOUDFLARE_ANALYTICS_TOKEN:

@@ -5,7 +5,8 @@ Daily auto-poster for Tech Trek.
 Once a day (triggered by the GitHub Actions schedule) this:
   1. uses Claude + web search to find ONE trending consumer-tech story,
   2. writes the blog post (with Amazon affiliate links and a Sources line)
-     into posts/,
+     into drafts/ for YOU to edit. A separate 9:00am step (publish_drafts.py)
+     moves edited drafts into posts/, where the site picks them up,
   3. writes 4 ready-to-post tweets into tweets/ (a separate file).
 
 Run by .github/workflows/deploy.yml. Needs ANTHROPIC_API_KEY (GitHub secret).
@@ -31,6 +32,7 @@ import anthropic
 
 POSTS_DIR = Path("posts")
 TWEETS_DIR = Path("tweets")
+DRAFTS_DIR = Path("drafts")  # new posts land here until you edit and publish them
 TIMEZONE = "America/Toronto"
 
 # Sonnet writes more naturally than Haiku but costs more per post.
@@ -52,6 +54,15 @@ MIN_WORDS, MAX_WORDS = 250, 700
 NUM_TWEETS = 4
 TWEET_LIMIT = 280
 URL_COST = 25  # "\n\n" + 23 characters (X counts every link as 23)
+
+# Added to every draft. The 9:00am publish step will NOT publish a draft that
+# still contains this line, so a post only goes live after you have written
+# your own take.
+EDIT_MARKER_BLOCK = (
+    "\n\n## My take\n\n"
+    "[[ADD YOUR TAKE: 2-3 sentences on what you think, who should buy or skip, "
+    "and anything you have actually tried. Delete this whole line when done.]]"
+)
 
 AFFILIATE_DISCLOSURE = (
     "\n\n*As an Amazon Associate I earn from qualifying purchases. Tech Trek "
@@ -135,17 +146,20 @@ def slugify(text: str) -> str:
 
 
 def post_exists_for(day) -> bool:
-    return POSTS_DIR.exists() and any(POSTS_DIR.glob(f"{day.isoformat()}-*.md"))
+    return any(d.exists() and any(d.glob(f"{day.isoformat()}-*.md")) for d in (POSTS_DIR, DRAFTS_DIR))
 
 
 def existing_titles() -> list[str]:
     titles = []
-    if POSTS_DIR.exists():
-        for f in sorted(POSTS_DIR.glob("*.md"))[-45:]:
-            text = f.read_text(encoding="utf-8", errors="ignore")
-            m = re.search(r'^title:\s*"?(.+?)"?\s*$', text, re.MULTILINE)
-            if m:
-                titles.append(m.group(1))
+    files = []
+    for d in (POSTS_DIR, DRAFTS_DIR):
+        if d.exists():
+            files += list(d.glob("*.md"))
+    for f in sorted(files, key=lambda p: p.name)[-45:]:
+        text = f.read_text(encoding="utf-8", errors="ignore")
+        m = re.search(r'^title:\s*"?(.+?)"?\s*$', text, re.MULTILINE)
+        if m:
+            titles.append(m.group(1))
     return titles
 
 
@@ -333,6 +347,7 @@ def write_post(post: dict, today):
         raise ValueError("Post has no source links. Not publishing.")
 
     body, linked_any = _add_affiliate_links(body, post.get("product_mentions", []))
+    body += EDIT_MARKER_BLOCK
     body += "\n\n**Sources:** " + ", ".join(f"[{n}]({u})" for n, u in sources)
     if linked_any:
         body += AFFILIATE_DISCLOSURE
@@ -346,8 +361,8 @@ def write_post(post: dict, today):
         snippet=_single_line(_strip_citation_tags(post.get("snippet", ""))),
         body=body,
     )
-    POSTS_DIR.mkdir(parents=True, exist_ok=True)
-    path = POSTS_DIR / f"{today.isoformat()}-{slug}.md"
+    DRAFTS_DIR.mkdir(parents=True, exist_ok=True)
+    path = DRAFTS_DIR / f"{today.isoformat()}-{slug}.md"
     path.write_text(content, encoding="utf-8")
     return path, title, slug
 

@@ -1,0 +1,64 @@
+name: Publish edited drafts
+
+on:
+  schedule:
+    # 9:00am Toronto. Two crons because GitHub schedules in UTC and Toronto
+    # changes offset with daylight saving; the gate step lets only the matching one run.
+    - cron: "3 13 * * *"  # 9:03am Toronto in summer time (EDT, UTC-4)
+    - cron: "3 14 * * *"  # 9:03am Toronto in winter time (EST, UTC-5)
+  workflow_dispatch: {}   # "Run workflow" = publish edited drafts right now
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: publish-drafts
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Only run the cron that matches Toronto's current UTC offset
+        id: gate
+        env:
+          EVENT: ${{ github.event_name }}
+          SCHEDULE: ${{ github.event.schedule }}
+        run: |
+          OFFSET=$(TZ=America/Toronto date +%z)
+          RUN=false
+          if [ "$EVENT" != "schedule" ]; then
+            RUN=true   # manual runs always go ahead
+          elif [ "$OFFSET" = "-0400" ] && [ "$SCHEDULE" = "3 13 * * *" ]; then
+            RUN=true
+          elif [ "$OFFSET" = "-0500" ] && [ "$SCHEDULE" = "3 14 * * *" ]; then
+            RUN=true
+          fi
+          echo "Toronto offset $OFFSET, event $EVENT, schedule '$SCHEDULE' -> run=$RUN"
+          echo "run=$RUN" >> "$GITHUB_OUTPUT"
+
+      - name: Check out repo
+        if: steps.gate.outputs.run == 'true'
+        uses: actions/checkout@v4
+
+      - name: Publish edited drafts
+        if: steps.gate.outputs.run == 'true'
+        env:
+          REQUIRE_EDIT: "true"   # set to "false" to publish drafts even if you didn't edit them
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 scripts/publish_drafts.py
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add posts drafts
+          if git diff --cached --quiet; then
+            echo "Nothing to publish."
+            exit 0
+          fi
+          git commit -m "Publish edited drafts"
+          git push || (git pull --rebase && git push)
+          # Pushes made with the built-in token don't start other workflows, so start the site deploy directly.
+          if git diff --name-only HEAD~1 HEAD | grep -qE '^posts/.*\.md$'; then
+            gh workflow run deploy.yml -f skip_post=true
+          fi

@@ -6,9 +6,14 @@ on:
   schedule:
     # Two crons because GitHub schedules in UTC and Toronto changes offset
     # with daylight saving. The "check" job below lets only the matching one run.
-    - cron: "30 12 * * *"  # 8:30am Toronto in summer time (EDT, UTC-4)
-    - cron: "30 13 * * *"  # 8:30am Toronto in winter time (EST, UTC-5)
+    - cron: "7 8 * * *"   # 4:07am Toronto in summer time (EDT, UTC-4)
+    - cron: "7 9 * * *"   # 4:07am Toronto in winter time (EST, UTC-5)
   workflow_dispatch:
+    inputs:
+      skip_post:
+        description: "Skip writing a new daily draft (used by the 9am publish step)"
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -35,9 +40,9 @@ jobs:
           RUN=false
           if [ "$EVENT" != "schedule" ]; then
             RUN=true   # pushes and manual runs always go ahead
-          elif [ "$OFFSET" = "-0400" ] && [ "$SCHEDULE" = "30 12 * * *" ]; then
+          elif [ "$OFFSET" = "-0400" ] && [ "$SCHEDULE" = "7 8 * * *" ]; then
             RUN=true
-          elif [ "$OFFSET" = "-0500" ] && [ "$SCHEDULE" = "30 13 * * *" ]; then
+          elif [ "$OFFSET" = "-0500" ] && [ "$SCHEDULE" = "7 9 * * *" ]; then
             RUN=true
           fi
           echo "Toronto offset $OFFSET, event $EVENT, schedule '$SCHEDULE' -> run=$RUN"
@@ -56,10 +61,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      # Writes a DRAFT into drafts/ (around 4am) for you to edit. The 9:00am workflow
+      # (Publish edited drafts) moves it into posts/.
       # Runs on the schedule and on manual runs, not when you push a change.
       # If it fails, the site still builds and deploys as normal.
-      - name: Write today's post and tweets
-        if: github.event_name != 'push'
+      - name: Write today's draft and tweets
+        if: github.event_name != 'push' && !inputs.skip_post
         continue-on-error: true
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -71,9 +78,9 @@ jobs:
           python scripts/generate_posts.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          mkdir -p posts tweets
-          git add posts tweets
-          git diff --cached --quiet || (git commit -m "Auto: daily post and tweets" && git push)
+          mkdir -p drafts tweets
+          git add drafts tweets
+          git diff --cached --quiet || (git commit -m "Auto: daily draft and tweets" && git push)
 
       # The daily email digest now has its own workflow (Daily newsletter
       # digest), which runs at 9:30am Toronto time.

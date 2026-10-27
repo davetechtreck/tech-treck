@@ -32,7 +32,7 @@ Wait for the actual price sheet and the first hands-on reviews before you order 
 
 ## My take
 
-[[ADD YOUR TAKE: 2-3 sentences on what you think, who should buy or skip, and anything you have actually tried. Delete this whole line when done.]]
+Even with this news, the iPad Pro may still be useful, but I think a touchscreen MacBook Pro is a big deal. If the rumors are accurate, a maxed-out MacBook Pro with a touchscreen could be a great deal for creators who currently use both a MacBook and an iPad, because they wouldn't have to carry two devices anymore. The catch is price, and Apple hasn't confirmed any details yet.
 
 **Sources:** [AppleScoop](https://applescoop.org/story/touchscreen-oled-macbook-pro-m6-lineup-prices-october-28), [Macworld](https://www.macworld.com/article/3203946/m6-macbook-pro-rumors-release-date-specs.html), [Northeast Times](https://northeasttimes.com/2026/10/26/apple-s-new-macbook-pro-debuts-oct-28-with-5g-still-unconfirmed/), [Basic Tutorials](https://basic-tutorials.com/news/macbook-pro-with-oled-touchscreen-apple-is-expected-to-unveil-new-mac-products-on-october-28/), [byteiota](https://byteiota.com/apple-touchscreen-macbook-pro-developer-guide/), [9to5Mac](https://9to5mac.com/2026/10/25/macbook-pro-redesign-oled-touch-launching-this-week/), [Tech Insider](https://tech-insider.org/ca/m6-macbook-pro-imac-pro-and-tell-canada-2026/)
 

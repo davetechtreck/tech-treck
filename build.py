@@ -22,12 +22,10 @@ from datetime import datetime
 
 SITE_TITLE = "Tech Treck"
 SITE_TAGLINE = "field notes on Tech"
-SITE_URL = "https://techtreck.tech/"  # NEW: replace with your real domain, no trailing slash
+SITE_URL = "https://techtreck.tech/"  # replace with your real domain
 
-# NEW: Cloudflare Web Analytics — free, no cookie banner needed, one script
-# tag. Sign up free at dash.cloudflare.com > Analytics > Web Analytics, add
-# your site, and paste the "token" it gives you here. Leave blank to skip
-# analytics entirely.
+# Cloudflare Web Analytics — free, no cookie banner needed, one script
+# tag. Leave blank to skip analytics entirely.
 CLOUDFLARE_ANALYTICS_TOKEN = os.environ.get("CLOUDFLARE_ANALYTICS_TOKEN", "")
 
 # Kit (ConvertKit) form that newsletter signups are sent to. Both the popup
@@ -35,11 +33,14 @@ CLOUDFLARE_ANALYTICS_TOKEN = os.environ.get("CLOUDFLARE_ANALYTICS_TOKEN", "")
 KIT_FORM_ID = "10041123"
 KIT_FORM_ACTION = f"https://app.kit.com/forms/{KIT_FORM_ID}/subscriptions"
 
-# Who runs the site and how readers reach you. Shown on the About, Contact,
-# Editorial policy and Privacy pages.
+# Who runs the site and how readers reach you.
 AUTHOR_NAME = "Dave"
 AUTHOR_EMAIL = "Davis@techtreck.tech"
 INFO_EMAIL = "info@techtreck.tech"
+
+# One line under the big homepage headline.
+HERO_SUBLINE = "Daily reports on the gadgets you can actually buy."
+
 
 def _analytics_snippet():
     if not CLOUDFLARE_ANALYTICS_TOKEN:
@@ -49,19 +50,20 @@ def _analytics_snippet():
         f'data-cf-beacon=\'{{"token": "{CLOUDFLARE_ANALYTICS_TOKEN}"}}\'></script>'
     )
 
-# Add or remove entries here — each is (label, url). Shows up in the footer
-# on every page. Leave the list empty ( [] ) to show no social links at all.
+
+# Each is (label, url). Shows up in the footer on every page.
+# Leave the list empty ( [] ) to show no social links at all.
 SOCIAL_LINKS = [
     ("Instagram", "https://www.instagram.com/techtrec3k?stkn=dnh6djY3eHQ5a3dq&utm_source=qr"),
     ("x", "https://x.com/techtre3k"),
-    ("Youtube", " https://www.youtube.com/@TechTrecck"),
-    ("tiktok" , "https://www.tiktok.com/@tech.tre3k?is_from_webapp=1&sender_device=pc "),
+    ("Youtube", "https://www.youtube.com/@TechTrecck"),
+    ("tiktok", "https://www.tiktok.com/@tech.tre3k?is_from_webapp=1&sender_device=pc"),
 ]
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 POSTS_DIR = os.path.join(ROOT, "posts")
-IMAGES_DIR = os.path.join(ROOT, "images")  # NEW: put post images here, referenced by filename
-SOCIAL_CARDS_DIR = os.path.join(ROOT, "social-cards")  # NEW: written by generate_social_card.py
+IMAGES_DIR = os.path.join(ROOT, "images")
+SOCIAL_CARDS_DIR = os.path.join(ROOT, "social-cards")
 DIST_DIR = os.path.join(ROOT, "dist")
 
 
@@ -104,8 +106,7 @@ def parse_frontmatter(text, filename):
 # ---------------------------------------------------------------------------
 
 def resolve_image_src(path):
-    # NEW: bare filenames resolve to /images/<filename> (copied from the
-    # images/ folder at build time); full URLs pass through untouched.
+    # Bare filenames resolve to /images/<filename>; full URLs pass through.
     if path.startswith("http://") or path.startswith("https://"):
         return path
     return "/images/" + path.lstrip("/")
@@ -116,8 +117,7 @@ def inline_md(text):
     text = re.sub(r'`([^`]+)`', r'<code>\1</code>', text)
     text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
     text = re.sub(r'(?<!\*)\*([^*\n]+)\*(?!\*)', r'<em>\1</em>', text)
-    # NEW: images — must run BEFORE the link regex, since ![alt](url) would
-    # otherwise be misread as a link with a stray "!" in front of it.
+    # Images must run BEFORE the link regex.
     text = re.sub(
         r'!\[([^\]]*)\]\(([^)]+)\)',
         lambda m: f'<img src="{resolve_image_src(m.group(2))}" alt="{m.group(1)}">',
@@ -200,7 +200,7 @@ def fmt_date_human(d):
 
 
 # ---------------------------------------------------------------------------
-# NEW: RSS feed generation
+# Sitemap, robots.txt, RSS
 # ---------------------------------------------------------------------------
 
 def generate_sitemap(posts):
@@ -224,9 +224,10 @@ Sitemap: {base}/sitemap.xml
 
 
 def generate_rss(posts):
+    base = SITE_URL.rstrip("/")
     items = []
     for meta in posts[:20]:  # most recent 20 items
-        link = f"{SITE_URL}/posts/{meta['slug']}.html"
+        link = f"{base}/posts/{meta['slug']}.html"
         pub_date = meta["_date_obj"].strftime("%a, %d %b %Y 00:00:00 +0000")
         items.append(f"""
     <item>
@@ -241,8 +242,8 @@ def generate_rss(posts):
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{html.escape(SITE_TITLE)}</title>
-    <link>{SITE_URL}</link>
-    <atom:link href="{SITE_URL}/feed.xml" rel="self" type="application/rss+xml"/>
+    <link>{base}/</link>
+    <atom:link href="{base}/feed.xml" rel="self" type="application/rss+xml"/>
     <description>{html.escape(SITE_TAGLINE)}</description>
     <language>en-us</language>
 {''.join(items)}
@@ -251,7 +252,7 @@ def generate_rss(posts):
 
 
 # ---------------------------------------------------------------------------
-# NEW: Apple News Format (ANF) article generation
+# Apple News Format (ANF) article generation
 # ---------------------------------------------------------------------------
 
 def _strip_tags(s):
@@ -269,15 +270,12 @@ def _html_block_to_component(block):
         return {"role": "heading3", "text": _strip_tags(block)}
     if block.startswith('<blockquote>'):
         return {"role": "quote", "text": _strip_tags(block)}
-    # NEW: a paragraph that's ONLY an image becomes a dedicated ANF image
-    # component (Apple's HTML-format body component can't render <img> tags,
-    # so this only works when the image is on its own line in the Markdown).
+    # A paragraph that's ONLY an image becomes a dedicated ANF image component.
     m = _IMG_ONLY_RE.match(block)
     if m:
         src = m.group(1)
-        url = src if src.startswith("http") else f"{SITE_URL}{src}"
+        url = src if src.startswith("http") else f"{SITE_URL.rstrip('/')}{src}"
         return {"role": "image", "URL": url}
-    # <p>, <ul>, <pre> and anything else -> body component, raw HTML preserved
     return {"role": "body", "text": block, "format": "html"}
 
 
@@ -295,15 +293,10 @@ def generate_anf(meta):
         "identifier": meta["slug"],
         "language": "en",
         "title": meta["title"],
-        "layout": {
-            "columns": 12,
-            "width": 1024,
-            "margin": 60,
-            "gutter": 20,
-        },
+        "layout": {"columns": 12, "width": 1024, "margin": 60, "gutter": 20},
         "components": components,
         "metadata": {
-            "canonicalURL": f"{SITE_URL}/posts/{meta['slug']}.html",
+            "canonicalURL": f"{SITE_URL.rstrip('/')}/posts/{meta['slug']}.html",
             "datePublished": meta["_date_obj"].strftime("%Y-%m-%dT00:00:00Z"),
             "generatorIdentifier": "TechTreckBuildPy",
             "generatorName": "Tech Treck build.py",
@@ -313,193 +306,257 @@ def generate_anf(meta):
 
 
 # ---------------------------------------------------------------------------
-# HTML templates
+# Design: dark-first theme with animated terrain hero
 # ---------------------------------------------------------------------------
 
 CSS = """
 :root{
-  --paper:#F7F7F5; --panel:#FFFFFF; --ink:#121212; --ink-soft:#3A3A3A;
-  --muted:#5E5E5E; --faint:#6B6B69; --accent:#2F49FF; --accent-ink:#FFFFFF;
-  --rule:#E1E1DE; --rule-strong:#C9C9C6; --mono-bg:#EFEFF3;
-  --font-serif:'Source Serif 4', Georgia, serif;
-  --font-sans:'Space Grotesk', system-ui, sans-serif;
-  --font-mono:'JetBrains Mono', ui-monospace, monospace;
+  --bg:#070a14; --panel:#0e1324; --line:#1d2543; --ink:#e9edfa; --ink-soft:#c3cae3; --mute:#8b95b6;
+  --trail:#7fd6ff; --beacon:#ffb347; --on-beacon:#1a1100; --code:#131a30; color-scheme:dark;
+  --display:"Bricolage Grotesque",system-ui,sans-serif; --text:"Newsreader",Georgia,serif;
 }
-html[data-theme="dark"]{
-  --paper:#0E0F12; --panel:#16171B; --ink:#F2F2F0; --ink-soft:#C7C7C4;
-  --muted:#8A8A87; --faint:#83848A; --accent:#6E8CFF; --accent-ink:#0E0F12;
-  --rule:#26272C; --rule-strong:#34353A; --mono-bg:#1B1C21;
+html[data-theme="light"]{
+  --bg:#f3f5fb; --panel:#ffffff; --line:#d6dcf0; --ink:#12172b; --ink-soft:#343c5c; --mute:#566087;
+  --trail:#1b6fd1; --beacon:#d9780b; --on-beacon:#ffffff; --code:#e9edf8; color-scheme:light;
 }
-*{box-sizing:border-box;}
-html{scroll-behavior:smooth;}
-body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font-serif);
-  font-size:17px;line-height:1.65;-webkit-font-smoothing:antialiased;
-  transition:background .3s ease,color .3s ease;}
-a{color:inherit;text-decoration:none;}
-img{max-width:100%;display:block;}
-.shell{max-width:1180px;margin:0 auto;padding:0 24px;}
-#scroll-progress{position:fixed;top:0;left:0;height:3px;width:0%;background:var(--accent);z-index:999;}
-.u-link{background-image:linear-gradient(var(--accent),var(--accent));background-position:0 100%;
-  background-repeat:no-repeat;background-size:0% 2px;transition:background-size .35s cubic-bezier(.4,0,.2,1);padding-bottom:1px;}
-.u-link:hover{background-size:100% 2px;}
-.reveal{opacity:1;transform:none;transition:opacity .6s cubic-bezier(.16,1,.3,1),transform .6s cubic-bezier(.16,1,.3,1);}
-.js .reveal{opacity:0;transform:translateY(18px);}
-.js .reveal.in-view{opacity:1;transform:translateY(0);}
-@media (prefers-reduced-motion:reduce){.js .reveal{opacity:1;transform:none;}}
-header.site-head{position:sticky;top:0;z-index:50;padding:22px 0 0;border-bottom:2px solid var(--ink);background:var(--paper);}
-.eyebrow-row{display:flex;justify-content:space-between;align-items:center;font-family:var(--font-mono);
-  font-size:11px;letter-spacing:.06em;color:var(--muted);padding-bottom:14px;text-transform:uppercase;}
-.eyebrow-row .accent-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--accent);
-  margin-right:6px;animation:pulse 1.8s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.4;transform:scale(1.3);}}
-.masthead-row{display:flex;justify-content:space-between;align-items:flex-end;padding-bottom:16px;flex-wrap:wrap;gap:12px;}
-.brand{font-family:var(--font-serif);font-weight:700;font-size:clamp(32px,6vw,54px);letter-spacing:-0.02em;line-height:1;}
-.head-right{display:flex;align-items:center;gap:20px;}
-nav.site-nav{display:flex;gap:20px;font-family:var(--font-sans);font-size:13px;font-weight:500;padding-bottom:8px;}
-nav.site-nav a{color:var(--ink-soft);}
-#theme-toggle{font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;border:1px solid var(--rule-strong);
-  background:none;color:var(--ink-soft);padding:6px 10px;border-radius:3px;cursor:pointer;margin-bottom:8px;
-  transition:border-color .2s ease,color .2s ease;}
-#theme-toggle:hover{border-color:var(--accent);color:var(--accent);}
-.signal-bar{height:3px;width:100%;background:linear-gradient(90deg,var(--accent),var(--ink) 0%);
-  transform-origin:left;animation:draw-in 1.1s cubic-bezier(.16,1,.3,1) both;}
-@keyframes draw-in{from{transform:scaleX(0);}to{transform:scaleX(1);}}
-main{padding:40px 0 90px;}
-.section-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;
-  color:var(--muted);border-bottom:1px solid var(--rule-strong);padding-bottom:10px;margin-bottom:0;}
-.featured{display:grid;grid-template-columns:1.3fr 1fr;gap:36px;padding:32px 0;border-bottom:1px solid var(--rule);align-items:start;}
-.featured .post-meta{margin-bottom:14px;}
-.featured .post-title{font-size:38px;line-height:1.12;margin:0 0 14px;}
-.featured .post-snippet{font-size:17px;}
-.featured-side{border-left:1px solid var(--rule);padding-left:32px;display:flex;flex-direction:column;gap:22px;}
-.side-item{padding-bottom:18px;border-bottom:1px solid var(--rule);}
-.side-item:last-child{border-bottom:none;padding-bottom:0;}
-.side-item .post-meta{margin-bottom:6px;}
-.side-item .post-title{font-size:17px;line-height:1.3;margin:0;}
-.blog-posts{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));border-top:1px solid var(--rule);}
-.post-card{padding:28px 24px 28px 0;border-bottom:1px solid var(--rule);border-right:1px solid var(--rule);transition:background .3s ease;}
-.blog-posts .post-card:hover{background:var(--panel);}
-.post-meta{font-family:var(--font-mono);font-size:11.5px;color:var(--faint);display:flex;gap:8px;align-items:center;
-  flex-wrap:wrap;text-transform:uppercase;letter-spacing:.03em;}
-.post-meta .dot{opacity:.5;}
-.post-title{font-family:var(--font-serif);font-weight:700;font-size:23px;line-height:1.22;margin:10px 0;
-  letter-spacing:-0.01em;transition:color .2s ease;}
-.post-title a{color:var(--ink);}
-.blog-posts .post-card:hover .post-title a,.featured:hover .post-title a{color:var(--accent);}
-.post-snippet{color:var(--ink-soft);font-size:15.5px;margin:0 0 14px;line-height:1.6;}
-.read-more{font-family:var(--font-sans);font-size:12.5px;font-weight:500;text-transform:uppercase;letter-spacing:.04em;
-  display:inline-flex;align-items:center;gap:6px;color:var(--ink);}
-.read-more .arrow{transition:transform .25s cubic-bezier(.4,0,.2,1);}
-.post-card:hover .read-more .arrow,.featured:hover .read-more .arrow{transform:translateX(5px);}
-.tags-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px;}
-.tags-row a{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);background:var(--mono-bg);
-  border:1px solid var(--rule);padding:4px 9px;border-radius:3px;transition:background .2s ease,color .2s ease;}
-.tags-row a:hover{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
-.post-full{padding:8px 0 40px;max-width:760px;}
-.post-full .post-title{font-size:36px;line-height:1.15;margin:14px 0 24px;}
-.post-body{font-size:18px;line-height:1.75;}
-.post-body>p:first-of-type::first-letter{float:left;font-family:var(--font-serif);font-weight:700;font-size:64px;
-  line-height:.8;padding:6px 8px 0 0;color:var(--accent);}
-.post-body h2{font-family:var(--font-serif);font-weight:700;font-size:26px;margin:1.8em 0 .6em;}
-.post-body h3{font-family:var(--font-serif);font-weight:600;font-size:21px;margin:1.6em 0 .6em;}
-.post-body p{margin:0 0 1.3em;}
-.post-body a{border-bottom:1px solid var(--accent);}
-.post-body blockquote{margin:1.6em 0;padding:4px 0 4px 20px;border-left:3px solid var(--accent);font-style:italic;color:var(--ink-soft);}
-.post-body pre{background:var(--mono-bg);border:1px solid var(--rule);border-radius:4px;padding:16px 18px;
-  overflow-x:auto;font-family:var(--font-mono);font-size:13.5px;line-height:1.6;margin:1.5em 0;}
-.post-body code{font-family:var(--font-mono);font-size:.82em;background:var(--mono-bg);padding:2px 5px;border-radius:3px;}
-.post-body pre code{background:none;padding:0;}
-.post-body ul{padding-left:1.3em;margin:0 0 1.3em;}
-.post-body img{margin:1.6em 0;border-radius:6px;}
-.back-link{font-family:var(--font-sans);font-size:13px;font-weight:500;text-transform:uppercase;letter-spacing:.03em;
-  display:inline-block;margin-bottom:24px;}
-footer.site-foot{border-top:2px solid var(--ink);padding:20px 0 44px;font-family:var(--font-mono);font-size:11.5px;
-  color:var(--muted);display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;text-transform:uppercase;letter-spacing:.03em;}
-.social-links{display:flex;gap:14px;}
-.social-links a{color:var(--muted);}
-.social-links a:hover{color:var(--accent);}
-@media (max-width:800px){.featured{grid-template-columns:1fr;}
-  .featured-side{border-left:none;padding-left:0;border-top:1px solid var(--rule);padding-top:24px;}}
-@media (max-width:640px){.post-card{border-right:none;}}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:400 1.125rem/1.55 var(--text);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+:focus-visible{outline:2px solid var(--beacon);outline-offset:3px;border-radius:4px}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+.wrap{max-width:1100px;margin:0 auto;padding:0 1.5rem}
+
+.progress{position:fixed;left:0;right:0;top:0;height:3px;z-index:60;pointer-events:none}
+.progress i{position:absolute;inset:0;background:linear-gradient(90deg,transparent,var(--trail));transform-origin:left;transform:scaleX(var(--p,0))}
+.progress b{position:absolute;top:-3px;left:calc(var(--p,0)*100%);width:9px;height:9px;margin-left:-4px;border-radius:50%;background:var(--beacon);box-shadow:0 0 14px 3px var(--beacon)}
+
+header.site-head{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 82%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;padding-top:1rem;padding-bottom:1rem}
+.brand{font:800 1.35rem/1 var(--display);letter-spacing:-.02em;display:flex;align-items:center;gap:.6rem}
+.brand .dot{width:10px;height:10px;border-radius:50%;background:var(--beacon);position:relative}
+.brand .dot::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:1.5px solid var(--beacon);animation:ping 2.4s ease-out infinite}
+@keyframes ping{0%{transform:scale(.4);opacity:.9}100%{transform:scale(1.5);opacity:0}}
+nav.site-nav{display:flex;align-items:center;gap:1.4rem;font:500 .95rem var(--display)}
+nav.site-nav a{color:var(--mute);transition:color .2s}
+nav.site-nav a:hover{color:var(--ink)}
+#theme-toggle{border:1px solid var(--line);background:var(--panel);color:var(--ink);font:500 .85rem var(--display);padding:.45rem .85rem;border-radius:99px;cursor:pointer;display:flex;gap:.45rem;align-items:center}
+#theme-toggle svg{width:15px;height:15px;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
+#theme-toggle:hover svg{transform:rotate(90deg)}
+
+.hero{position:relative;min-height:min(78vh,640px);overflow:hidden;border-bottom:1px solid var(--line)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%}
+.hero .in{position:relative;padding-top:clamp(3rem,10vw,7rem);padding-bottom:5rem;pointer-events:none}
+.hero h1{font:800 clamp(2.8rem,9vw,6.6rem)/.95 var(--display);letter-spacing:-.045em;max-width:9ch}
+.hero h1 .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-right:.22em}
+.hero h1 .c{display:inline-block;transform:translateY(112%);animation:rise .95s cubic-bezier(.2,.85,.2,1) forwards;animation-delay:calc(var(--i)*42ms + 250ms)}
+@keyframes rise{to{transform:none}}
+.hero p.sub{margin-top:1.6rem;max-width:30ch;color:var(--mute);font-size:1.25rem;opacity:0;animation:fade .9s 1.4s forwards}
+@keyframes fade{to{opacity:1}}
+
+.lead{position:relative;display:block;margin-top:-3.2rem;z-index:4;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(1.4rem,3vw,2.4rem);overflow:hidden;opacity:0;transform:translateY(26px);animation:lift .9s 1.2s cubic-bezier(.2,.85,.2,1) forwards}
+@keyframes lift{to{opacity:1;transform:none}}
+.lead::before{content:"";position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx,70%) var(--my,0%),color-mix(in srgb,var(--trail) 22%,transparent),transparent 60%);pointer-events:none}
+.lead>*{position:relative}
+.meta{display:flex;gap:.8rem;align-items:center;font:500 .85rem var(--display);color:var(--mute)}
+.meta .live{display:inline-flex;align-items:center;gap:.4rem;color:var(--beacon)}
+.meta .live::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+.lead h2{font:800 clamp(1.7rem,4vw,2.9rem)/1.05 var(--display);letter-spacing:-.03em;margin:.7rem 0;max-width:22ch}
+.lead p{color:var(--mute);max-width:56ch}
+.go{display:inline-flex;margin-top:1.1rem;font:500 .95rem var(--display);color:var(--trail);gap:.45rem}
+.go span{transition:transform .25s}
+.lead:hover .go span{transform:translateX(6px)}
+
+main{padding:2.5rem 0 1rem}
+main.home{padding-top:4.5rem}
+.feed{list-style:none;padding:0}
+.feed a{position:relative;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem 1.5rem;padding:1.5rem 0 1.5rem 1.3rem;border-top:1px solid var(--line)}
+.feed li:last-child a{border-bottom:1px solid var(--line)}
+.feed a::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(var(--trail),var(--beacon));transform:scaleY(0);transform-origin:top;transition:transform .45s cubic-bezier(.2,.85,.2,1)}
+.feed a:hover::before,.feed a:focus-visible::before{transform:scaleY(1)}
+.feed time{font:500 .85rem var(--display);color:var(--mute);padding-top:.5rem}
+.feed time em{display:block;font-style:normal;color:var(--trail);margin-top:.2rem}
+.feed h3{font:800 clamp(1.25rem,2.4vw,1.7rem)/1.15 var(--display);letter-spacing:-.02em;transition:transform .35s cubic-bezier(.2,.85,.2,1)}
+.feed a:hover h3{transform:translateX(10px)}
+.feed p{grid-column:2;color:var(--mute);max-width:60ch;font-size:1.02rem;max-height:0;opacity:0;overflow:hidden;transition:max-height .45s ease,opacity .35s,transform .35s;transform:translateX(10px)}
+.feed a:hover p,.feed a:focus-visible p{max-height:6rem;opacity:1}
+@media (hover:none){.feed p{max-height:none;opacity:1;transform:none}}
+@media (max-width:640px){.feed a{grid-template-columns:1fr}.feed p{grid-column:1}}
+
+.post-full{padding:1rem 0 3rem;max-width:760px}
+.back-link{font:500 .9rem var(--display);color:var(--mute);display:inline-block;margin-bottom:1.6rem;transition:color .2s}
+.back-link:hover{color:var(--trail)}
+.post-meta{font:500 .85rem var(--display);color:var(--mute)}
+.post-title{font:800 clamp(2rem,5vw,3rem)/1.05 var(--display);letter-spacing:-.035em;margin:.7rem 0 1.8rem}
+.post-body{font-size:1.2rem;line-height:1.75}
+.post-body h2{font:800 1.7rem/1.15 var(--display);letter-spacing:-.025em;margin:2em 0 .6em}
+.post-body h3{font:800 1.3rem/1.2 var(--display);letter-spacing:-.02em;margin:1.7em 0 .6em}
+.post-body p{margin:0 0 1.3em;color:var(--ink-soft)}
+.post-body a{color:var(--trail);border-bottom:1px solid color-mix(in srgb,var(--trail) 45%,transparent)}
+.post-body a:hover{border-bottom-color:var(--trail)}
+.post-body blockquote{margin:1.6em 0;padding:.2rem 0 .2rem 1.2rem;border-left:3px solid var(--beacon);font-style:italic;color:var(--ink)}
+.post-body pre{background:var(--code);border:1px solid var(--line);border-radius:10px;padding:1rem 1.2rem;overflow-x:auto;font:.9rem/1.6 ui-monospace,Menlo,monospace;margin:1.5em 0}
+.post-body code{font:.85em ui-monospace,Menlo,monospace;background:var(--code);padding:.1rem .35rem;border-radius:5px}
+.post-body pre code{background:none;padding:0}
+.post-body ul{padding-left:1.3em;margin:0 0 1.3em;color:var(--ink-soft)}
+.post-body img{margin:1.6em 0;border-radius:12px;border:1px solid var(--line)}
+.tags-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.6rem}
+.tags-row a{font:500 .8rem var(--display);color:var(--trail);border:1px solid var(--line);padding:.3rem .7rem;border-radius:99px;transition:background .2s,color .2s}
+.tags-row a:hover{background:var(--trail);color:var(--bg)}
+
+footer.site-foot{display:flex;flex-wrap:wrap;gap:.8rem 1.6rem;padding-top:2rem;padding-bottom:3rem;color:var(--mute);font:500 .9rem var(--display)}
+footer.site-foot a{transition:color .2s}
+footer.site-foot a:hover{color:var(--ink)}
+footer.site-foot .sp{flex:1}
+.social-links{display:flex;gap:1.2rem;flex-wrap:wrap}
+
+/* Newsletter: bottom band + popup */
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.newsletter-card{position:relative;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(1.4rem,3vw,2.4rem)}
+.newsletter-card__title{font:800 1.7rem/1.1 var(--display);letter-spacing:-.025em;margin-bottom:.5rem}
+.newsletter-card__body{color:var(--mute);font-size:1.02rem;margin-bottom:1.2rem}
+.newsletter-form{display:flex;gap:.6rem}
+.newsletter-form input[type="email"]{flex:1;min-width:0;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:12px;padding:.85rem 1rem;font:inherit;font-size:1rem}
+.newsletter-form input[type="email"]:focus{outline:2px solid var(--trail);outline-offset:1px}
+.newsletter-form button[type="submit"]{border:0;border-radius:12px;padding:.85rem 1.3rem;font:800 .95rem var(--display);background:var(--beacon);color:var(--on-beacon);cursor:pointer;white-space:nowrap;transition:transform .2s,background .3s}
+.newsletter-form button[type="submit"]:active{transform:scale(.96)}
+.newsletter-form button[type="submit"].is-done{background:var(--trail);pointer-events:none}
+.nl-status{margin-top:.8rem;font-size:.95rem;color:var(--ink-soft);min-height:1.3em}
+.nl-inline{padding:3rem 0 1rem}
+.nl-inline .newsletter-card{display:flex;flex-wrap:wrap;gap:1.2rem 2rem;align-items:center;justify-content:space-between}
+.nl-inline .nl-copy{flex:1 1 280px}
+.nl-inline .nl-form{flex:1 1 340px;max-width:470px}
+.nl-inline .newsletter-card__body{margin-bottom:0}
+
+.nl-popup{position:fixed;inset:0;z-index:9999;display:none}
+.nl-popup.is-visible{display:flex;align-items:center;justify-content:center;padding:1.2rem;overflow-y:auto}
+.nl-popup__backdrop{position:absolute;inset:0;background:rgba(4,6,14,.72);backdrop-filter:blur(6px);animation:fade-in .35s both}
+@keyframes fade-in{from{opacity:0}}
+.nl-popup__card{width:100%;max-width:520px;z-index:1;box-shadow:0 30px 80px rgba(0,0,0,.5);overflow:hidden;animation:pop .6s cubic-bezier(.2,.9,.25,1.1) both}
+@keyframes pop{from{opacity:0;transform:translateY(30px) scale(.94)}}
+.nl-popup__card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--trail),var(--beacon));transform-origin:left;animation:sweep 1s .25s cubic-bezier(.2,.85,.2,1) both}
+@keyframes sweep{from{transform:scaleX(0)}}
+.nl-popup__card .newsletter-form{flex-wrap:wrap}
+.nl-popup__card .newsletter-form input[type="email"]{min-width:200px}
+.nl-popup__close{position:absolute;top:.8rem;right:1rem;background:none;border:0;font-size:1.8rem;line-height:1;cursor:pointer;color:var(--mute);transition:color .2s,transform .3s}
+.nl-popup__close:hover{color:var(--beacon);transform:rotate(90deg)}
+@media (max-width:600px){
+  .newsletter-form{flex-direction:column}
+  .newsletter-form button[type="submit"]{width:100%}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.01ms!important;animation-delay:0s!important;transition-duration:.01ms!important}
+  .hero h1 .c{transform:none}
+  html{scroll-behavior:auto}
+}
 """
 
-SCRIPT = """
-document.documentElement.classList.add('js');
-try{ if(localStorage.getItem('theme')==='dark'){ document.documentElement.setAttribute('data-theme','dark'); } }catch(e){}
-var toggle = document.getElementById('theme-toggle');
-function syncToggle(){ if(!toggle) return;
-  var d = document.documentElement.getAttribute('data-theme')==='dark';
-  toggle.textContent = d ? 'light' : 'dark'; }
-syncToggle();
-if(toggle){ toggle.addEventListener('click', function(){
-  var d = document.documentElement.getAttribute('data-theme')==='dark';
-  var next = d ? 'light' : 'dark';
-  document.documentElement.setAttribute('data-theme', next);
-  try{ localStorage.setItem('theme', next); }catch(e){}
-  syncToggle();
-});}
-var bar = document.getElementById('scroll-progress');
-var scroller = document.scrollingElement || document.documentElement;
-function onScroll(){ var max = scroller.scrollHeight - scroller.clientHeight;
-  var pct = max > 0 ? (scroller.scrollTop/max)*100 : 0;
-  if(bar) bar.style.width = pct + '%'; }
-document.addEventListener('scroll', onScroll, {passive:true});
-onScroll();
-var items = document.querySelectorAll('.reveal');
-if('IntersectionObserver' in window){
-  var io = new IntersectionObserver(function(entries){
-    entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in-view'); io.unobserve(e.target); } });
-  }, {threshold:0.1, rootMargin:'0px 0px -30px 0px'});
-  items.forEach(function(el){ io.observe(el); });
-} else { items.forEach(function(el){ el.classList.add('in-view'); }); }
+# Runs in <head> so the right theme paints on the first frame. Dark is the default.
+THEME_BOOT = ("try{var t=localStorage.getItem('theme');"
+              "document.documentElement.setAttribute('data-theme',t==='light'?'light':'dark')}"
+              "catch(e){}")
+
+COMMON_JS = """
+(function(){
+  var root=document.documentElement, reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var btn=document.getElementById('theme-toggle'), label=document.getElementById('theme-label');
+  window.__tt={colors:{},redraw:function(){}};
+  function readColors(){
+    var cs=getComputedStyle(root), c=window.__tt.colors;
+    c.bg=cs.getPropertyValue('--bg').trim(); c.trail=cs.getPropertyValue('--trail').trim(); c.beacon=cs.getPropertyValue('--beacon').trim();
+    if(label) label.textContent=root.getAttribute('data-theme');
+  }
+  readColors();
+  function setTheme(){
+    var next=root.getAttribute('data-theme')==='dark'?'light':'dark';
+    root.setAttribute('data-theme',next);
+    try{localStorage.setItem('theme',next);}catch(e){}
+    readColors(); window.__tt.redraw();
+  }
+  if(btn) btn.addEventListener('click',function(){
+    if(!document.startViewTransition||reduce){setTheme();return;}
+    var r=btn.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.height/2;
+    var end=Math.hypot(Math.max(x,innerWidth-x),Math.max(y,innerHeight-y));
+    document.startViewTransition(setTheme).ready.then(function(){
+      root.animate({clipPath:['circle(0px at '+x+'px '+y+'px)','circle('+end+'px at '+x+'px '+y+'px)']},
+        {duration:700,easing:'cubic-bezier(.2,.8,.2,1)',pseudoElement:'::view-transition-new(root)'});
+    });
+  });
+  var prog=document.querySelector('.progress');
+  function onScroll(){var m=root.scrollHeight-innerHeight; if(prog) prog.style.setProperty('--p',m>0?Math.min(1,scrollY/m):0);}
+  addEventListener('scroll',onScroll,{passive:true}); onScroll();
+})();
+"""
+
+# Homepage only: headline entrance, ridge-line terrain, lead-card spotlight.
+HERO_JS = """
+(function(){
+  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var h=document.getElementById('title'), n=0;
+  if(h){
+    var words=h.textContent.split(' '); h.textContent='';
+    words.forEach(function(wd){
+      var w=document.createElement('span'); w.className='w'; w.setAttribute('aria-hidden','true');
+      wd.split('').forEach(function(ch){var c=document.createElement('span'); c.className='c'; c.style.setProperty('--i',n++); c.textContent=ch; w.appendChild(c);});
+      h.appendChild(w); h.appendChild(document.createTextNode(' '));
+    });
+  }
+  var c=document.getElementById('ridge'), hero=document.getElementById('hero');
+  if(c&&hero){
+    var g=c.getContext('2d'), colors=window.__tt.colors;
+    var W,H,dpr,t=0,mx=-999,my=-999,tx=-999,ty=-999,visible=true;
+    var size=function(){dpr=Math.min(devicePixelRatio||1,2);W=c.clientWidth;H=c.clientHeight;c.width=W*dpr;c.height=H*dpr;g.setTransform(dpr,0,0,dpr,0,0);};
+    var height=function(nx,r){
+      var env=Math.exp(-Math.pow((nx-.7)*2.6,2));
+      return (Math.sin(nx*9+r*.33+t*3)*.5+Math.sin(nx*17-r*.21+t*2)*.3+Math.sin(nx*4+t)*.2)*58*env;
+    };
+    var draw=function(){
+      var rows=Math.max(26,Math.round(H/15)), step=W<600?10:6, bx=0, by=0;
+      g.clearRect(0,0,W,H);
+      mx+=(tx-mx)*.12; my+=(ty-my)*.12;
+      var beaconRow=Math.round(rows*.42);
+      for(var r=0;r<rows;r++){
+        var y0=H*.2+r*(H*.78/rows), ys=[], px, y;
+        for(px=0;px<=W;px+=step){
+          var dx=px-mx, dy=y0-my;
+          y=y0-(height(px/W,r)+Math.exp(-(dx*dx+dy*dy)/9000)*38);
+          ys.push(y);
+          if(r===beaconRow&&Math.abs(px/W-.7)<step/W/2+.001){bx=px;by=y;}
+        }
+        g.beginPath(); g.moveTo(0,ys[0]);
+        for(var k=1;k<ys.length;k++) g.lineTo(k*step,ys[k]);
+        g.lineTo(W,H); g.lineTo(0,H); g.closePath();
+        g.fillStyle=colors.bg; g.fill();
+        g.globalAlpha=.18+.72*(r/rows); g.strokeStyle=colors.trail; g.lineWidth=1.2;
+        g.beginPath(); g.moveTo(0,ys[0]);
+        for(k=1;k<ys.length;k++) g.lineTo(k*step,ys[k]);
+        g.stroke(); g.globalAlpha=1;
+      }
+      var p=(t*40)%1;
+      g.fillStyle=colors.beacon; g.beginPath(); g.arc(bx,by,4.5,0,6.283); g.fill();
+      g.globalAlpha=1-p; g.strokeStyle=colors.beacon; g.lineWidth=1.5; g.beginPath(); g.arc(bx,by,4+p*18,0,6.283); g.stroke(); g.globalAlpha=1;
+    };
+    var loop=function(){ if(visible){t+=.0035; draw();} requestAnimationFrame(loop); };
+    size(); addEventListener('resize',function(){size(); if(reduce)draw();});
+    hero.addEventListener('pointermove',function(e){var b=c.getBoundingClientRect();tx=e.clientX-b.left;ty=e.clientY-b.top;});
+    hero.addEventListener('pointerleave',function(){tx=ty=-999;});
+    new IntersectionObserver(function(en){visible=en[0].isIntersecting;}).observe(hero);
+    window.__tt.redraw=function(){ if(reduce) draw(); };
+    if(reduce){draw();} else {loop();}
+  }
+  var lead=document.getElementById('lead');
+  if(lead) lead.addEventListener('pointermove',function(e){var b=lead.getBoundingClientRect();lead.style.setProperty('--mx',(e.clientX-b.left)+'px');lead.style.setProperty('--my',(e.clientY-b.top)+'px');});
+})();
 """
 
 # ---------------------------------------------------------------------------
-# Newsletter signup — a centered popup PLUS a second signup band at the
-# bottom of every page. Both forms post to the Kit form (KIT_FORM_ID above).
+# Newsletter signup — a centered popup PLUS a signup band at the bottom of
+# every page. Both forms post to the Kit form (KIT_FORM_ID above).
 # Kit expects the email field to be named exactly "email_address".
 # ---------------------------------------------------------------------------
-
-NEWSLETTER_STYLE = """
-<style>
-.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);}
-.newsletter-card{position:relative;background:var(--panel);color:var(--ink);border:1px solid var(--rule);
-  border-radius:14px;padding:40px 36px;font-family:var(--font-serif);}
-.newsletter-card__title{font-family:var(--font-serif);font-weight:700;margin:0 0 10px;
-  font-size:1.9rem;letter-spacing:-0.01em;line-height:1.15;}
-.newsletter-card__body{margin:0 0 22px;font-size:1.05rem;color:var(--ink-soft);}
-.newsletter-form{display:flex;gap:10px;flex-wrap:wrap;}
-.newsletter-form input[type="email"]{flex:1;min-width:200px;padding:14px 16px;border:1px solid var(--rule-strong);
-  border-radius:8px;font-size:1rem;font-family:var(--font-mono);background:var(--paper);color:var(--ink);}
-.newsletter-form button[type="submit"]{padding:14px 24px;border:none;border-radius:8px;background:var(--accent);
-  color:var(--accent-ink);font-size:1rem;font-weight:600;cursor:pointer;font-family:var(--font-sans);white-space:nowrap;}
-.nl-status{margin:12px 0 0;font-size:.9rem;color:var(--ink-soft);min-height:1.2em;}
-
-/* Popup (centered overlay) */
-.nl-popup{position:fixed;inset:0;z-index:9999;display:none;}
-.nl-popup.is-visible{display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto;}
-.nl-popup__backdrop{position:absolute;inset:0;background:rgba(10,10,10,.6);}
-.nl-popup__card{width:100%;max-width:560px;box-shadow:0 25px 70px rgba(0,0,0,.35);z-index:1;}
-.nl-popup__close{position:absolute;top:14px;right:18px;background:none;border:none;font-size:1.8rem;
-  line-height:1;cursor:pointer;color:var(--muted);}
-.nl-popup__close:hover{color:var(--accent);}
-
-/* Bottom-of-page inline band */
-.nl-inline{border-top:2px solid var(--ink);padding:56px 0;margin-top:20px;}
-.nl-inline .newsletter-card{border:none;padding:0;max-width:640px;margin:0 auto;text-align:center;}
-.nl-inline .newsletter-form{justify-content:center;}
-
-@media (max-width:600px){
-  .newsletter-card{padding:26px 20px;border-radius:10px;}
-  .newsletter-card__title{font-size:1.5rem;}
-  .newsletter-card__body{font-size:.95rem;}
-  .newsletter-form{flex-direction:column;}
-  .newsletter-form input[type="email"],.newsletter-form button[type="submit"]{width:100%;min-width:0;}
-  .nl-popup__card{max-width:100%;}
-  .nl-inline{padding:36px 0;}
-}
-</style>
-"""
 
 NEWSLETTER_SCRIPT = """
 <script>
@@ -520,15 +577,19 @@ NEWSLETTER_SCRIPT = """
   document.addEventListener('DOMContentLoaded', function(){
     if(shouldShow()) setTimeout(openPopup, SHOW_AFTER_MS);
     document.querySelectorAll('[data-nl-close]').forEach(function(btn){btn.addEventListener('click', closePopup);});
+    document.addEventListener('keydown', function(e){ if(e.key==='Escape') closePopup(); });
     document.querySelectorAll('.newsletter-form').forEach(function(form){
       form.addEventListener('submit', function(e){
         e.preventDefault();
-        var status = form.parentElement.querySelector('.nl-status');
+        var box = form.closest('.newsletter-card');
+        var status = box.querySelector('.nl-status');
+        var button = form.querySelector('button[type="submit"]');
         if(status) status.textContent = 'Subscribing...';
         fetch(form.action, {method:'POST', body:new FormData(form), headers:{'Accept':'application/json'}})
           .then(function(res){
             if(!res.ok){ throw new Error('bad status'); }
             if(status) status.textContent = 'Almost there! Check your email to confirm your subscription.';
+            if(button){ button.textContent = 'You’re in'; button.classList.add('is-done'); }
             try{ localStorage.setItem(SUBSCRIBED_KEY,'true'); }catch(e){}
             setTimeout(closePopup, 3500);
           })
@@ -540,7 +601,7 @@ NEWSLETTER_SCRIPT = """
 </script>
 """
 
-POPUP_HTML = NEWSLETTER_STYLE + """
+POPUP_HTML = """
 <div id="newsletter-popup" class="nl-popup" aria-hidden="true">
   <div class="nl-popup__backdrop" data-nl-close></div>
   <div class="newsletter-card nl-popup__card" role="dialog" aria-labelledby="nl-popup-title">
@@ -558,19 +619,27 @@ POPUP_HTML = NEWSLETTER_STYLE + """
 """.replace("__KIT_FORM_ACTION__", KIT_FORM_ACTION) + NEWSLETTER_SCRIPT
 
 INLINE_SIGNUP_HTML = """
-<section class="nl-inline">
+<section class="nl-inline wrap">
   <div class="newsletter-card">
-    <h3 class="newsletter-card__title">Get Tech Treck in your inbox</h3>
-    <p class="newsletter-card__body">One short daily digest of what got published. No spam, unsubscribe anytime.</p>
-    <form class="newsletter-form" action="__KIT_FORM_ACTION__" method="post">
-      <label for="nl-email-inline" class="sr-only">Email address</label>
-      <input id="nl-email-inline" type="email" name="email_address" placeholder="you@example.com" required />
-      <button type="submit">Subscribe</button>
-    </form>
-    <p class="nl-status"></p>
+    <div class="nl-copy">
+      <h3 class="newsletter-card__title">Get Tech Treck in your inbox</h3>
+      <p class="newsletter-card__body">One short daily digest of what got published. No spam, unsubscribe anytime.</p>
+    </div>
+    <div class="nl-form">
+      <form class="newsletter-form" action="__KIT_FORM_ACTION__" method="post">
+        <label for="nl-email-inline" class="sr-only">Email address</label>
+        <input id="nl-email-inline" type="email" name="email_address" placeholder="you@example.com" required />
+        <button type="submit">Subscribe</button>
+      </form>
+      <p class="nl-status"></p>
+    </div>
   </div>
 </section>
 """.replace("__KIT_FORM_ACTION__", KIT_FORM_ACTION)
+
+# ---------------------------------------------------------------------------
+# Static page copy
+# ---------------------------------------------------------------------------
 
 ABOUT_MARKDOWN = f"""{SITE_TITLE} is a consumer tech blog covering phones, laptops, wearables, headphones, smart home gear, gaming hardware, and cameras: new launches, price changes, spec comparisons, and buying advice, with a clear point of view.
 
@@ -649,19 +718,47 @@ CONTACT_MARKDOWN = f"""Questions, corrections, story tips, or partnership reques
 
 You can also find {SITE_TITLE} on social media through the links in the footer. For how we choose and write our stories, see the [editorial policy](editorial-policy.html)."""
 
-HEAD = """<!DOCTYPE html>
-<html lang="en">
+
+# ---------------------------------------------------------------------------
+# Page assembly
+# ---------------------------------------------------------------------------
+
+FONTS_URL = ("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800"
+             "&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap")
+
+SUN_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">'
+            '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>')
+
+
+def footer_links(prefix):
+    pages = [("privacy", "privacy.html"), ("editorial", "editorial-policy.html"),
+             ("contact", "contact.html")]
+    return "".join(f'<a href="{prefix}{href}">{label}</a>' for label, href in pages)
+
+
+def render_social_links():
+    return "".join(
+        f'<a href="{html.escape(url.strip())}">{html.escape(label)}</a>'
+        for label, url in SOCIAL_LINKS
+    )
+
+
+def render_page(*, title, description, canonical, prefix="", body, hero="", main_class=""):
+    """Wrap `body` in the full site chrome. prefix is "" on root pages and "../" on post pages."""
+    js = COMMON_JS + (HERO_JS if hero else "")
+    return f"""<!DOCTYPE html>
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
 <title>{title}</title>
 <meta name="description" content="{description}"/>
-<link rel="canonical" href="{canonical_url}"/>
+<link rel="canonical" href="{canonical}"/>
 <meta property="og:type" content="website"/>
-<meta property="og:site_name" content="{site_title}"/>
+<meta property="og:site_name" content="{SITE_TITLE}"/>
 <meta property="og:title" content="{title}"/>
 <meta property="og:description" content="{description}"/>
-<meta property="og:url" content="{canonical_url}"/>
+<meta property="og:url" content="{canonical}"/>
 <meta name="twitter:card" content="summary"/>
 <meta name="twitter:title" content="{title}"/>
 <meta name="twitter:description" content="{description}"/>
@@ -669,96 +766,73 @@ HEAD = """<!DOCTYPE html>
 <meta name="google-adsense-account" content="ca-pub-4303818032223917">
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4303818032223917"
      crossorigin="anonymous"></script>
-<link rel="alternate" type="application/rss+xml" title="{site_title}" href="/feed.xml"/>
+<link rel="alternate" type="application/rss+xml" title="{SITE_TITLE}" href="/feed.xml"/>
+<script>{THEME_BOOT}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap"
-      media="print" onload="this.media='all'"/>
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=Space+Grotesk:wght@500;600&family=JetBrains+Mono:wght@400;500&display=swap"/></noscript>
-<style>{css}</style>
-{analytics}
+<link rel="stylesheet" href="{FONTS_URL}" media="print" onload="this.media='all'"/>
+<noscript><link rel="stylesheet" href="{FONTS_URL}"/></noscript>
+<style>{CSS}</style>
+{_analytics_snippet()}
 </head>
 <body>
-<div id="scroll-progress"></div>
-<div class="shell">
-  <header class="site-head">
-    <div class="eyebrow-row">
-      <span><span class="accent-dot"></span>{site_title} &#8212; {site_tagline}</span>
-    </div>
-    <div class="masthead-row">
-      <a class="brand" href="{home_href}">{site_title}</a>
-      <div class="head-right">
-        <nav class="site-nav">
-          <a class="u-link" href="{home_href}">index</a>
-          <a class="u-link" href="{about_href}">about</a>
-        </nav>
-        <button id="theme-toggle" aria-label="Toggle dark mode">dark</button>
-      </div>
-    </div>
-    <div class="signal-bar"></div>
-  </header>
-  <main>
-"""
- 
-FOOT = """
-  </main>
-  {inline_signup}
-  <footer class="site-foot">
-    <span>&#169; {site_title} &middot; {footer_links}</span>
-    <span class="social-links">{social_links}</span>
-  </footer>
-</div>
-<script>{script}</script>
-{popup}
+<div class="progress" aria-hidden="true"><i></i><b></b></div>
+<header class="site-head">
+  <div class="wrap bar">
+    <a class="brand" href="{prefix}index.html"><span class="dot"></span>{SITE_TITLE}</a>
+    <nav class="site-nav">
+      <a href="{prefix}index.html">index</a>
+      <a href="{prefix}about.html">about</a>
+      <button id="theme-toggle" type="button" aria-label="Switch theme">{SUN_ICON}<span id="theme-label">dark</span></button>
+    </nav>
+  </div>
+</header>
+{hero}
+<main class="wrap {main_class}">
+{body}
+</main>
+{INLINE_SIGNUP_HTML}
+<footer class="wrap site-foot">
+  <span>&#169; {SITE_TITLE}</span>
+  {footer_links(prefix)}
+  <span class="sp"></span>
+  <span class="social-links">{render_social_links()}</span>
+</footer>
+<script>{js}</script>
+{POPUP_HTML}
 </body>
 </html>
 """
 
 
-def footer_links(prefix):
-    """Footer page links. prefix is "" on root pages and "../" on post pages."""
-    pages = [("privacy", "privacy.html"), ("editorial", "editorial-policy.html"),
-             ("contact", "contact.html")]
-    return " &middot; ".join(
-        f'<a class="u-link" href="{prefix}{href}">{label}</a>' for label, href in pages
-    )
-
-
-def render_social_links():
-    if not SOCIAL_LINKS:
-        return ""
-    return "".join(
-        f'<a class="u-link" href="{html.escape(url)}">{html.escape(label)}</a>'
-        for label, url in SOCIAL_LINKS
-    )
-
-
-def render_post_card(meta, href, featured=False):
-    tags_html = ""
+def render_feed_item(meta, href):
     tag_list = [t.strip() for t in meta["tags"].split(",") if t.strip()]
-    if tag_list:
-        first_tag = f'<a href="#">{html.escape(tag_list[0])}</a>'
-        tags_html = f'<span class="dot">&#183;</span>{first_tag}'
-    cls = "featured" if featured else "post-card reveal"
-    title_tag = "h2" if not featured else "h2"
-    return f"""
-    <article class="{cls}">
-      <p class="post-meta"><time>{fmt_date_human(meta['_date_obj'])}</time>{tags_html}</p>
-      <{title_tag} class="post-title"><a href="{href}">{html.escape(meta['title'])}</a></{title_tag}>
-      <p class="post-snippet">{html.escape(meta['snippet'])}</p>
-      <a class="read-more" href="{href}">read <span class="arrow">&#8594;</span></a>
-    </article>
-    """
+    tag = f"<em>{html.escape(tag_list[0])}</em>" if tag_list else ""
+    snippet = f"<p>{html.escape(meta['snippet'])}</p>" if meta["snippet"] else ""
+    return (f'<li><a href="{href}"><time>{fmt_date_human(meta["_date_obj"])}{tag}</time>'
+            f'<h3>{html.escape(meta["title"])}</h3>{snippet}</a></li>')
 
 
-def render_side_item(meta, href):
+def render_hero(lead):
+    headline = SITE_TAGLINE[:1].upper() + SITE_TAGLINE[1:]
+    href = f"posts/{lead['slug']}.html"
     return f"""
-    <div class="side-item">
-      <p class="post-meta"><time>{fmt_date_human(meta['_date_obj'])}</time></p>
-      <h3 class="post-title"><a href="{href}">{html.escape(meta['title'])}</a></h3>
-    </div>
-    """
+<section class="hero" id="hero">
+  <canvas id="ridge" aria-hidden="true"></canvas>
+  <div class="wrap in">
+    <h1 id="title" aria-label="{html.escape(headline)}">{html.escape(headline)}</h1>
+    <p class="sub">{html.escape(HERO_SUBLINE)}</p>
+  </div>
+</section>
+<div class="wrap">
+  <a class="lead" id="lead" href="{href}">
+    <div class="meta"><span class="live">Latest</span><time>{fmt_date_human(lead['_date_obj'])}</time></div>
+    <h2>{html.escape(lead['title'])}</h2>
+    <p>{html.escape(lead['snippet'])}</p>
+    <span class="go">Read the story <span>&#8594;</span></span>
+  </a>
+</div>
+"""
 
 
 def build():
@@ -766,20 +840,15 @@ def build():
         shutil.rmtree(DIST_DIR)
     os.makedirs(os.path.join(DIST_DIR, "posts"), exist_ok=True)
 
-    # NEW: copy images/ into dist/images/ so they're served alongside the site
+    # Copy images/ into dist/images/ so they're served alongside the site
     if os.path.isdir(IMAGES_DIR):
         shutil.copytree(IMAGES_DIR, os.path.join(DIST_DIR, "images"))
 
-    # NEW: copy social-cards/ into dist/ so each day's card is downloadable
-    # straight from the live site — no digging through GitHub needed.
+    # Copy social-cards/ into dist/ so each day's card is downloadable
     if os.path.isdir(SOCIAL_CARDS_DIR):
         shutil.copytree(SOCIAL_CARDS_DIR, os.path.join(DIST_DIR, "social-cards"))
 
-    # NEW: cache headers — images didn't have any explicit cache lifetime
-    # set, so browsers were re-checking them more often than necessary.
-    # This is a Netlify-specific convention (a plain file named "_headers"
-    # in the published folder); Netlify reads it automatically at deploy
-    # time, no config elsewhere needed.
+    # Netlify cache headers (a plain file named "_headers" in the published folder)
     headers_content = """/images/*
   Cache-Control: public, max-age=2592000
 
@@ -808,25 +877,21 @@ def build():
 
     posts.sort(key=lambda m: m["_date_obj"], reverse=True)
 
-    # NEW: write the RSS feed straight into dist/
     with open(os.path.join(DIST_DIR, "feed.xml"), "w", encoding="utf-8") as f:
         f.write(generate_rss(posts))
-
-    # NEW: sitemap + robots.txt — both help search engines find and
-    # crawl every page; neither existed before.
     with open(os.path.join(DIST_DIR, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(generate_sitemap(posts))
     with open(os.path.join(DIST_DIR, "robots.txt"), "w", encoding="utf-8") as f:
         f.write(generate_robots_txt())
 
-    # NEW: write one Apple News Format article.json per post, each in its
-    # own folder (dist/anf/<slug>/article.json) — this matches the folder
-    # structure News Publisher expects when you use Upload Article.
+    # One Apple News Format article.json per post: dist/anf/<slug>/article.json
     for meta in posts:
         anf_dir = os.path.join(DIST_DIR, "anf", meta["slug"])
         os.makedirs(anf_dir, exist_ok=True)
         with open(os.path.join(anf_dir, "article.json"), "w", encoding="utf-8") as f:
             json.dump(generate_anf(meta), f, indent=2, ensure_ascii=False)
+
+    base = SITE_URL.rstrip("/")
 
     # ---- individual post pages ----
     for meta in posts:
@@ -836,153 +901,60 @@ def build():
             links = "".join(f'<a href="../index.html">#{html.escape(t)}</a>' for t in tag_list)
             tags_html = f'<div class="tags-row">{links}</div>'
 
-        page = HEAD.format(
-            title=f"{html.escape(meta['title'])} &middot; {SITE_TITLE}",
-            description=html.escape(meta["snippet"]),
-            css=CSS,
-            site_title=SITE_TITLE,
-            site_tagline=SITE_TAGLINE,
-            home_href="../index.html",
-            about_href="../about.html",
-            analytics=_analytics_snippet(),
-            canonical_url=f"{SITE_URL.rstrip('/')}/posts/{meta['slug']}.html",
-        )
-        page += f"""
+        body = f"""
     <article class="post-full">
-      <a class="back-link u-link" href="../index.html">&#8592; back to index</a>
+      <a class="back-link" href="../index.html">&#8592; back to index</a>
       <p class="post-meta"><time>{fmt_date_human(meta['_date_obj'])}</time></p>
       <h1 class="post-title">{html.escape(meta['title'])}</h1>
       <div class="post-body">
         {meta['body_html']}
       </div>
       {tags_html}
-    </article>
-        """
-        page += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links("../"))
-
-        out_path = os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html")
-        with open(out_path, "w", encoding="utf-8") as f:
+    </article>"""
+        page = render_page(
+            title=f"{html.escape(meta['title'])} &middot; {SITE_TITLE}",
+            description=html.escape(meta["snippet"]),
+            canonical=f"{base}/posts/{meta['slug']}.html",
+            prefix="../",
+            body=body,
+        )
+        with open(os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html"), "w", encoding="utf-8") as f:
             f.write(page)
 
-    # ---- homepage ----
-    index = HEAD.format(
+    # ---- homepage: animated hero, lead story, then the feed ----
+    lead, rest = posts[0], posts[1:]
+    feed = "".join(render_feed_item(m, f"posts/{m['slug']}.html") for m in rest)
+    index = render_page(
         title=f"{SITE_TITLE} &middot; {SITE_TAGLINE}",
         description=html.escape(f"{SITE_TITLE} — {SITE_TAGLINE}"),
-        css=CSS,
-        site_title=SITE_TITLE,
-        site_tagline=SITE_TAGLINE,
-        home_href="index.html",
-        about_href="about.html",
-        analytics=_analytics_snippet(),
-        canonical_url=SITE_URL.rstrip("/") + "/",
+        canonical=base + "/",
+        body=f'<ul class="feed">{feed}</ul>' if rest else "",
+        hero=render_hero(lead),
+        main_class="home",
     )
-    index += '<p class="section-label">Latest</p>'
-
-    if posts:
-        lead = posts[0]
-        side = posts[1:4]
-        index += '<div class="featured-wrap" style="display:grid;">'
-        index += f"""
-        <div class="featured reveal" style="display:grid;grid-template-columns:1.3fr 1fr;gap:36px;padding:32px 0;border-bottom:1px solid var(--rule);align-items:start;">
-          <div>
-            <p class="post-meta"><time>{fmt_date_human(lead['_date_obj'])}</time></p>
-            <h2 class="post-title">
-              <a href="posts/{lead['slug']}.html">{html.escape(lead['title'])}</a>
-            </h2>
-            <p class="post-snippet">{html.escape(lead['snippet'])}</p>
-            <a class="read-more" href="posts/{lead['slug']}.html">read <span class="arrow">&#8594;</span></a>
-          </div>
-          <div class="featured-side">
-            {''.join(render_side_item(m, f"posts/{m['slug']}.html") for m in side)}
-          </div>
-        </div>
-        """
-        index += '</div>'
-
-        rest = posts[4:]
-        if rest:
-            index += '<div class="blog-posts">'
-            for m in rest:
-                index += render_post_card(m, f"posts/{m['slug']}.html")
-            index += '</div>'
-
-    index += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links(""))
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:
         f.write(index)
 
-    # ---- about page ----
-    about = HEAD.format(
-        title=f"About &middot; {SITE_TITLE}",
-        description=html.escape(f"About {SITE_TITLE} — {SITE_TAGLINE}"),
-        css=CSS,
-        site_title=SITE_TITLE,
-        site_tagline=SITE_TAGLINE,
-        home_href="index.html",
-        about_href="about.html",
-        analytics=_analytics_snippet(),
-        canonical_url=SITE_URL.rstrip("/") + "/about.html",
-    )
-    about += f"""
-    <article class="post-full">
-      <h1 class="post-title">About {html.escape(SITE_TITLE)}</h1>
-      <div class="post-body">
-        {markdown_to_html(ABOUT_MARKDOWN)}
-      </div>
-    </article>
-    """
-    about += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links(""))
-    with open(os.path.join(DIST_DIR, "about.html"), "w", encoding="utf-8") as f:
-        f.write(about)
-
-    # ---- privacy page ----
-    privacy = HEAD.format(
-        title=f"Privacy Policy &middot; {SITE_TITLE}",
-        description=html.escape(f"Privacy Policy for {SITE_TITLE}"),
-        css=CSS,
-        site_title=SITE_TITLE,
-        site_tagline=SITE_TAGLINE,
-        home_href="index.html",
-        about_href="about.html",
-        analytics=_analytics_snippet(),
-        canonical_url=SITE_URL.rstrip("/") + "/privacy.html",
-    )
-    privacy += f"""
-    <article class="post-full">
-      <h1 class="post-title">Privacy Policy</h1>
-      <div class="post-body">
-        {markdown_to_html(PRIVACY_MARKDOWN)}
-      </div>
-    </article>
-    """
-    privacy += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links(""))
-    with open(os.path.join(DIST_DIR, "privacy.html"), "w", encoding="utf-8") as f:
-        f.write(privacy)
-
-    # ---- editorial policy + contact pages ----
-    for filename, page_title, md in (
-        ("editorial-policy.html", "Editorial Policy", EDITORIAL_MARKDOWN),
-        ("contact.html", "Contact", CONTACT_MARKDOWN),
+    # ---- about, privacy, editorial policy, contact ----
+    for filename, page_title, desc, md in (
+        ("about.html", f"About {SITE_TITLE}", f"About {SITE_TITLE} — {SITE_TAGLINE}", ABOUT_MARKDOWN),
+        ("privacy.html", "Privacy Policy", f"Privacy Policy for {SITE_TITLE}", PRIVACY_MARKDOWN),
+        ("editorial-policy.html", "Editorial Policy", f"Editorial Policy for {SITE_TITLE}", EDITORIAL_MARKDOWN),
+        ("contact.html", "Contact", f"Contact {SITE_TITLE}", CONTACT_MARKDOWN),
     ):
-        simple = HEAD.format(
-            title=f"{page_title} &middot; {SITE_TITLE}",
-            description=html.escape(f"{page_title} for {SITE_TITLE}"),
-            css=CSS,
-            site_title=SITE_TITLE,
-            site_tagline=SITE_TAGLINE,
-            home_href="index.html",
-            about_href="about.html",
-            analytics=_analytics_snippet(),
-            canonical_url=SITE_URL.rstrip("/") + "/" + filename,
-        )
-        simple += f"""
+        body = f"""
     <article class="post-full">
       <h1 class="post-title">{html.escape(page_title)}</h1>
       <div class="post-body">
         {markdown_to_html(md)}
       </div>
-    </article>
-    """
-        simple += FOOT.format(site_title=SITE_TITLE, script=SCRIPT, social_links=render_social_links(), popup=POPUP_HTML, inline_signup=INLINE_SIGNUP_HTML, footer_links=footer_links(""))
+    </article>"""
+        simple = render_page(
+            title=f"{html.escape(page_title)} &middot; {SITE_TITLE}",
+            description=html.escape(desc),
+            canonical=f"{base}/{filename}",
+            body=body,
+        )
         with open(os.path.join(DIST_DIR, filename), "w", encoding="utf-8") as f:
             f.write(simple)
 

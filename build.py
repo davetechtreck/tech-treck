@@ -12,6 +12,20 @@ Then either:
   - drag the dist/ folder onto https://app.netlify.com/drop, or
   - push this whole project to GitHub and point Netlify at it with
     build command `python3 build.py` and publish directory `dist`.
+
+Homepage thumbnails
+-------------------
+Each post can set a cover image in its frontmatter:
+
+    ---
+    title: My post
+    date: 2026-10-28
+    tags: Amazon, Echo
+    image: echo-show-16.jpg        # file inside images/  (or a full https:// URL)
+    ---
+
+If `image:` is missing, the first image inside the post body is used.
+If the post has no image at all, a themed placeholder is shown instead.
 """
 import re
 import os
@@ -40,6 +54,12 @@ INFO_EMAIL = "info@techtreck.tech"
 
 # One line under the big homepage headline.
 HERO_SUBLINE = "Daily reports on the gadgets you can actually buy."
+
+# Homepage layout: 1 big lead story, then SIDE_COUNT stories in the 2x2 grid
+# beside it, then MORE_COUNT stories in the "More stories" grid. Anything
+# older falls into a simple list at the bottom.
+SIDE_COUNT = 4
+MORE_COUNT = 9
 
 
 def _analytics_snippet():
@@ -345,32 +365,62 @@ nav.site-nav a:hover{color:var(--ink)}
 #theme-toggle svg{width:15px;height:15px;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
 #theme-toggle:hover svg{transform:rotate(90deg)}
 
-.hero{position:relative;min-height:min(78vh,640px);overflow:hidden;border-bottom:1px solid var(--line)}
+.hero{position:relative;min-height:min(54vh,440px);overflow:hidden;border-bottom:1px solid var(--line)}
 .hero canvas{position:absolute;inset:0;width:100%;height:100%}
-.hero .in{position:relative;padding-top:clamp(3rem,10vw,7rem);padding-bottom:5rem;pointer-events:none}
+.hero .in{position:relative;padding-top:clamp(2.5rem,7vw,5rem);padding-bottom:3rem;pointer-events:none}
 .hero h1{font:800 clamp(2.8rem,9vw,6.6rem)/.95 var(--display);letter-spacing:-.045em;max-width:9ch}
 .hero h1 .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-right:.22em}
 .hero h1 .c{display:inline-block;transform:translateY(112%);animation:rise .95s cubic-bezier(.2,.85,.2,1) forwards;animation-delay:calc(var(--i)*42ms + 250ms)}
 @keyframes rise{to{transform:none}}
 .hero p.sub{margin-top:1.6rem;max-width:30ch;color:var(--mute);font-size:1.25rem;opacity:0;animation:fade .9s 1.4s forwards}
 @keyframes fade{to{opacity:1}}
-
-.lead{position:relative;display:block;margin-top:-3.2rem;z-index:4;background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:clamp(1.4rem,3vw,2.4rem);overflow:hidden;opacity:0;transform:translateY(26px);animation:lift .9s 1.2s cubic-bezier(.2,.85,.2,1) forwards}
 @keyframes lift{to{opacity:1;transform:none}}
-.lead::before{content:"";position:absolute;inset:0;background:radial-gradient(420px circle at var(--mx,70%) var(--my,0%),color-mix(in srgb,var(--trail) 22%,transparent),transparent 60%);pointer-events:none}
-.lead>*{position:relative}
-.meta{display:flex;gap:.8rem;align-items:center;font:500 .85rem var(--display);color:var(--mute)}
-.meta .live{display:inline-flex;align-items:center;gap:.4rem;color:var(--beacon)}
-.meta .live::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.6s infinite}
-@keyframes blink{50%{opacity:.25}}
-.lead h2{font:800 clamp(1.7rem,4vw,2.9rem)/1.05 var(--display);letter-spacing:-.03em;margin:.7rem 0;max-width:22ch}
-.lead p{color:var(--mute);max-width:56ch}
-.go{display:inline-flex;margin-top:1.1rem;font:500 .95rem var(--display);color:var(--trail);gap:.45rem}
-.go span{transition:transform .25s}
-.lead:hover .go span{transform:translateX(6px)}
 
 main{padding:2.5rem 0 1rem}
-main.home{padding-top:4.5rem}
+main.home{padding-top:2.5rem}
+
+/* ---- Homepage: lead story + 2x2 grid, then "More stories" ---- */
+.top{display:grid;grid-template-columns:1.12fr 1fr;gap:2rem 2.4rem;align-items:start;opacity:0;transform:translateY(26px);animation:lift .9s 1.2s cubic-bezier(.2,.85,.2,1) forwards}
+.top.solo{grid-template-columns:1fr}
+.top-side{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem 1.4rem;align-content:start}
+
+.thumb{position:relative;display:block;overflow:hidden;border-radius:14px;border:1px solid var(--line);aspect-ratio:16/10;background:var(--panel)}
+.thumb img{width:100%;height:100%;object-fit:cover;margin:0;transition:transform .6s cubic-bezier(.2,.85,.2,1)}
+.story:hover .thumb img,.story:focus-visible .thumb img{transform:scale(1.04)}
+.thumb.ph{background:
+  radial-gradient(circle at 78% 30%,color-mix(in srgb,var(--beacon) 55%,transparent) 0 5px,transparent 6px),
+  radial-gradient(120% 90% at 70% 110%,color-mix(in srgb,var(--trail) 32%,transparent),transparent 62%),
+  linear-gradient(160deg,var(--panel),var(--bg))}
+.pill{position:absolute;left:.7rem;top:.7rem;z-index:2;font:600 .78rem/1 var(--display);padding:.42rem .75rem;border-radius:99px;background:color-mix(in srgb,var(--bg) 78%,transparent);border:1px solid var(--line);color:var(--ink);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+
+.story{display:block}
+.story h2,.story h3{font-family:var(--display);font-weight:800;letter-spacing:-.025em;transition:color .25s}
+.story:hover h2,.story:hover h3,.story:focus-visible h2,.story:focus-visible h3{color:var(--trail)}
+.byline{display:flex;gap:.9rem;align-items:center;font:500 .85rem var(--display);color:var(--mute);margin-top:.6rem}
+.byline .live{display:inline-flex;align-items:center;gap:.4rem;color:var(--beacon)}
+.byline .live::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.25}}
+
+.story-lead h2{font-size:clamp(1.8rem,3.6vw,2.9rem);line-height:1.06;margin-top:1.3rem;max-width:20ch}
+.story-lead p.dek{margin-top:.9rem;color:var(--ink-soft);font-size:1.12rem;max-width:52ch}
+.story-card h3{font-size:clamp(1.05rem,1.7vw,1.3rem);line-height:1.18;margin-top:.9rem}
+
+.sec-title{font:800 1.7rem/1 var(--display);letter-spacing:-.03em;text-align:center;margin:4rem 0 1.8rem}
+.more{display:grid;grid-template-columns:repeat(3,1fr);gap:2.2rem 1.6rem}
+.more .story-card h3{font-size:1.25rem}
+.more .story-card p.dek{margin-top:.5rem;color:var(--mute);font-size:1rem;max-width:44ch;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.older{padding-top:.5rem}
+
+@media (max-width:900px){
+  .top{grid-template-columns:1fr}
+  .more{grid-template-columns:repeat(2,1fr)}
+}
+@media (max-width:560px){
+  .top-side{grid-template-columns:1fr}
+  .more{grid-template-columns:1fr}
+}
+
 .feed{list-style:none;padding:0}
 .feed a{position:relative;display:grid;grid-template-columns:7.5rem 1fr;gap:.4rem 1.5rem;padding:1.5rem 0 1.5rem 1.3rem;border-top:1px solid var(--line)}
 .feed li:last-child a{border-bottom:1px solid var(--line)}
@@ -491,7 +541,7 @@ COMMON_JS = """
 })();
 """
 
-# Homepage only: headline entrance, ridge-line terrain, lead-card spotlight.
+# Homepage only: headline entrance and ridge-line terrain.
 HERO_JS = """
 (function(){
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -547,8 +597,6 @@ HERO_JS = """
     window.__tt.redraw=function(){ if(reduce) draw(); };
     if(reduce){draw();} else {loop();}
   }
-  var lead=document.getElementById('lead');
-  if(lead) lead.addEventListener('pointermove',function(e){var b=lead.getBoundingClientRect();lead.style.setProperty('--mx',(e.clientX-b.left)+'px');lead.style.setProperty('--my',(e.clientY-b.top)+'px');});
 })();
 """
 
@@ -723,7 +771,7 @@ You can also find {SITE_TITLE} on social media through the links in the footer. 
 # Page assembly
 # ---------------------------------------------------------------------------
 
-FONTS_URL = ("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800"
+FONTS_URL = ("https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,800"
              "&family=Newsreader:opsz,wght@6..72,400;6..72,500&display=swap")
 
 SUN_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">'
@@ -813,9 +861,82 @@ def render_feed_item(meta, href):
             f'<h3>{html.escape(meta["title"])}</h3>{snippet}</a></li>')
 
 
-def render_hero(lead):
+# ---------------------------------------------------------------------------
+# Homepage story cards (Engadget-style layout)
+# ---------------------------------------------------------------------------
+
+_BODY_IMG_RE = re.compile(r'<img src="([^"]+)"')
+
+
+def post_image(meta):
+    """Cover image for a post: `image:` frontmatter, else first image in the body, else None."""
+    if meta.get("image"):
+        return resolve_image_src(meta["image"])
+    m = _BODY_IMG_RE.search(meta.get("body_html", ""))
+    return m.group(1) if m else None
+
+
+def first_tag(meta):
+    tags = [t.strip() for t in meta["tags"].split(",") if t.strip()]
+    return tags[0] if tags else ""
+
+
+def render_thumb(meta):
+    """Image box with the category pill on top. Falls back to a themed placeholder."""
+    src = post_image(meta)
+    tag = first_tag(meta)
+    pill = f'<span class="pill">{html.escape(tag)}</span>' if tag else ""
+    if src:
+        return (f'<span class="thumb">{pill}'
+                f'<img src="{html.escape(src)}" alt="{html.escape(meta["title"])}" loading="lazy"></span>')
+    return f'<span class="thumb ph">{pill}</span>'
+
+
+def render_byline(meta, latest=False):
+    author = html.escape(meta.get("author", AUTHOR_NAME))
+    live = '<span class="live">Latest</span>' if latest else ""
+    return (f'<span class="byline">{live}<span>{author}</span>'
+            f'<time>{fmt_date_human(meta["_date_obj"])}</time></span>')
+
+
+def render_lead_story(meta):
+    href = f"posts/{meta['slug']}.html"
+    dek = f'<p class="dek">{html.escape(meta["snippet"])}</p>' if meta["snippet"] else ""
+    return (f'<a class="story story-lead" href="{href}">{render_thumb(meta)}'
+            f'<h2>{html.escape(meta["title"])}</h2>{render_byline(meta, latest=True)}{dek}</a>')
+
+
+def render_card(meta, with_dek=False):
+    href = f"posts/{meta['slug']}.html"
+    dek = f'<p class="dek">{html.escape(meta["snippet"])}</p>' if (with_dek and meta["snippet"]) else ""
+    return (f'<a class="story story-card" href="{href}">{render_thumb(meta)}'
+            f'<h3>{html.escape(meta["title"])}</h3>{render_byline(meta)}{dek}</a>')
+
+
+def render_home_body(posts):
+    lead = posts[0]
+    side = posts[1:1 + SIDE_COUNT]
+    more = posts[1 + SIDE_COUNT:1 + SIDE_COUNT + MORE_COUNT]
+    older = posts[1 + SIDE_COUNT + MORE_COUNT:]
+
+    solo = " solo" if not side else ""
+    side_html = ('<div class="top-side">' + "".join(render_card(m) for m in side) + '</div>') if side else ""
+    out = [f'<section class="top{solo}">{render_lead_story(lead)}{side_html}</section>']
+
+    if more:
+        out.append('<h2 class="sec-title">More stories</h2>')
+        out.append('<div class="more">' + "".join(render_card(m, with_dek=True) for m in more) + '</div>')
+
+    if older:
+        out.append('<h2 class="sec-title">Older stories</h2>')
+        items = "".join(render_feed_item(m, f"posts/{m['slug']}.html") for m in older)
+        out.append(f'<ul class="feed older">{items}</ul>')
+
+    return "\n".join(out)
+
+
+def render_hero():
     headline = SITE_TAGLINE[:1].upper() + SITE_TAGLINE[1:]
-    href = f"posts/{lead['slug']}.html"
     return f"""
 <section class="hero" id="hero">
   <canvas id="ridge" aria-hidden="true"></canvas>
@@ -824,14 +945,6 @@ def render_hero(lead):
     <p class="sub">{html.escape(HERO_SUBLINE)}</p>
   </div>
 </section>
-<div class="wrap">
-  <a class="lead" id="lead" href="{href}">
-    <div class="meta"><span class="live">Latest</span><time>{fmt_date_human(lead['_date_obj'])}</time></div>
-    <h2>{html.escape(lead['title'])}</h2>
-    <p>{html.escape(lead['snippet'])}</p>
-    <span class="go">Read the story <span>&#8594;</span></span>
-  </a>
-</div>
 """
 
 
@@ -921,15 +1034,13 @@ def build():
         with open(os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html"), "w", encoding="utf-8") as f:
             f.write(page)
 
-    # ---- homepage: animated hero, lead story, then the feed ----
-    lead, rest = posts[0], posts[1:]
-    feed = "".join(render_feed_item(m, f"posts/{m['slug']}.html") for m in rest)
+    # ---- homepage: animated hero, then lead story + grid + more stories ----
     index = render_page(
         title=f"{SITE_TITLE} &middot; {SITE_TAGLINE}",
         description=html.escape(f"{SITE_TITLE} — {SITE_TAGLINE}"),
         canonical=base + "/",
-        body=f'<ul class="feed">{feed}</ul>' if rest else "",
-        hero=render_hero(lead),
+        body=render_home_body(posts),
+        hero=render_hero(),
         main_class="home",
     )
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:

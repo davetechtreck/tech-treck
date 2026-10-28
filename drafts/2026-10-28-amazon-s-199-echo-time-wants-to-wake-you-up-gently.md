@@ -30,7 +30,7 @@ Amazon's devices tend to get discounted over time, so if you're curious but not 
 
 ## My take
 
-[[ADD YOUR TAKE: 2-3 sentences on what you think, who should buy or skip, and anything you have actually tried. Delete this whole line when done.]]
+The Echo Time is a really cool redesign. It brings back the round Echo Spot look, with new colors (Graphite, Glacier White and Coral Pink) and sleep-sensing smart alarms that wake you in a lighter sleep phase, no wearable needed.At $199.99, though, it isn’t cheap. The Echo Spot costs about half as much, so this is worth it mainly if the sleep features matter to you. It only launched on October 28, so full reviews aren’t out yet.
 
 **Sources:** [Amazon](https://www.aboutamazon.com/news/devices/echo-time-smart-alarm-clock), [TechRadar](https://www.techradar.com/home/smart-home-hubs/amazons-new-echo-time-wants-to-be-the-smartest-thing-on-your-nightstand), [Tom's Guide](https://www.tomsguide.com/audio/smart-speakers/the-amazon-echo-time-could-be-my-new-bedside-smart-clock), [9to5Toys](https://9to5toys.com/2026/10/28/all-new-amazon-echo-time-now-up-for-grabs/), [Quartz](https://qz.com/amazon-echo-show-16-alexa-devices-unveil-102826), [Engadget](https://www.engadget.com/2299032/all-amazon-echo-news-october-2026/), [BGR](https://www.bgr.com/2299332/amazon-new-smart-home-devices-october-2026-echo-time-frame/)
 

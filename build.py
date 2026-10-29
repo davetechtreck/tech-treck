@@ -365,6 +365,49 @@ nav.site-nav a:hover{color:var(--ink)}
 #theme-toggle svg{width:15px;height:15px;transition:transform .5s cubic-bezier(.3,1.6,.5,1)}
 #theme-toggle:hover svg{transform:rotate(90deg)}
 
+/* ---- Header groups, burger button, social icons ---- */
+.bar-left,.bar-right{display:flex;align-items:center}
+.bar-left{gap:1.1rem;min-width:0}
+.bar-right{gap:.7rem}
+.bar-left nav.site-nav{margin-left:.9rem}
+.soc{display:flex;align-items:center;gap:.2rem}
+.soc a{width:34px;height:34px;display:grid;place-items:center;border-radius:50%;color:var(--mute);font:600 .85rem var(--display);transition:color .2s,background .2s}
+.soc a:hover{color:var(--ink);background:var(--panel)}
+.soc svg{width:18px;height:18px}
+.nl-btn{display:inline-flex;gap:.5rem;align-items:center;font:500 .85rem var(--display);padding:.45rem .85rem;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:99px;cursor:pointer;transition:border-color .2s,color .2s}
+.nl-btn:hover{border-color:var(--trail);color:var(--trail)}
+.nl-btn svg{width:15px;height:15px}
+@media (max-width:1000px){.soc-head{display:none}}
+@media (max-width:760px){.bar-left nav.site-nav{display:none}}
+@media (max-width:560px){.nl-btn .lbl{display:none}.nl-btn{padding:.5rem}}
+
+/* Burger: three bars that spin and fold into an X */
+.burger{position:relative;flex:none;width:42px;height:42px;border:0;border-radius:12px;background:none;color:var(--ink);cursor:pointer;transition:transform .6s cubic-bezier(.3,1.5,.5,1),color .3s,background .2s}
+.burger:hover{background:var(--panel)}
+.burger span{position:absolute;left:10px;width:22px;height:2px;border-radius:2px;background:currentColor;transition:transform .5s cubic-bezier(.3,1.4,.5,1),width .3s,opacity .25s}
+.burger span:nth-child(1){top:14px}
+.burger span:nth-child(2){top:20px;width:15px}
+.burger span:nth-child(3){top:26px}
+.burger:hover span:nth-child(2){width:22px}
+.burger[aria-expanded="true"]{transform:rotate(180deg);color:var(--beacon)}
+.burger[aria-expanded="true"] span:nth-child(1){transform:translateY(6px) rotate(45deg)}
+.burger[aria-expanded="true"] span:nth-child(2){transform:scaleX(0);opacity:0}
+.burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-6px) rotate(-45deg)}
+
+/* Slide-out menu */
+.drawer-scrim{position:fixed;inset:0;z-index:44;background:rgba(4,6,14,.6);opacity:0;pointer-events:none;transition:opacity .35s}
+.drawer-scrim.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;left:0;top:var(--head-h,62px);bottom:0;width:min(340px,88vw);z-index:45;display:flex;flex-direction:column;padding:1.2rem 1.6rem 2rem;overflow-y:auto;background:var(--panel);border-right:1px solid var(--line);transform:translateX(-102%);visibility:hidden;transition:transform .5s cubic-bezier(.2,.85,.2,1),visibility 0s .5s}
+.drawer.open{transform:none;visibility:visible;transition:transform .5s cubic-bezier(.2,.85,.2,1),visibility 0s}
+.drawer .item{opacity:0;transform:translateX(-14px);transition:opacity .2s,transform .2s}
+.drawer.open .item{opacity:1;transform:none;transition:opacity .4s calc(var(--i)*45ms + 160ms),transform .55s cubic-bezier(.2,.85,.2,1) calc(var(--i)*45ms + 160ms)}
+.drawer-nav{display:flex;flex-direction:column}
+.drawer-nav a{font:800 1.65rem/1 var(--display);letter-spacing:-.03em;padding:.8rem 0;color:var(--ink)}
+.drawer-nav a:hover{color:var(--trail)}
+.drawer-mid{display:flex;flex-wrap:wrap;align-items:center;gap:.8rem 1rem;margin:1.4rem 0;padding:1.4rem 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.drawer-small{display:flex;flex-direction:column;gap:.8rem;margin-top:auto;font:500 .9rem var(--display);color:var(--mute)}
+.drawer-small a:hover{color:var(--ink)}
+
 .hero{position:relative;min-height:min(54vh,440px);overflow:hidden;border-bottom:1px solid var(--line)}
 .hero canvas{position:absolute;inset:0;width:100%;height:100%}
 .hero .in{position:relative;padding-top:clamp(2.5rem,7vw,5rem);padding-bottom:3rem;pointer-events:none}
@@ -535,6 +578,24 @@ COMMON_JS = """
         {duration:700,easing:'cubic-bezier(.2,.8,.2,1)',pseudoElement:'::view-transition-new(root)'});
     });
   });
+  var head=document.querySelector('.site-head');
+  function setHead(){ if(head) root.style.setProperty('--head-h',head.offsetHeight+'px'); }
+  setHead(); addEventListener('resize',setHead);
+  var burger=document.getElementById('burger'), drawer=document.getElementById('drawer'), scrim=document.getElementById('drawer-scrim');
+  function setDrawer(open){
+    drawer.classList.toggle('open',open); scrim.classList.toggle('open',open);
+    burger.setAttribute('aria-expanded',open?'true':'false');
+    burger.setAttribute('aria-label',open?'Close menu':'Open menu');
+    document.body.style.overflow=open?'hidden':'';
+  }
+  if(burger&&drawer&&scrim){
+    burger.addEventListener('click',function(){setDrawer(burger.getAttribute('aria-expanded')!=='true');});
+    scrim.addEventListener('click',function(){setDrawer(false);});
+    drawer.addEventListener('click',function(e){ if(e.target.closest('a,[data-nl-open]')) setDrawer(false); });
+    addEventListener('keydown',function(e){
+      if(e.key==='Escape'&&burger.getAttribute('aria-expanded')==='true'){setDrawer(false);burger.focus();}
+    });
+  }
   var prog=document.querySelector('.progress');
   function onScroll(){var m=root.scrollHeight-innerHeight; if(prog) prog.style.setProperty('--p',m>0?Math.min(1,scrollY/m):0);}
   addEventListener('scroll',onScroll,{passive:true}); onScroll();
@@ -625,6 +686,7 @@ NEWSLETTER_SCRIPT = """
   document.addEventListener('DOMContentLoaded', function(){
     if(shouldShow()) setTimeout(openPopup, SHOW_AFTER_MS);
     document.querySelectorAll('[data-nl-close]').forEach(function(btn){btn.addEventListener('click', closePopup);});
+    document.querySelectorAll('[data-nl-open]').forEach(function(btn){btn.addEventListener('click', function(e){e.preventDefault(); openPopup();});});
     document.addEventListener('keydown', function(e){ if(e.key==='Escape') closePopup(); });
     document.querySelectorAll('.newsletter-form').forEach(function(form){
       form.addEventListener('submit', function(e){
@@ -667,7 +729,7 @@ POPUP_HTML = """
 """.replace("__KIT_FORM_ACTION__", KIT_FORM_ACTION) + NEWSLETTER_SCRIPT
 
 INLINE_SIGNUP_HTML = """
-<section class="nl-inline wrap">
+<section class="nl-inline wrap" id="newsletter">
   <div class="newsletter-card">
     <div class="nl-copy">
       <h3 class="newsletter-card__title">Get Tech Treck in your inbox</h3>
@@ -791,6 +853,62 @@ def render_social_links():
     )
 
 
+# Icons for the header and menu. Keys match the labels in SOCIAL_LINKS
+# (case-insensitive). The bool says whether the icon is filled (True) or
+# drawn as an outline (False). Unknown labels fall back to their first letter.
+ICONS = {
+    "instagram": ('<rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/>'
+                  '<circle cx="17.5" cy="6.5" r=".6"/>', False),
+    "x": ('<path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835'
+          'L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>', True),
+    "youtube": ('<path d="M2.5 17a24.1 24.1 0 0 1 0-10 2 2 0 0 1 1.4-1.4 49.6 49.6 0 0 1 16.2 0A2 2 0 0 1 21.5 7'
+                'a24.1 24.1 0 0 1 0 10 2 2 0 0 1-1.4 1.4 49.6 49.6 0 0 1-16.2 0A2 2 0 0 1 2.5 17"/>'
+                '<path d="m10 15 5-3-5-3z"/>', False),
+    "tiktok": ('<path d="M9 12a4 4 0 1 0 4 4V4a5 5 0 0 0 5 5"/>', False),
+}
+
+MAIL_ICON = ('<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" '
+             'stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/>'
+             '<path d="m3 7 9 6 9-6"/></svg>')
+
+
+def render_social_icons():
+    out = []
+    for label, url in SOCIAL_LINKS:
+        u, l = html.escape(url.strip()), html.escape(label)
+        inner, filled = ICONS.get(label.strip().lower(), (None, False))
+        if inner is None:
+            out.append(f'<a href="{u}" aria-label="{l}" rel="noopener">{html.escape(label[:1].upper())}</a>')
+            continue
+        attrs = ('fill="currentColor"' if filled else
+                 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"')
+        out.append(f'<a href="{u}" aria-label="{l}" title="{l}" rel="noopener">'
+                   f'<svg viewBox="0 0 24 24" {attrs}>{inner}</svg></a>')
+    return "".join(out)
+
+
+def render_drawer(prefix):
+    big = [("Latest", "index.html"), ("About", "about.html"),
+           ("Editorial policy", "editorial-policy.html"), ("Contact", "contact.html")]
+    small = [("Privacy policy", "privacy.html"), ("RSS feed", "feed.xml")]
+    big_html = "".join(f'<a class="item" style="--i:{i}" href="{prefix}{href}">{label}</a>'
+                       for i, (label, href) in enumerate(big))
+    small_html = "".join(f'<a class="item" style="--i:{len(big) + 1 + i}" href="{prefix}{href}">{label}</a>'
+                         for i, (label, href) in enumerate(small))
+    social = f'<div class="soc">{render_social_icons()}</div>' if SOCIAL_LINKS else ""
+    return f"""
+<div class="drawer-scrim" id="drawer-scrim"></div>
+<aside class="drawer" id="drawer" aria-label="Site menu">
+  <nav class="drawer-nav">{big_html}</nav>
+  <div class="drawer-mid item" style="--i:{len(big)}">
+    {social}
+    <a class="nl-btn" href="#newsletter" data-nl-open>{MAIL_ICON}<span class="lbl">Newsletter</span></a>
+  </div>
+  <nav class="drawer-small">{small_html}</nav>
+</aside>
+"""
+
+
 def render_page(*, title, description, canonical, prefix="", body, hero="", main_class=""):
     """Wrap `body` in the full site chrome. prefix is "" on root pages and "../" on post pages."""
     js = COMMON_JS + (HERO_JS if hero else "")
@@ -827,14 +945,24 @@ def render_page(*, title, description, canonical, prefix="", body, hero="", main
 <div class="progress" aria-hidden="true"><i></i><b></b></div>
 <header class="site-head">
   <div class="wrap bar">
-    <a class="brand" href="{prefix}index.html"><span class="dot"></span>{SITE_TITLE}</a>
-    <nav class="site-nav">
-      <a href="{prefix}index.html">index</a>
-      <a href="{prefix}about.html">about</a>
+    <div class="bar-left">
+      <button id="burger" class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
+      <a class="brand" href="{prefix}index.html"><span class="dot"></span>{SITE_TITLE}</a>
+      <nav class="site-nav">
+        <a href="{prefix}index.html">Latest</a>
+        <a href="{prefix}about.html">About</a>
+        <a href="{prefix}editorial-policy.html">Editorial</a>
+        <a href="{prefix}contact.html">Contact</a>
+      </nav>
+    </div>
+    <div class="bar-right">
+      <div class="soc soc-head">{render_social_icons()}</div>
+      <a class="nl-btn" href="#newsletter" data-nl-open>{MAIL_ICON}<span class="lbl">Newsletter</span></a>
       <button id="theme-toggle" type="button" aria-label="Switch theme">{SUN_ICON}<span id="theme-label">dark</span></button>
-    </nav>
+    </div>
   </div>
 </header>
+{render_drawer(prefix)}
 {hero}
 <main class="wrap {main_class}">
 {body}

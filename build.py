@@ -522,6 +522,8 @@ main.home{padding-top:2.5rem}
 .post-body pre code{background:none;padding:0}
 .post-body ul{padding-left:1.3em;margin:0 0 1.3em;color:var(--ink-soft)}
 .post-body img{margin:1.6em 0;border-radius:12px;border:1px solid var(--line)}
+.post-hero{margin:0 0 2rem;border-radius:14px;overflow:hidden;border:1px solid var(--line);aspect-ratio:16/9;background:var(--panel)}
+.post-hero img{width:100%;height:100%;object-fit:cover;margin:0}
 .tags-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1.6rem}
 .tags-row a{font:500 .8rem var(--display);color:var(--trail);border:1px solid var(--line);padding:.3rem .7rem;border-radius:99px;transition:background .2s,color .2s}
 .tags-row a:hover{background:var(--trail);color:var(--bg)}
@@ -1168,6 +1170,16 @@ def build():
 
     # ---- individual post pages ----
     for meta in posts:
+        hero_html = ""
+        cover = meta.get("image", "").strip()
+        if cover:
+            src = resolve_image_src(cover)
+            first = _BODY_IMG_RE.search(meta["body_html"])
+            already_in_text = first and first.group(1) == src and meta["body_html"].lstrip().startswith("<p><img")
+            missing = src.startswith(IMG_MARK) and src[len(IMG_MARK):] in MISSING_IMAGES
+            if not already_in_text and not missing:
+                hero_html = (f'<figure class="post-hero"><img src="{html.escape(src)}" '
+                             f'alt="{html.escape(meta["title"])}"></figure>')
         tag_list = [t.strip() for t in meta["tags"].split(",") if t.strip()]
         tags_html = ""
         if tag_list:
@@ -1179,6 +1191,7 @@ def build():
       <a class="back-link" href="../index.html">&#8592; back to index</a>
       <p class="post-meta"><time>{fmt_date_human(meta['_date_obj'])}</time></p>
       <h1 class="post-title">{html.escape(meta['title'])}</h1>
+      {hero_html}
       <div class="post-body">
         {meta['body_html']}
       </div>

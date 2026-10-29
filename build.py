@@ -22,6 +22,7 @@ Each post can set a cover image in its frontmatter:
     date: 2026-10-28
     tags: Amazon, Echo
     image: echo-show-16.jpg        # file inside images/  (or a full https:// URL)
+                                   # "images/echo-show-16.jpg" works too
     ---
 
 If `image:` is missing, the first image inside the post body is used.
@@ -125,11 +126,36 @@ def parse_frontmatter(text, filename):
 # Minimal Markdown -> HTML (headers, bold, italic, code, links, lists, quotes)
 # ---------------------------------------------------------------------------
 
+IMG_MARK = "__IMG__/"          # stands for "the images/ folder"; swapped per page
+MISSING_IMAGES = set()        # filled during the build, reported at the end
+
+
+def image_name(path):
+    """Accepts 'photo.jpg', 'images/photo.jpg', '/images/photo.jpg' or './images/photo.jpg'."""
+    p = path.strip().strip('"').strip("'")
+    while True:
+        for lead in ("./", "/", "images/"):
+            if p.startswith(lead):
+                p = p[len(lead):]
+                break
+        else:
+            return p
+
+
 def resolve_image_src(path):
-    # Bare filenames resolve to /images/<filename>; full URLs pass through.
+    path = path.strip().strip('"').strip("'")
     if path.startswith("http://") or path.startswith("https://"):
         return path
-    return "/images/" + path.lstrip("/")
+    name = image_name(path)
+    if not os.path.isfile(os.path.join(IMAGES_DIR, name)):
+        MISSING_IMAGES.add(name)
+    return IMG_MARK + name
+
+
+def fix_images(text, prefix):
+    """Turn the images/ marker into a working path: "" on root pages, "../" on post pages,
+    or the full site URL for the RSS feed and Apple News."""
+    return text.replace(IMG_MARK, prefix + "images/")
 
 
 def inline_md(text):
@@ -255,7 +281,7 @@ def generate_rss(posts):
       <link>{link}</link>
       <guid>{link}</guid>
       <pubDate>{pub_date}</pubDate>
-      <description><![CDATA[{meta['body_html']}]]></description>
+      <description><![CDATA[{fix_images(meta['body_html'], base + '/')}]]></description>
     </item>""")
 
     return f"""<?xml version="1.0" encoding="UTF-8"?>
@@ -294,7 +320,7 @@ def _html_block_to_component(block):
     m = _IMG_ONLY_RE.match(block)
     if m:
         src = m.group(1)
-        url = src if src.startswith("http") else f"{SITE_URL.rstrip('/')}{src}"
+        url = src if src.startswith("http") else fix_images(src, SITE_URL.rstrip('/') + "/")
         return {"role": "image", "URL": url}
     return {"role": "body", "text": block, "format": "html"}
 
@@ -910,9 +936,15 @@ def render_drawer(prefix):
 """
 
 
-def render_page(*, title, description, canonical, prefix="", body, hero="", main_class=""):
+def render_page(*, title, description, canonical, prefix="", body, hero="", main_class="", image=None):
     """Wrap `body` in the full site chrome. prefix is "" on root pages and "../" on post pages."""
     js = COMMON_JS + (HERO_JS if hero else "")
+    og_image = ""
+    if image:
+        full = html.escape(fix_images(image, SITE_URL.rstrip("/") + "/"))
+        og_image = f'<meta property="og:image" content="{full}"/>\n<meta name="twitter:image" content="{full}"/>'
+    body = fix_images(body, prefix)
+    hero = fix_images(hero, prefix)
     return f"""<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
@@ -926,7 +958,8 @@ def render_page(*, title, description, canonical, prefix="", body, hero="", main
 <meta property="og:title" content="{title}"/>
 <meta property="og:description" content="{description}"/>
 <meta property="og:url" content="{canonical}"/>
-<meta name="twitter:card" content="summary"/>
+{og_image}
+<meta name="twitter:card" content="{'summary_large_image' if image else 'summary'}"/>
 <meta name="twitter:title" content="{title}"/>
 <meta name="twitter:description" content="{description}"/>
 <meta name="google-site-verification" content="g5gG3v7FtM3b4ZUF9BsgGvIpjq6fgF2NK20e-5bTyDk" />
@@ -993,7 +1026,7 @@ _BODY_IMG_RE = re.compile(r'<img src="([^"]+)"')
 
 def post_image(meta):
     """Cover image for a post: `image:` frontmatter, else first image in the body, else None."""
-    if meta.get("image"):
+    if meta.get("image", "").strip():
         return resolve_image_src(meta["image"])
     m = _BODY_IMG_RE.search(meta.get("body_html", ""))
     return m.group(1) if m else None
@@ -1007,11 +1040,13 @@ def first_tag(meta):
 def render_thumb(meta):
     """Image box with the category pill on top. Falls back to a themed placeholder."""
     src = post_image(meta)
+    if src and src.startswith(IMG_MARK) and src[len(IMG_MARK):] in MISSING_IMAGES:
+        src = None  # photo not uploaded (or name misspelled): show the placeholder, not a broken image
     tag = first_tag(meta)
     pill = f'<span class="pill">{html.escape(tag)}</span>' if tag else ""
     if src:
         return (f'<span class="thumb">{pill}'
-                f'<img src="{html.escape(src)}" alt="{html.escape(meta["title"])}" loading="lazy"></span>')
+                f'<img src="{html.escape(fix_images(src, ""))}" alt="{html.escape(meta["title"])}" loading="lazy"></span>')
     return f'<span class="thumb ph">{pill}</span>'
 
 
@@ -1155,6 +1190,7 @@ def build():
             canonical=f"{base}/posts/{meta['slug']}.html",
             prefix="../",
             body=body,
+            image=post_image(meta),
         )
         with open(os.path.join(DIST_DIR, "posts", f"{meta['slug']}.html"), "w", encoding="utf-8") as f:
             f.write(page)
@@ -1194,6 +1230,9 @@ def build():
         with open(os.path.join(DIST_DIR, filename), "w", encoding="utf-8") as f:
             f.write(simple)
 
+    for name in sorted(MISSING_IMAGES):
+        print(f"WARNING: image '{name}' is used in a post but is not in the images/ folder. "
+              "Check the spelling (capitals count) and that it was uploaded.")
     print(f"Built {len(posts)} post(s) into {DIST_DIR}/")
 
 

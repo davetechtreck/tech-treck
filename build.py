@@ -408,9 +408,10 @@ nav.site-nav a:hover{color:var(--ink)}
 .drawer-small{display:flex;flex-direction:column;gap:.8rem;margin-top:auto;font:500 .9rem var(--display);color:var(--mute)}
 .drawer-small a:hover{color:var(--ink)}
 
-.hero{position:relative;min-height:min(54vh,440px);overflow:hidden;border-bottom:1px solid var(--line)}
-.hero canvas{position:absolute;inset:0;width:100%;height:100%}
-.hero .in{position:relative;padding-top:clamp(2.5rem,7vw,5rem);padding-bottom:3rem;pointer-events:none}
+.hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.hero canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.5}
+.hero::after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(color-mix(in srgb,var(--bg) 45%,transparent),transparent 30%,transparent 70%,var(--bg))}
+.hero .in{position:relative;z-index:2;padding-top:2.5rem;padding-bottom:3.5rem}
 .hero h1{font:800 clamp(2.8rem,9vw,6.6rem)/.95 var(--display);letter-spacing:-.045em;max-width:9ch}
 .hero h1 .w{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-right:.22em}
 .hero h1 .c{display:inline-block;transform:translateY(112%);animation:rise .95s cubic-bezier(.2,.85,.2,1) forwards;animation-delay:calc(var(--i)*42ms + 250ms)}
@@ -423,7 +424,7 @@ main{padding:2.5rem 0 1rem}
 main.home{padding-top:2.5rem}
 
 /* ---- Homepage: lead story + 2x2 grid, then "More stories" ---- */
-.top{display:grid;grid-template-columns:1.12fr 1fr;gap:2rem 2.4rem;align-items:start;opacity:0;transform:translateY(26px);animation:lift .9s 1.2s cubic-bezier(.2,.85,.2,1) forwards}
+.top{display:grid;grid-template-columns:1.12fr 1fr;gap:2rem 2.4rem;align-items:start;opacity:0;transform:translateY(26px);animation:lift .9s .2s cubic-bezier(.2,.85,.2,1) forwards}
 .top.solo{grid-template-columns:1fr}
 .top-side{display:grid;grid-template-columns:1fr 1fr;gap:1.8rem 1.4rem;align-content:start}
 
@@ -1041,15 +1042,18 @@ def render_card(meta, with_dek=False):
             f'<h3>{html.escape(meta["title"])}</h3>{render_byline(meta)}{dek}</a>')
 
 
-def render_home_body(posts):
+def render_top(posts):
     lead = posts[0]
     side = posts[1:1 + SIDE_COUNT]
-    more = posts[1 + SIDE_COUNT:1 + SIDE_COUNT + MORE_COUNT]
-    older = posts[1 + SIDE_COUNT + MORE_COUNT:]
-
     solo = " solo" if not side else ""
     side_html = ('<div class="top-side">' + "".join(render_card(m) for m in side) + '</div>') if side else ""
-    out = [f'<section class="top{solo}">{render_lead_story(lead)}{side_html}</section>']
+    return f'<section class="top{solo}">{render_lead_story(lead)}{side_html}</section>'
+
+
+def render_home_body(posts):
+    more = posts[1 + SIDE_COUNT:1 + SIDE_COUNT + MORE_COUNT]
+    older = posts[1 + SIDE_COUNT + MORE_COUNT:]
+    out = []
 
     if more:
         out.append('<h2 class="sec-title">More stories</h2>')
@@ -1063,14 +1067,13 @@ def render_home_body(posts):
     return "\n".join(out)
 
 
-def render_hero():
-    headline = SITE_TAGLINE[:1].upper() + SITE_TAGLINE[1:]
+def render_hero(posts):
     return f"""
 <section class="hero" id="hero">
   <canvas id="ridge" aria-hidden="true"></canvas>
   <div class="wrap in">
-    <h1 id="title" aria-label="{html.escape(headline)}">{html.escape(headline)}</h1>
-    <p class="sub">{html.escape(HERO_SUBLINE)}</p>
+    <h1 class="sr-only">{html.escape(SITE_TITLE)}</h1>
+    {render_top(posts)}
   </div>
 </section>
 """
@@ -1168,7 +1171,7 @@ def build():
         description=html.escape(f"{SITE_TITLE} — {SITE_TAGLINE}"),
         canonical=base + "/",
         body=render_home_body(posts),
-        hero=render_hero(),
+        hero=render_hero(posts),
         main_class="home",
     )
     with open(os.path.join(DIST_DIR, "index.html"), "w", encoding="utf-8") as f:

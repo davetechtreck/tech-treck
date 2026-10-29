@@ -4,6 +4,7 @@ date: 2026-10-27
 slug: apple-s-touchscreen-macbook-pro-lands-tomorrow-prices-are-guesses
 tags: apple, macbook, imac, laptops
 snippet: Apple's Oct. 28 event reportedly brings an OLED touchscreen MacBook Pro, an M6 14-inch model and an M6 iMac, but only the date is official.
+image: daily pics (1).png
 ---
 
 Apple has confirmed exactly one thing about tomorrow: the date. It invited press to a "Pro and tell" experience in Los Angeles at 10 a.m. Pacific on October 28. Everything else you're about to read in the rumor mill, including the first touchscreen Mac laptop, is reported or estimated, not announced.

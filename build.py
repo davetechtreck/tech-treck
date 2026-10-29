@@ -949,12 +949,6 @@ def render_page(*, title, description, canonical, prefix="", body, hero="", main
     <div class="bar-left">
       <button id="burger" class="burger" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button>
       <a class="brand" href="{prefix}index.html"><span class="dot"></span>{SITE_TITLE}</a>
-      <nav class="site-nav">
-        <a href="{prefix}index.html">Latest</a>
-        <a href="{prefix}about.html">About</a>
-        <a href="{prefix}editorial-policy.html">Editorial</a>
-        <a href="{prefix}contact.html">Contact</a>
-      </nav>
     </div>
     <div class="bar-right">
       <div class="soc soc-head">{render_social_icons()}</div>

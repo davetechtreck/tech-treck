@@ -2,8 +2,9 @@
 title: Oura Sues Ultrahuman Again. Ring Pro Buyers Should Wait
 date: 2026-10-23
 slug: oura-sues-ultrahuman-again-ring-pro-buyers-should-wait
-tags: [, ", s, m, a, r, t, r, i, n, g, s, ", ,, ", o, u, r, a, ", ,, ", u, l, t, r, a, h, u, m, a, n, ", ,, ", w, e, a, r, a, b, l, e, s, ", ], >
+tags: #oura ring 
 snippet: Oura filed a new Texas patent suit to block US sales of the Ultrahuman Ring Pro. The ring is still on sale, but here's what to weigh before buying.
+image: dailypics.png
 ---
 
 One of the two patents in Oura's new lawsuit was issued on October 20. The complaint was filed two days later. That timing tells you how seriously Oura is taking the [Ultrahuman Ring Pro](https://www.amazon.com/s?k=Ultrahuman+Ring+Pro&tag=techtreck02-20).

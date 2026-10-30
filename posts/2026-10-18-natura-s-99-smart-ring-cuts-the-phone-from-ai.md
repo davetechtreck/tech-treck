@@ -4,6 +4,7 @@ date: 2026-10-18
 slug: natura-s-99-smart-ring-cuts-the-phone-from-ai
 tags: wearables, ai, gadgets, smartring
 snippet: A startup launches a screenless finger interface for personal AI agents—cheaper than Galaxy Ring, free for months.
+image: images(1).jpg
 ---
 
 [Natura Interface](https://www.amazon.com/s?k=Natura+Interface&tag=techtreck02-20) launches October 8 at $99—a price that undercuts Samsung's Galaxy Ring by four-to-one. The play is straightforward: ship a screenless interface for AI agents when everyone else is bundling another screen into the wearable stack.

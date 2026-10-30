@@ -4,6 +4,7 @@ date: 2026-10-30
 slug: trump-mobile-t1-is-an-htc-u24-pro-with-gold-paint
 tags: smartphones, teardown, trump mobile, android
 snippet: Teardowns show the Trump Mobile T1 is nearly an HTC U24 Pro from 2024, and one report now puts the price at $749. Here's what to buy instead.
+image: dailypics6.png
 ---
 
 iFixit swapped the mainboard from an [HTC U24 Pro](https://www.amazon.com/s?k=HTC+U24+Pro&tag=techtreck02-20) into a [Trump Mobile T1](https://www.amazon.com/s?k=Trump+Mobile+T1&tag=techtreck02-20), and the phone booted up with an HTC logo. That's about as clear as a teardown verdict gets.
@@ -28,7 +29,7 @@ If you've already preordered, read the refund terms and confirm the final price 
 
 ## My take
 
-[[ADD YOUR TAKE: 2-3 sentences on what you think, who should buy or skip, and anything you have actually tried. Delete this whole line when done.]]
+This one surprised me. Last year Trump threatened a 25% tariff on Apple, Samsung and any company selling smartphones in the US that weren’t built here, and his administration has taken a hard line on China the whole time. So seeing this discovery  is not what I expected. I’ll be watching whether it lasts, and whether it changes what phones end up costing us.
 
 **Sources:** [ProPakistani](https://propakistani.pk/2026/10/30/the-truth-behind-trumps-749-smartphone/), [The Next Web](https://thenextweb.com/news/trump-phone-t1-htc-rebrand-review), [Notebookcheck](https://www.notebookcheck.net/Trump-T1-Phone-shows-surprising-differences-to-HTC-U24-Pro-in-first-teardown.1320007.0.html), [Wccftech](https://wccftech.com/trump-mobiles-t1-phone-powered-up-with-an-htc-logo-after-ifixit-swapped-its-mainboard-into-a-u24-pro-exposing-the-phone-as-a-clone/), [Memeburn](https://memeburn.com/trump-phone-teardown-499-and-you-get-cheap-chinese-phone/), [TechRadar](https://www.techradar.com/)
 

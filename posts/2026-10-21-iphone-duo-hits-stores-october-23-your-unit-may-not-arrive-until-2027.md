@@ -4,6 +4,7 @@ date: 2026-10-21
 slug: iphone-duo-hits-stores-october-23-your-unit-may-not-arrive-until-2027
 tags: apple, foldables, iphone, phones
 snippet: Apple's first foldable starts at $1,999 and goes on sale October 23, but preorder delivery estimates already slid to late January 2027.
+image: dailypics2.png
 ---
 
 Within about half an hour of preorders opening on October 16, Macworld's U.S. tracking showed delivery estimates for the [iPhone Duo](https://www.amazon.com/s?k=iPhone+Duo&tag=techtreck02-20) slipping to January 25, 2027. The phone goes on sale October 23. If you didn't order in that first window, you're probably buying a 2027 phone.

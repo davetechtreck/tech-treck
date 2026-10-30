@@ -4,7 +4,7 @@ date: 2026-10-20
 slug: sony-s-new-walkmans-start-at-1-899-the-flagship-is-5-899
 tags: walkman, sony, audiophile, dap
 snippet: Sony's three new Android 16 Walkmans run from $1,899.99 to $5,899.99. The flagship is gold-plated copper, and the old model is now far cheaper.
-image: download.png
+image: dailypics4.png
 ---
 
 The [Sony NW-WM1ZM3](https://www.amazon.com/s?k=Sony+NW-WM1ZM3&tag=techtreck02-20) weighs about 670 g. The model it replaces weighs 490 g. That's a lot of extra metal to carry around for a music player, and Sony is charging for every gram of it: $5,899.99 in the US.

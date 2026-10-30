@@ -4,6 +4,7 @@ date: 2026-10-19
 slug: analogue-s-super-nt-and-mega-sg-add-wireless-to-1080p-fpga-gaming
 tags: gaming, retro, fpga, consoles
 snippet: Analogue's updated cartridge consoles finally bring Bluetooth and USB-C to retro gaming at $219.99 each.
+image: dailypics(4).png
 ---
 
 Analogue announced updated versions of two cartridge consoles on Friday: the [Super Nt+](https://www.amazon.com/s?k=Super+Nt%2B&tag=techtreck02-20) for Super Nintendo games and the [Mega Sg+](https://www.amazon.com/s?k=Mega+Sg%2B&tag=techtreck02-20) for Sega Genesis titles. Both arrive on October 19 at 8 a.m. PT as pre-orders, shipping in December.

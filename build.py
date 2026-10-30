@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+ #!/usr/bin/env python3
 """
 Tech Trek static site builder.
 
@@ -94,6 +94,7 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 POSTS_DIR = os.path.join(ROOT, "posts")
 IMAGES_DIR = os.path.join(ROOT, "images")
 SOCIAL_CARDS_DIR = os.path.join(ROOT, "social-cards")
+FAVICON_DIR = os.path.join(ROOT, "favicon")  # favicon files, copied to the top of the site
 DIST_DIR = os.path.join(ROOT, "dist")
 
 
@@ -1018,6 +1019,11 @@ def render_page(*, title, description, canonical, prefix="", body, hero="", main
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4303818032223917"
      crossorigin="anonymous"></script>
 <link rel="alternate" type="application/rss+xml" title="{SITE_TITLE}" href="/feed.xml"/>
+<link rel="icon" href="{prefix}favicon.ico" sizes="48x48"/>
+<link rel="icon" href="{prefix}favicon.svg" type="image/svg+xml"/>
+<link rel="icon" href="{prefix}favicon-32.png" type="image/png" sizes="32x32"/>
+<link rel="apple-touch-icon" href="{prefix}apple-touch-icon.png"/>
+<meta name="theme-color" content="#070a14"/>
 {head_extra}
 <script>{THEME_BOOT}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
@@ -1115,7 +1121,8 @@ def article_schema(meta, url):
         "dateModified": published,
         "mainEntityOfPage": {"@type": "WebPage", "@id": url},
         "author": [{"@type": "Person", "name": meta.get("author", AUTHOR_NAME), "url": f"{base}/about.html"}],
-        "publisher": {"@type": "Organization", "name": SITE_TITLE, "url": base + "/"},
+        "publisher": {"@type": "Organization", "name": SITE_TITLE, "url": base + "/",
+                      "logo": {"@type": "ImageObject", "url": f"{base}/icon-512.png", "width": 512, "height": 512}},
     }
     img = post_image(meta)
     if img and not (img.startswith(IMG_MARK) and urllib.parse.unquote(img[len(IMG_MARK):]) in MISSING_IMAGES):
@@ -1192,6 +1199,13 @@ def build():
     # Copy images/ into dist/images/ so they're served alongside the site
     if os.path.isdir(IMAGES_DIR):
         shutil.copytree(IMAGES_DIR, os.path.join(DIST_DIR, "images"))
+
+    # Favicon files go at the top level of the site (browsers look for /favicon.ico)
+    if os.path.isdir(FAVICON_DIR):
+        for name in os.listdir(FAVICON_DIR):
+            src = os.path.join(FAVICON_DIR, name)
+            if os.path.isfile(src):
+                shutil.copy2(src, os.path.join(DIST_DIR, name))
 
     # Copy social-cards/ into dist/ so each day's card is downloadable
     if os.path.isdir(SOCIAL_CARDS_DIR):

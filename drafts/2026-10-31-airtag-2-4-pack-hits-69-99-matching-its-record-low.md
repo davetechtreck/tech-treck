@@ -34,7 +34,7 @@ Check the price at all three stores before you buy, since they're matching right
 
 ## My take
 
-[[ADD YOUR TAKE: 2-3 sentences on what you think, who should buy or skip, and anything you have actually tried. Delete this whole line when done.]]
+This is a genuinely good deal. The original AirTag four-pack launched at $99 back in 2021, and the second generation came in at that same price with real upgrades: Precision Finding works from up to 50% farther away, the speaker is 50% louder, and you can now track from an Apple Watch
 
 **Sources:** [AppleInsider](https://appleinsider.com/articles/26/10/30/amazons-airtag-2-deal-drops-the-4-pack-to-record-low-6999), [MacRumors](https://www.macrumors.com/2026/10/30/airtag-2-new-low-price-of-69-99/), [iClarified](https://www.iclarified.com/103203/airtag-2-4-pack-drops-to-6999), [9to5Toys](https://9to5toys.com/2026/10/30/apple-airtag-2-lowest-price-ever/), [MacPrices](https://www.macprices.net/2026/10/31/%F0%9F%94%A5-amazon-drops-airtag-2-four-pack-back-to-record-low-69-99-save-29/), [Doctor of Credit](https://www.doctorofcredit.com/lowest-ever-apple-airtags-4-pack-2nd-gen-for-69-99-amazon-walmart-best-buy/), [Neowin](https://www.neowin.net/deals/apple-airtag-4-pack-drops-to-a-new-record-low-price-on-amazon/)
 
